@@ -1,0 +1,42 @@
+:host {
+  display: contents;
+}
+
+@reference "tailwindcss";
+
+.av-carousel-item {
+  @apply h-full w-full shrink-0;
+}
+
+.av-carousel-item--fade {
+  @apply absolute left-0 top-0;
+}
+
+.av-carousel-item--fade.av-carousel-item--active {
+  animation: fadeIn 2s ease-in-out forwards;
+}
+
+.av-carousel-item--fade.av-carousel-item--inactive {
+  animation: fadeOut 2s ease-in-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

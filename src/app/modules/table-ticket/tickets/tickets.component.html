@@ -1,0 +1,129 @@
+<div class="w-full h-full flex flex-col min-h-0 gap-2 p-1">
+
+    <div class="flex flex-row">
+        <av-input icon="search" iconProvider="material" ringColor="orange" class="flex-1" placeholder="Buscar mesa" />
+    </div>
+
+    <div class="flex-1 overflow-y-scroll">
+        <div av-grid [empty]="tickets().length === 0" [cols]="{
+            'xs': 1,
+            'sm': 2,
+            'md': 2,
+            'lg': 2,
+            'xl': 5,
+            '2xl': 6
+            }">
+            @for (ticket of tickets(); track ticket.id) {
+            <div [routerLink]="`/table-ticket-summary/${ticket.id}`" class="group h-[max-content] relative bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-all cursor-pointer overflow-hidden"
+                [ngClass]="{
+                'hover:border-emerald-400': ticket.status === 'A',
+                'hover:border-red-400 bg-gradient-to-b from-red-50/20 to-transparent': ticket.status === 'O',
+            }">
+
+                <!-- Indicador de Status (Linha Superior) -->
+                <div class="absolute top-0 left-0 w-full h-1" [ngClass]="{
+                'bg-emerald-400': ticket.status === 'A',
+                'bg-red-500': ticket.status === 'O',
+                'bg-indigo-500': ticket.status === 'B',
+                'bg-slate-300': ticket.status === 'C'
+            }"></div>
+
+                <div>
+                    <!-- Topo: Código e Badges -->
+                    <div class="flex justify-between items-start gap-1">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Comanda</span>
+                            <h2 class="font-black text-xl text-slate-800">
+                                #{{ticket.code}}
+                            </h2>
+                        </div>
+
+                        <div class="flex flex-col items-end gap-1">
+                            <!-- Badge de Vinculo com Mesa -->
+                            @if (ticket.masterTable) {
+                            <span
+                                class="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-200/60 text-orange-600 px-2.5 py-0.5 text-xs font-semibold">
+                                <span class="material-symbols-outlined text-[14px]">table_restaurant</span>
+                                Mesa {{ticket.masterTable.code}}
+                            </span>
+                            }
+
+                            <!-- Status Leve (Tag) -->
+                            <span
+                                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold"
+                                [ngClass]="{
+                        'bg-emerald-50 text-emerald-700 border border-emerald-200/60': ticket.status === 'A',
+                        'bg-red-50 text-red-700 border border-red-200/60': ticket.status === 'O',
+                        'bg-indigo-50 text-indigo-700 border border-indigo-200/60': ticket.status === 'B',
+                        'bg-slate-100 text-slate-600 border border-slate-200': ticket.status === 'C'
+                    }">
+                                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="{
+                            'bg-emerald-500 animate-pulse': ticket.status === 'A',
+                            'bg-red-500': ticket.status === 'O',
+                            'bg-indigo-500': ticket.status === 'B',
+                            'bg-slate-400': ticket.status === 'C'
+                        }"></span>
+                                {{ TICKET_STATUS_LABEL[ticket.status] }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Nome / Cliente / Apelido -->
+                    @if (ticket.keyOpen?.customerId || ticket.keyOpen?.alias) {
+                    <p class="mt-3 font-semibold text-sm text-slate-700 truncate"
+                        title="{{ticket.keyOpen?.customerId || ticket.keyOpen?.alias}}">
+                        {{ticket.keyOpen?.customerId || ticket.keyOpen?.alias}}
+                    </p>
+                    } @else {
+                    <p class="mt-3 font-normal italic text-xs text-slate-400">
+                        Sem identificação
+                    </p>
+                    }
+                </div>
+
+                <!-- Rodapé: Itens, Horário e Valor Total -->
+                <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
+
+                    <div class="flex justify-between items-center text-xs font-medium text-slate-500">
+                        <!-- Quantidade de Itens -->
+                        <div class="flex items-center gap-1">
+                            <span class="material-symbols-outlined text-sm text-slate-400">receipt_long</span>
+                            <span class="font-semibold text-slate-700">
+                                {{ticket.consumptionsCount || 0}} ite{{ticket.consumptionsCount === 1 ? 'm' : 'ns'}}
+                            </span>
+                        </div>
+
+                        <!-- Tempo Decorrido -->
+                        <div class="flex items-center gap-1"
+                            [ngClass]="{'text-red-500 font-semibold': ticket.status === 'O'}">
+                            <span class="material-symbols-outlined text-sm">schedule</span>
+                            <span>{{getOpenTime(ticket)}}</span>
+                        </div>
+                    </div>
+
+                    <!-- Valor Total -->
+                    <!-- <div class="flex justify-between items-baseline pt-1">
+                    <span class="text-[11px] text-slate-400 font-medium">Consumo</span>
+                    <span class="font-bold text-base text-slate-800">
+                        {{ticket.keyOpen ? (ticket.total | currency: 'BRL') : 'R$ 0,00'}}
+                    </span>
+                </div> -->
+
+                </div>
+
+            </div>
+            }
+
+            @if(tickets().length === 0) {
+            <div
+                class="p-4 gap-4 rounded-md border-2 border-gray-500 text-gray-500 border-dashed flex flex-col items-center justify-center cursor-pointer">
+                <span>Nenhuma comanda em aberto</span>
+
+                <span class="material-symbols-outlined text-gray-400 text-4xl!">
+                    receipt
+                </span>
+            </div>
+            }
+        </div>
+    </div>
+</div>

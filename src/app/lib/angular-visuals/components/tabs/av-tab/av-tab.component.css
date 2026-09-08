@@ -1,0 +1,14 @@
+:host {
+  display: contents;
+  height: 100%;
+  width: 100%;
+}
+
+.av-tab {
+  height: 100%;
+  width: 100%;
+}
+
+.av-tab--hidden {
+  display: none !important;
+}

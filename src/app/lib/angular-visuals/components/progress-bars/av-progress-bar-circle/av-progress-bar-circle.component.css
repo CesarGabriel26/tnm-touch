@@ -1,0 +1,55 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@reference "tailwindcss";
+
+.av-progress-circle {
+  @apply relative h-full w-full;
+}
+
+.av-progress-circle__svg {
+  @apply h-full w-full;
+  transform: rotate(-90deg);
+}
+
+.av-progress-circle__track--blue { @apply text-blue-400; }
+.av-progress-circle__fill--blue,
+.av-progress-circle__text--blue { @apply text-blue-500; }
+
+.av-progress-circle__track--orange { @apply text-orange-500; }
+.av-progress-circle__fill--orange,
+.av-progress-circle__text--orange { @apply text-orange-400; }
+
+.av-progress-circle__track--red { @apply text-red-500; }
+.av-progress-circle__fill--red,
+.av-progress-circle__text--red { @apply text-red-400; }
+
+.av-progress-circle__track--slate { @apply text-slate-500; }
+.av-progress-circle__fill--slate,
+.av-progress-circle__text--slate { @apply text-slate-400; }
+
+.av-progress-circle__track--gray { @apply text-gray-400; }
+.av-progress-circle__fill--gray,
+.av-progress-circle__text--gray { @apply text-gray-500; }
+
+.av-progress-circle__fill {
+  transition: stroke-dashoffset .35s ease;
+}
+
+.av-progress-circle__fill--striped {
+  animation: av-progress-circle-pulse 1.2s ease-in-out infinite;
+}
+
+.av-progress-circle__label {
+  @apply absolute left-1/2 top-1/2 bg-transparent text-2xl font-semibold;
+  transform: translate(-50%, -50%);
+}
+
+@keyframes av-progress-circle-pulse {
+  50% {
+    opacity: .72;
+  }
+}

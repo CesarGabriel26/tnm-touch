@@ -1,0 +1,13 @@
+@reference "tailwindcss";
+
+.av-paginator {
+  @apply grid;
+}
+
+.av-paginator [av-button] {
+  @apply h-full;
+}
+
+.av-paginator__page {
+  aspect-ratio: 1;
+}

@@ -1,0 +1,38 @@
+<div class="av-progress-circle">
+  <svg
+    class="av-progress-circle__svg"
+    viewBox="-25 -25 250 250"
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle
+      class="av-progress-circle__track"
+      r="90"
+      cx="100"
+      cy="100"
+      fill="transparent"
+      [ngClass]="trackClasses"
+      stroke="currentColor"
+      stroke-width="16px"
+    ></circle>
+    <circle
+      class="av-progress-circle__fill"
+      r="90"
+      cx="100"
+      cy="100"
+      [ngClass]="fillClasses"
+      stroke="currentColor"
+      stroke-width="16px"
+      stroke-linecap="round"
+      [attr.stroke-dashoffset]="dashOffset"
+      fill="transparent"
+      stroke-dasharray="565.48px"
+    ></circle>
+  </svg>
+
+  @if (showPercent()) {
+    <span class="av-progress-circle__label" [ngClass]="textClasses">
+      {{ percentValue }}%
+    </span>
+  }
+</div>

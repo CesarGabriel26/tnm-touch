@@ -1,0 +1,107 @@
+@if (state().isOpen) {
+<div class="dialog-overlay">
+  @if(!state().component) {
+  <div class="dialog-content" (click)="$event.stopPropagation()">
+
+    <div class="dialog-header">
+      <h3 class="dialog-title">{{ state().title }}</h3>
+    </div>
+
+    <div class="dialog-body">
+      <p class="dialog-message" [innerHTML]="state().message"></p>
+
+      @if (state().type === 'prompt') {
+      <div class="dialog-controls">
+        @for (control of state().controls; track $index; let controlIndex = $index) {
+        <div class="dialog-control-item">
+          @if (control.label) {
+          <label class="dialog-control-label">{{ control.label }}</label>
+          }
+
+          @switch (control.inputType) {
+
+          @case ('select') {
+          @if (control.searchFn) {
+          <input type="text" class="dialog-input dialog-search-input"
+            [placeholder]="control.inputPlaceholder || 'Pesquisar...'" [ngModel]="searchTexts()[$index]"
+            (ngModelChange)="onSearchChange($index, $event)" />
+          }
+
+          <select class="dialog-input" [ngModel]="controlValues()[$index]"
+            (ngModelChange)="onControlChange($index, $event)">
+            <option value="" disabled>Selecione...</option>
+            @for (opt of dynamicOptions()[$index]; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+          }
+
+          @case ('radio-group') {
+
+          <div class="dialog-radio-group">
+
+            @for (option of control.options; track option.value) {
+
+            <button type="button" class="dialog-radio-option" [class.selected]="
+                option.value === controlValues()[controlIndex]
+              " (click)="
+                onControlChange(controlIndex, option.value)
+              ">
+
+              <span class="dialog-radio">
+                @if (option.value === controlValues()[controlIndex]) {
+                <span class="dialog-radio-dot"></span>
+                }
+              </span>
+
+              <span class="dialog-radio-label">
+                {{ option.label }}
+              </span>
+
+            </button>
+
+            }
+
+          </div>
+          }
+
+          @default {
+          <input [type]="control.inputType || 'text'" class="dialog-input" [step]="control.step"
+            [placeholder]="control.inputPlaceholder || ''" [ngModel]="controlValues()[$index]"
+            (ngModelChange)="onControlChange($index, $event)" (keyup.enter)="confirm()"
+            [attr.autofocus]="$index === 0 ? true : null" />
+          }
+          }
+        </div>
+        }
+      </div>
+      }
+    </div>
+
+    <div class="dialog-actions">
+      @if (state().type !== 'alert') {
+      <button class="btn-dialog-cancel" (click)="cancel()">
+        {{ state().cancelText || 'Cancelar' }}
+      </button>
+      }
+
+      <button class="btn-dialog-confirm" (click)="confirm()">
+        {{ state().confirmText || 'OK' }}
+      </button>
+    </div>
+
+  </div>
+  } @else{
+  <!-- Renderizador dinâmico do template ou componente passado pelo service -->
+  <ng-container>
+    <ng-container [ngTemplateOutlet]="componentContent">
+    </ng-container>
+  </ng-container>
+
+  <ng-template #componentContent>
+    <ng-container
+      *ngComponentOutlet="getComponent(state().component!); inputs: state().componentData || {}"></ng-container>
+  </ng-template>
+  }
+</div>
+}

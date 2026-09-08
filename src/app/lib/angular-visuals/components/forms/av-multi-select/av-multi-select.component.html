@@ -1,0 +1,107 @@
+<div class="av-multi-select">
+  @if (label) {
+    <label class="av-multi-select__label">
+      {{ label }}
+    </label>
+  }
+
+  <div
+    #triggerEl
+    cdkOverlayOrigin
+    #trigger="cdkOverlayOrigin"
+    (click)="toggleDropdown()"
+    tabindex="0"
+    class="av-multi-select__trigger"
+    [class.av-multi-select__trigger--with-icon]="icon"
+    [class.av-multi-select__trigger--without-icon]="!icon"
+    [ngClass]="triggerClasses"
+  >
+    @if (icon) {
+      <div class="av-multi-select__icon">
+        <span av-icon [name]="icon" [type]="iconProvider"></span>
+      </div>
+    }
+
+    <div class="av-multi-select__chips">
+      @for (item of selectedOptions(); track getItemValue(item)) {
+        <span
+          class="av-multi-select__chip"
+        >
+          {{ getItemLabel(item) }}
+          <button
+            type="button"
+            (click)="removeOption($event, item)"
+            class="av-multi-select__chip-remove"
+          >
+            <span av-icon name="close" type="av" class="av-multi-select__chip-remove-icon"></span>
+          </button>
+        </span>
+      } @empty {
+        <span class="av-multi-select__placeholder">
+          {{ placeholder }}
+        </span>
+      }
+    </div>
+
+    <div
+      class="av-multi-select__chevron"
+      [class.av-multi-select__chevron--open]="isOpen()"
+    >
+      <span av-icon name="expand_more" type="av"></span>
+    </div>
+  </div>
+
+  @if (isInvalid || errorMessage()) {
+    <span class="av-multi-select__error">
+      {{ errorMessage() || 'Selecione ao menos uma opção' }}
+    </span>
+  }
+</div>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="isOpen()"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="closeDropdown()"
+>
+  <div
+    [ngClass]="panelClasses"
+    [style.width.px]="triggerEl.offsetWidth"
+  >
+    <div class="av-multi-select__search">
+      <span av-icon name="search" type="av" class="av-multi-select__search-icon"></span>
+      <input
+        type="text"
+        [placeholder]="searchPlaceholder"
+        [value]="searchTerm()"
+        (input)="handleSearchInput($event)"
+        class="av-multi-select__search-input"
+      />
+    </div>
+
+    <ul class="av-multi-select__options">
+      @for (item of filteredData(); track getItemValue(item)) {
+        <li
+          (click)="toggleOption(item)"
+          [ngClass]="optionClasses(item)"
+        >
+          <span class="av-multi-select__option-label" [class.av-multi-select__option-label--selected]="isSelected(item)">
+            {{ getItemLabel(item) }}
+          </span>
+
+          <div
+            [ngClass]="checkboxClasses(item)"
+          >
+            @if (isSelected(item)) {
+              <span av-icon name="check" type="av" class="av-multi-select__option-check-icon"></span>
+            }
+          </div>
+        </li>
+      } @empty {
+        <li class="av-multi-select__empty">Nenhuma opção encontrada</li>
+      }
+    </ul>
+  </div>
+</ng-template>

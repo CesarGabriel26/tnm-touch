@@ -1,0 +1,50 @@
+<div class="av-carousel">
+  <button
+    (click)="previous()"
+    class="av-carousel__control av-carousel__control--left"
+  >
+    <svg
+      class="av-carousel__control-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      height="24px"
+      viewBox="0 -960 960 960"
+      width="24px"
+    >
+      <path d="M400-80 0-480l400-400 71 71-329 329 329 329-71 71Z" />
+    </svg>
+  </button>
+
+  <button
+    (click)="next()"
+    class="av-carousel__control av-carousel__control--right"
+  >
+    <svg
+      class="av-carousel__control-icon"
+      xmlns="http://www.w3.org/2000/svg"
+      height="24px"
+      viewBox="0 -960 960 960"
+      width="24px"
+    >
+      <path d="m321-80-71-71 329-329-329-329 71-71 400 400L321-80Z" />
+    </svg>
+  </button>
+
+  <div
+    #content
+    class="av-carousel__content"
+    [class.av-carousel__content--scroll]="transition === 'scroll'"
+    [class.av-carousel__content--fade]="transition === 'fade'"
+  >
+    <ng-content></ng-content>
+  </div>
+
+  <div class="av-carousel__dots-wrap">
+    <div class="av-carousel__dots">
+      @for (item of items(); track $index) {
+        <div (click)="changeTo($index)"
+          [ngClass]="getDotClasses($index)"
+        ></div>
+      }
+    </div>
+  </div>
+</div>

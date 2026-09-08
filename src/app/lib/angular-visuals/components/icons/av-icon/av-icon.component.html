@@ -1,0 +1,27 @@
+@switch (type) {
+  @case ('material') {
+    <span
+      class="material-symbols-outlined av-icon__glyph"
+      [style.font-size]="parsedSize"
+      [class.av-icon__glyph--spin]="spin"
+    >
+      {{ name() }}
+    </span>
+  }
+  @case ('fontawesome') {
+    <i
+      class="av-icon__glyph"
+      [ngClass]="'fa-solid fa-' + name()"
+      [style.font-size]="parsedSize"
+      [class.av-icon__glyph--spin]="spin"
+    ></i>
+  }
+  @case ('av') {
+    <span
+      class="av-icon__glyph"
+      [style.font-size]="parsedSize"
+      [class.av-icon__glyph--spin]="spin"
+      [innerHTML]="iconRegistry.getIcon(name())"
+    ></span>
+  }
+}

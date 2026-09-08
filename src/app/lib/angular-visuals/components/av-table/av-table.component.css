@@ -1,0 +1,70 @@
+@reference "tailwindcss";
+
+.av-table {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: .75rem;
+  box-shadow: 0 1px 2px rgb(0 0 0 / .05);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+}
+
+.av-table__header {
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  color: #4b5563;
+  font-size: .75rem;
+  position: sticky;
+  text-transform: uppercase;
+}
+
+.av-table__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-x: auto;
+}
+
+.av-table__table {
+  color: #374151;
+  font-size: .875rem;
+  text-align: left;
+  width: 100%;
+}
+
+.av-table__body tr+tr {
+  border-top: 1px solid #e5e7eb;
+}
+
+.av-table__empty {
+  color: #9ca3af;
+  padding: 2rem 1.5rem;
+  text-align: center;
+}
+
+.av-table__pagination {
+  align-items: center;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  color: #4b5563;
+  display: flex;
+  font-size: .75rem;
+  gap: .5rem;
+  justify-content: space-between;
+  padding: .75rem 1rem;
+}
+
+.av-table__pagination-controls,
+.av-table__page-size {
+  align-items: center;
+  display: flex;
+}
+
+.av-table__pagination-controls {
+  gap: 1rem;
+}
+
+.av-table__page-size {
+  gap: .5rem;
+}

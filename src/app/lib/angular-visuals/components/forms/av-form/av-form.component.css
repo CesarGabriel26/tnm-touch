@@ -1,0 +1,14 @@
+@reference "tailwindcss";
+
+:host(.av-form) {
+  @apply block p-4;
+}
+
+:host(.av-form--solid) {
+  @apply rounded-lg border border-gray-100 bg-white shadow-xl;
+}
+
+:host(.av-form--glass) {
+  @apply rounded-2xl border border-white/25 bg-white/25 shadow-lg;
+  backdrop-filter: blur(3.3px);
+}

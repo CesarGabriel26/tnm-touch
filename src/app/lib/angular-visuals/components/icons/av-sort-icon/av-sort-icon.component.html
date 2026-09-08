@@ -1,0 +1,7 @@
+@if (table.sortField() === field()) {
+  <span class="av-sort-icon">
+    {{ table.sortOrder() === 'asc' ? '▲' : '▼' }}
+  </span>
+} @else {
+  <span class="av-sort-icon av-sort-icon--inactive">▲</span>
+}

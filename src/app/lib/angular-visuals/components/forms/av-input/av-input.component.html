@@ -1,0 +1,35 @@
+<div class="av-input">
+  @if (label) {
+    <label class="av-input__label">
+      {{ label }}
+    </label>
+  }
+
+  <div class="av-input__field">
+    @if (icon) {
+      <div class="av-input__icon">
+        <span av-icon [name]="icon" [type]="iconProvider"></span>
+      </div>
+    }
+
+    <input
+      #inputRef
+      [type]="type"
+      [value]="value"
+      [placeholder]="placeholder"
+      [disabled]="disabled"
+      (input)="onInput($event)"
+      (blur)="onTouched()"
+      class="av-input__control"
+      [class.av-input__control--with-icon]="icon"
+      [class.av-input__control--without-icon]="!icon"
+      [ngClass]="controlClasses"
+    />
+  </div>
+
+  @if (isInvalid || errorMessage()) {
+    <span class="av-input__error">
+      {{ errorMessage() || 'Campo inválido' }}
+    </span>
+  }
+</div>

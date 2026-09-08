@@ -1,0 +1,19 @@
+@reference "tailwindcss";
+
+:host(.av-button-group) {
+  @apply flex w-fit items-center text-gray-500;
+}
+
+:host(.av-button-group) ::ng-deep > [av-button] {
+  border-radius: 0 !important;
+}
+
+:host(.av-button-group) ::ng-deep > [av-button]:first-child {
+  border-top-left-radius: .25rem !important;
+  border-bottom-left-radius: .25rem !important;
+}
+
+:host(.av-button-group) ::ng-deep > [av-button]:last-child {
+  border-top-right-radius: .25rem !important;
+  border-bottom-right-radius: .25rem !important;
+}

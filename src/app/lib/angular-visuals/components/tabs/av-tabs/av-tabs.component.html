@@ -1,0 +1,23 @@
+<div class="av-tabs">
+  <div
+    class="av-tabs__header"
+    [style.gridTemplateColumns]="'repeat(' + (items().length || 1) + ', 1fr)'"
+  >
+    @for (item of items(); track $index) {
+      <button
+        type="button"
+        [ngClass]="tabClassFor($index, item)"
+        (click)="selectTab($index, item)"
+      >
+        @if (item.icon) {
+          <span av-icon [name]="item.icon" [type]="item.iconType || 'material'" size="lg"></span>
+        }
+        <span class="av-tabs__label">{{ item.title || item.label }}</span>
+      </button>
+    }
+  </div>
+
+  <div class="av-tabs__content">
+    <ng-content></ng-content>
+  </div>
+</div>

@@ -1,0 +1,15 @@
+@if (fillByValue()) {
+  <div
+    [style.width.%]="fillPercent"
+    [ngClass]="fillClass"
+  ></div>
+}
+<div class="av-btn__content">
+  @if(icon){
+    <span av-icon [name]="icon" [type]="iconProvider"></span>
+  }
+  <ng-content></ng-content>
+  @if(loading()){
+    <span class="av-btn__loader" [innerHTML]="iconRegistry.getIcon(loadingIcon)"></span>
+  }
+</div>

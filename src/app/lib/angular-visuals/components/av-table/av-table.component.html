@@ -1,0 +1,43 @@
+<div class="av-table">
+  <div class="av-table__header">
+    <ng-container *ngTemplateOutlet="headerTemplate()!"></ng-container>
+  </div>
+  <div class="av-table__scroll">
+    <table class="av-table__table">
+      <tbody class="av-table__body">
+        @for (item of value(); track $index) {
+        <ng-container *ngTemplateOutlet="bodyTemplate()!; context: { $implicit: item, index: $index }"></ng-container>
+        } @empty {
+        <tr>
+          <td colspan="100%" class="av-table__empty">
+            Nenhum registro encontrado.
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  @if (paginator()) {
+  <div class="av-table__pagination">
+    @if(currentPageLabel() !== '') {
+    <div class="av-table__page-label">
+      <span>{{ formattedPageLabel() }}</span>
+    </div>
+    }
+
+    <div class="av-table__pagination-controls">
+      @if(rowsPerPageOptions().length > 0) {
+      <div class="av-table__page-size">
+        <span>Itens por página:</span>
+        <av-select [data]="rowsPerPageOptions()" [searchable]="false" [value]="pageSize()"
+          (valueChange)="changePageSize($event)" />
+      </div>
+      }
+
+      <av-paginator [variant]="variant" (pageChanged)="changePage($event)" [pageIndex]="pageIndex()"
+        [totalPages]="totalPages()" />
+    </div>
+  </div>
+  }
+</div>

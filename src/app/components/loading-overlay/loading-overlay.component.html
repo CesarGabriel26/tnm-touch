@@ -1,0 +1,5 @@
+<div [class.hide]="!visible()" [class.show]="visible()" [class.hidden]="hidden()"
+    class="absolute w-full h-full bg-black/40 z-1000 top-0 left-0 flex items-center justify-center text-white font-bold flex-col gap-2">
+    <span av-icon [name]="icon()" size="xl"></span>
+    <span>{{loadingOverlayService.$message.value}}</span>
+</div>

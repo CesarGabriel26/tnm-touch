@@ -1,0 +1,92 @@
+@reference "tailwindcss";
+
+.av-checkbox {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+}
+
+.av-checkbox__label {
+  align-items: center;
+  cursor: pointer;
+  display: inline-flex;
+  gap: .625rem;
+  user-select: none;
+}
+
+.av-checkbox__label--disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.av-checkbox__box {
+  align-items: center;
+  border: 1px solid #d1d5db;
+  display: flex;
+  flex-shrink: 0;
+  height: 1.25rem;
+  justify-content: center;
+  position: relative;
+  transition: all .2s ease;
+  width: 1.25rem;
+}
+
+.av-checkbox__box:focus-within {
+  box-shadow: 0 0 0 2px var(--av-checkbox-ring, #9ca3af), 0 0 0 3px #fff;
+}
+
+.av-checkbox__box--rounded-none { border-radius: 0; }
+.av-checkbox__box--rounded-sm { border-radius: .125rem; }
+.av-checkbox__box--rounded-md { border-radius: .375rem; }
+.av-checkbox__box--rounded-lg { border-radius: .5rem; }
+.av-checkbox__box--rounded-full { border-radius: 9999px; }
+
+.av-checkbox__box--unchecked {
+  --av-checkbox-ring: #9ca3af;
+  background: #fff;
+}
+
+.av-checkbox__box--unchecked:hover { border-color: #9ca3af; }
+
+.av-checkbox__box--blue { --av-checkbox-ring: #3b82f6; background: #3b82f6; border-color: #2563eb; }
+.av-checkbox__box--orange { --av-checkbox-ring: #f97316; background: #f97316; border-color: #ea580c; }
+.av-checkbox__box--slate { --av-checkbox-ring: #64748b; background: #64748b; border-color: #475569; }
+.av-checkbox__box--gray { --av-checkbox-ring: #6b7280; background: #4b5563; border-color: #374151; }
+.av-checkbox__box--red { --av-checkbox-ring: #ef4444; background: #ef4444; border-color: #dc2626; }
+
+.av-checkbox__box--invalid {
+  --av-checkbox-ring: #ef4444;
+  border-color: #ef4444;
+  animation: av-checkbox-shake .4s ease-in-out;
+}
+
+.av-checkbox__icon {
+  color: #fff;
+  font-size: .875rem;
+  line-height: 1;
+  transition: all .2s ease;
+}
+
+.av-checkbox__icon--checked { opacity: 1; transform: scale(1); }
+.av-checkbox__icon--unchecked { opacity: 0; transform: scale(0); }
+
+.av-checkbox__text {
+  color: #374151;
+  font-size: .875rem;
+  font-weight: 500;
+  transition: color .2s ease;
+}
+
+.av-checkbox__label:hover .av-checkbox__text { color: #111827; }
+
+.av-checkbox__error {
+  color: #ef4444;
+  font-size: .75rem;
+  font-weight: 500;
+}
+
+@keyframes av-checkbox-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}

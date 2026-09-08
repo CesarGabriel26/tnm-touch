@@ -1,0 +1,68 @@
+:host {
+  display: block;
+  height: 100%;
+  width: 100%;
+}
+
+@reference "tailwindcss";
+
+.av-carousel {
+  @apply relative flex h-full w-full;
+}
+
+.av-carousel__control {
+  @apply absolute top-0 z-[2] flex h-full cursor-pointer items-center justify-center p-4 opacity-10 transition-all duration-500;
+}
+
+.av-carousel__control:hover {
+  @apply bg-white/10 opacity-100;
+}
+
+.av-carousel__control--left {
+  @apply left-0;
+}
+
+.av-carousel__control--right {
+  @apply right-0;
+}
+
+.av-carousel__control-icon {
+  fill: #e3e3e3;
+}
+
+.av-carousel__content {
+  @apply h-full w-full;
+}
+
+.av-carousel__content--scroll {
+  @apply flex overflow-x-scroll;
+}
+
+.av-carousel__content--fade {
+  @apply overflow-hidden;
+}
+
+.av-carousel__content::-webkit-scrollbar {
+  display: none;
+}
+
+.av-carousel__dots-wrap {
+  @apply absolute bottom-0 flex w-full items-center justify-center p-4;
+}
+
+.av-carousel__dots {
+  @apply flex gap-2;
+}
+
+.av-carousel__dot {
+  @apply cursor-pointer rounded-full p-1 px-2 transition-all;
+  width: 10px;
+  height: 10px;
+}
+
+.av-carousel__dot--inactive { @apply bg-white; }
+.av-carousel__dot--blue { @apply bg-blue-500; }
+.av-carousel__dot--orange { @apply bg-orange-500; }
+.av-carousel__dot--red { @apply bg-red-500; }
+.av-carousel__dot--slate { @apply bg-slate-500; }
+.av-carousel__dot--gray { @apply bg-gray-500; }

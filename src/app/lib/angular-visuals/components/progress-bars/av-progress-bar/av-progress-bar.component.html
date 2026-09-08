@@ -1,0 +1,20 @@
+<div
+  class="av-progress__track"
+  [style.height.px]="height()"
+  [ngClass]="trackClasses"
+>
+  <div
+    class="av-progress__fill"
+    [ngClass]="fillClasses"
+    [style.width.%]="percentValue"
+    [style.--av-progress-gradient-from]="from()"
+    [style.--av-progress-gradient-to]="to()"
+  >
+    @if(showPercent() && percentPos() === 'fill') {
+      <span class="av-progress__text av-progress__text--fill" [ngClass]="textClasses" [style.font-size.px]="height() / 1.5">{{ percentValue }}%</span>
+    }
+  </div>
+  @if(showPercent() && percentPos() === 'center') {
+    <span class="av-progress__text av-progress__text--center" [ngClass]="textClasses" [style.font-size.px]="height() / 1.5">{{ percentValue }}%</span>
+  }
+</div>

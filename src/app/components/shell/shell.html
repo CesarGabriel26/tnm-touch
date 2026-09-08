@@ -1,0 +1,44 @@
+<div class="flex flex-col h-dvh w-dvw bg-gray-100 relative">
+
+    <!-- Header -->
+    <!-- <div class="flex flex-row items-center justify-between p-1 bg-white border-b border-gray-200 shadow-sm">
+        <span class="text-lg font-bold text-gray-800">Atendnedo: Mesa - 1</span>
+    </div> -->
+
+    <!-- open tab -->
+    <div class="flex-1 overflow-auto">
+        <router-outlet />
+    </div>
+
+    <!-- Nav -->
+    <div class="p-2 flex flex-row items-center justify-between bg-white border-t border-gray-200 shadow-lg relative">
+        <button av-button (click)="isHome? drawerOpen.set(!drawerOpen()) : goBack()">
+            <span av-icon [name]="isHome? 'more_horiz': 'arrow_back'" type="material" size="xl"></span>
+        </button>
+
+        <button av-button variant="blue" rounded="full" class="flex items-center justify-center -top-5 border-2 border-gray-200">
+            <span av-icon name="add" type="material" size="2xl"></span>
+        </button>
+
+        <button av-button variant="orange" routerLink="/basket">
+            <span av-icon name="shopping_basket" type="material" size="xl"></span>
+        </button>
+    </div>
+
+    <!-- drawer -->
+    <div class="absolute top-0 left-0 w-full -translate-x-full h-full bg-black/50 transition-all" [ngClass]="{
+            'translate-x-0': drawerOpen(),
+        }">
+        <div class="absolute top-0 left-0 w-64 h-full bg-white">
+            <div class="flex flex-row gap-2 items-center">
+                <div class="p-4">
+                    <h1 class="text-2xl font-bold">Tanmao Touch</h1>
+                </div>
+
+                <button av-button (click)="drawerOpen.set(false)">
+                    <span av-icon name="close" type="material" size="lg"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

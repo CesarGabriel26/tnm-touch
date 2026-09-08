@@ -1,0 +1,76 @@
+@reference "tailwindcss";
+
+.av-currency-input {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  width: 100%;
+}
+
+.av-currency-input__label {
+  color: #374151;
+  font-size: .875rem;
+  font-weight: 500;
+}
+
+.av-currency-input__field {
+  align-items: center;
+  display: flex;
+  position: relative;
+  width: 100%;
+}
+
+.av-currency-input__symbol {
+  color: #9ca3af;
+  display: flex;
+  left: .75rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.av-currency-input__control {
+  border: 1px solid #d1d5db;
+  border-radius: .5rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 500;
+  padding: .5rem 1rem;
+  text-align: right;
+  transition: all .2s ease;
+  width: 100%;
+}
+
+.av-currency-input__control:focus { outline: none; }
+.av-currency-input__control:disabled { background: #f3f4f6; cursor: not-allowed; }
+.av-currency-input__control--with-symbol { padding-left: 2.5rem; }
+.av-currency-input__control--without-symbol { padding-left: 1rem; }
+
+.av-currency-input__control--blue { --av-currency-accent: #3b82f6; }
+.av-currency-input__control--orange { --av-currency-accent: #f97316; }
+.av-currency-input__control--slate { --av-currency-accent: #64748b; }
+.av-currency-input__control--gray { --av-currency-accent: #6b7280; }
+.av-currency-input__control--red { --av-currency-accent: #ef4444; }
+
+.av-currency-input__control:focus {
+  border-color: var(--av-currency-accent, #3b82f6);
+  box-shadow: 0 0 0 2px var(--av-currency-accent, #3b82f6);
+}
+
+.av-currency-input__control--invalid,
+.av-currency-input__control--invalid:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px #ef4444;
+  color: #7f1d1d;
+  animation: av-currency-input-shake .4s ease-in-out;
+}
+
+.av-currency-input__error {
+  color: #ef4444;
+  font-size: .75rem;
+  font-weight: 500;
+}
+
+@keyframes av-currency-input-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}

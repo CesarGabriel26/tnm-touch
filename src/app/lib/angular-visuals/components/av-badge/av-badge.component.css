@@ -1,0 +1,12 @@
+@reference "tailwindcss";
+
+:host(.av-badge) {
+  @apply inline-flex h-5 w-fit shrink-0 items-center justify-center gap-1 overflow-hidden rounded-full px-[8px] py-[2px] text-[11px] font-semibold;
+}
+
+:host(.av-badge--blue) { @apply bg-blue-500 text-white; }
+:host(.av-badge--orange) { @apply bg-orange-500 text-white; }
+:host(.av-badge--red) { @apply bg-red-500 text-white; }
+:host(.av-badge--slate) { @apply bg-slate-500 text-white; }
+:host(.av-badge--gray) { @apply bg-gray-500 text-white; }
+

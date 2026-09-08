@@ -1,0 +1,54 @@
+@reference "tailwindcss";
+
+.av-toggle__track {
+  align-items: center;
+  background: #e5e7eb;
+  border: 1px solid #d1d5db;
+  color: #fff;
+  cursor: pointer;
+  display: inline-flex;
+  height: 2rem;
+  overflow: hidden;
+  padding: .125rem;
+  position: relative;
+  transition: background .3s ease, border-color .3s ease;
+  width: 3.5rem;
+}
+
+.av-toggle__track--disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.av-toggle__track--rounded-none,
+.av-toggle__thumb--rounded-none { border-radius: 0; }
+.av-toggle__track--rounded-sm,
+.av-toggle__thumb--rounded-sm { border-radius: .125rem; }
+.av-toggle__track--rounded-md,
+.av-toggle__thumb--rounded-md { border-radius: .375rem; }
+.av-toggle__track--rounded-lg,
+.av-toggle__thumb--rounded-lg { border-radius: .5rem; }
+.av-toggle__track--rounded-full,
+.av-toggle__thumb--rounded-full { border-radius: 9999px; }
+
+.av-toggle__track--blue.av-toggle__track--checked { background: #60a5fa; border-color: #3b82f6; }
+.av-toggle__track--orange.av-toggle__track--checked { background: #fb923c; border-color: #f97316; }
+.av-toggle__track--red.av-toggle__track--checked { background: #f87171; border-color: #ef4444; }
+.av-toggle__track--slate.av-toggle__track--checked { background: #94a3b8; border-color: #64748b; }
+.av-toggle__track--gray.av-toggle__track--checked { background: #9ca3af; border-color: #6b7280; }
+
+.av-toggle__thumb {
+  align-items: center;
+  aspect-ratio: 1;
+  background: #fff;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / .1), 0 2px 4px -2px rgb(0 0 0 / .1);
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  position: relative;
+  transition: transform .3s ease-out;
+  z-index: 10;
+}
+
+.av-toggle__thumb--checked { transform: translateX(90%); }
+.av-toggle__icon { color: #4b5563; font-size: .75rem; }

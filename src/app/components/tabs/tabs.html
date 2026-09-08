@@ -1,0 +1,20 @@
+<div class="flex flex-col h-full w-full">
+    <!-- tabs -->
+    <div class="grid bg-white border-b border-gray-200 shadow-sm"
+        [style]="{ gridTemplateColumns: 'repeat(' + APP_FEATURES.length + ', 1fr)' }">
+        @for (item of APP_FEATURES; track $index) {
+        <a [routerLink]="item.path" routerLinkActive="bg-orange-500 font-semibold text-white"
+            class="px-4 py-2 cursor-pointer flex items-center gap-2 bg-gray-200 text-gray-400 transition-colors">
+            @if (item.icon) {
+            <span av-icon [name]="item.icon" type="material" size="lg"></span>
+            }
+            {{ item.label }}
+        </a>
+        }
+    </div>
+
+    <!-- open tab -->
+    <div class="flex-1 overflow-auto">
+        <router-outlet />
+    </div>
+</div>

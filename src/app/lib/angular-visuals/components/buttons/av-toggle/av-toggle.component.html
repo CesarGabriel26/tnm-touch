@@ -1,0 +1,15 @@
+<div
+  [ngClass]="trackClasses"
+  (click)="toggle()"
+  role="switch"
+  [attr.aria-checked]="value()"
+  [attr.aria-disabled]="disabled()"
+>
+  <div
+    [ngClass]="thumbClasses"
+  >
+    @if (icon) {
+      <span av-icon [name]="icon" type="av" class="av-toggle__icon"></span>
+    }
+  </div>
+</div>

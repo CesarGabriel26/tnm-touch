@@ -1,0 +1,41 @@
+<div class="av-stepper">
+  <div class="av-stepper__header">
+    @for (item of items(); track $index) {
+      <div
+        class="av-stepper__item"
+        [class.av-stepper__item--stretch]="$index + 1 < items().length"
+      >
+        <div class="av-stepper__row">
+          <div
+            (click)="changeTo($index)"
+            [class.av-stepper__bullet--clickable]="canSetStep"
+            [ngClass]="activeClassFor($index, item)"
+          >
+            <span>
+              {{ item.icon || $index }}
+            </span>
+          </div>
+          <div
+            class="av-stepper__line"
+            [class.av-stepper__line--hidden]="$index + 1 >= items().length"
+          >
+            <div
+              class="av-stepper__line-track"
+            >
+              <div
+                [ngClass]="lineFillClassFor($index, item)"
+              ></div>
+            </div>
+          </div>
+        </div>
+        <div class="av-stepper__caption">
+          <span>{{ item.title }}</span>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div #content class="av-stepper__content" [class.av-stepper__content--hidden]="noContent">
+    <ng-content></ng-content>
+  </div>
+</div>

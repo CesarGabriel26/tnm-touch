@@ -1,0 +1,31 @@
+<div class="av-checkbox">
+  <label
+    class="av-checkbox__label"
+    [class.av-checkbox__label--disabled]="disabled()"
+    (click)="toggle()"
+  >
+    <div
+      class="av-checkbox__box"
+      [ngClass]="boxClasses"
+    >
+      <span
+        av-icon
+        [name]="icon"
+        [type]="iconProvider"
+        [ngClass]="iconClasses"
+      ></span>
+    </div>
+
+    @if (label) {
+      <span class="av-checkbox__text">
+        {{ label }}
+      </span>
+    }
+  </label>
+
+  @if (isInvalid || errorMessage()) {
+    <span class="av-checkbox__error">
+      {{ errorMessage() || 'Campo obrigatório' }}
+    </span>
+  }
+</div>

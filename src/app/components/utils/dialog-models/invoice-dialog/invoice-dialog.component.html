@@ -1,0 +1,280 @@
+<div
+    class="flex flex-col gap-4 bg-slate-50 rounded-2xl overflow-hidden shadow-2xl border border-slate-200 w-[80vw] max-w-3xl h-[80vh] max-h-[530px]">
+
+    <!-- Header -->
+    <header class="shrink-0 border-b border-slate-200 bg-white px-6 py-4">
+        <div class="flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3.5 min-w-0">
+                <div
+                    class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 border border-blue-100 shadow-xs">
+                    <span class="material-symbols-outlined text-2xl">receipt_long</span>
+                </div>
+                <div class="min-w-0">
+                    <h1 class="m-0 truncate text-lg font-bold text-slate-800 tracking-tight">
+                        Faturar {{ type == 'order' ? 'Pedido' : data?.tableTicket ? (data.tableTicket.type == 'M' ?
+                        'Mesa' : 'Comanda') : 'Consumo' }}
+                        <span class="text-blue-600">#{{ type === 'order' ? data?.code : data?.alias || (data?.tableTicket ?
+                            data.tableTicket.code : '') }}</span>
+                    </h1>
+                    <p class="m-0 mt-0.5 truncate text-xs font-medium text-slate-500">
+                        Defina o parcelamento e os múltiplos meios de pagamento
+                    </p>
+                </div>
+            </div>
+
+            <button type="button" (click)="close()" [disabled]="isSaving()"
+                class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-400 transition-all hover:bg-slate-100 hover:text-slate-700 active:scale-95 disabled:opacity-50 cursor-pointer">
+                <span class="material-symbols-outlined text-xl">close</span>
+            </button>
+        </div>
+    </header>
+
+    @if (isLoading()) {
+    <!-- Loading State -->
+    <div class="flex flex-1 flex-col items-center justify-center gap-3 p-12 bg-white">
+        <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-100 border-t-orange-500"></div>
+        <p class="m-0 text-xs font-bold uppercase tracking-wider text-slate-400">Carregando dados do faturamento...</p>
+    </div>
+    } @else {
+
+    <div class="px-4 flex-1 min-h-0 overflow-y-auto">
+        <av-stepper [currentStep]="currentStep()" [canSetStep]="true" class="h-full w-full">
+            <av-step title="Formas de pagamento" icon="payments">
+                <div class="flex gap-4 w-full h-full pt-2">
+                    <section class="flex flex-1 flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
+                        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">payments</span>
+                                <h2 class="m-0 text-xs font-bold uppercase tracking-wider text-slate-600">
+                                    Pagamentos Lançados
+                                </h2>
+                            </div>
+                            <span class="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
+                                {{ summaryItems().length }} {{ summaryItems().length === 1 ? 'item' : 'itens' }}
+                            </span>
+                        </div>
+
+                        <div class="flex max-h-[260px] min-h-[140px] flex-col gap-2.5 overflow-y-auto pr-1">
+                            @for (item of summaryItems(); track $index) {
+                            <div
+                                class="flex items-center justify-between gap-3 rounded-xl border border-slate-200/80 bg-slate-50/50 p-3 hover:bg-slate-50 transition-colors relative">
+                                <div class="min-w-0 flex-1">
+                                    <p class="m-0 truncate text-xs font-bold text-slate-800">
+                                        {{ item.installments > 1 ? (item.installmentNumber + '/' + item.installments + 'x - ') : '' }}
+                                        {{ item.paymentMethod.description }}
+                                    </p>
+                                    <div class="mt-1 flex items-center gap-2">
+                                        @if (item.openOnBilling) {
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700 border border-blue-100">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>
+                                            A Receber
+                                        </span>
+                                        } @else {
+                                        <span
+                                            class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-100">
+                                            <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                            Quitada
+                                        </span>
+                                        }
+                                    </div>
+                                    <button type="button" (click)="removePayment(item.groupId)"
+                                        class="absolute top-2 right-2 w-5 h-5 flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-100 transition-colors rounded-full p-1 cursor-pointer">
+                                        <span class="material-symbols-outlined text-sm">close</span>
+                                    </button>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                    <div class="text-right">
+                                        <span class="block text-sm font-bold text-slate-900">
+                                            {{ item.amount | currency:'BRL' }}
+                                        </span>
+                                        @if (item.adjustmentAmount > 0) {
+                                        <span class="block text-[10px] font-bold text-orange-600">
+                                            +{{ item.adjustmentAmount | currency:'BRL' }}
+                                        </span>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                            } @empty {
+                            <div
+                                class="flex flex-1 flex-col items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-6 text-center text-slate-400">
+                                <span
+                                    class="material-symbols-outlined mb-1.5 text-3xl text-slate-300">credit_card_off</span>
+                                <p class="m-0 text-xs font-semibold">Nenhum pagamento adicionado até o momento.</p>
+                            </div>
+                            }
+                        </div>
+                    </section>
+
+                    <section
+                        class="rounded-2xl flex-1 border border-slate-200 bg-white p-5 shadow-xs flex flex-col gap-3.5">
+                        <h2
+                            class="m-0 pb-2 border-b border-slate-100 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-600">
+                            <span class="material-symbols-outlined text-blue-600 text-lg">add_card</span>
+                            Lançar Meio de Pagamento
+                        </h2>
+
+                        <div class="flex flex-col gap-3">
+                            <av-select
+                                [data]="paymentMethodsOptions()"
+                                labelKey="label"
+                                valueKey="value"
+                                label="Forma de Pagamento"
+                                icon="payments"
+                                [formControl]="paymentMethodControl"
+                                (valueChange)="onPaymentMethodChange($event)" />
+
+                            @if (selectedPaymentMethod() && getMaxParcels(selectedPaymentMethod()) > 1) {
+                            <div class="rounded-xl bg-slate-50 border border-slate-100 flex flex-col gap-2 p-2">
+                                <av-select
+                                    [data]="getParcelOptions()"
+                                    labelKey="label"
+                                    valueKey="value"
+                                    label="Número de Parcelas"
+                                    icon="credit_card"
+                                    [formControl]="paymentParcelsControl" />
+                                <div class="flex flex-col gap-0.5 text-[11px] font-semibold text-slate-500">
+                                    <p class="m-0">Máx. permitido: <span class="text-slate-800">{{
+                                            getMaxParcels(selectedPaymentMethod()) }}x</span></p>
+                                    @if (getPaymentRate(selectedPaymentMethod()) > 0 && currentParcels() > 1) {
+                                    <p class="m-0 text-orange-600">Ajuste de taxa: {{
+                                        getPaymentRate(selectedPaymentMethod()) }}%</p>
+                                    }
+                                </div>
+                            </div>
+                            }
+
+                            <av-currency-input
+                                label="Valor a pagar"
+                                icon="attach_money"
+                                [formControl]="paymentAmount"
+                                ringColor="blue" />
+                        </div>
+
+                        @if (errorMessage()) {
+                        <div
+                            class="rounded-xl bg-red-50 p-3 border border-red-100 text-xs font-bold text-red-600 flex items-center gap-2">
+                            <span class="material-symbols-outlined text-base shrink-0">error</span>
+                            <span>{{ errorMessage() }}</span>
+                        </div>
+                        }
+
+                        <button av-button variant="blue" icon="add" [disabled]="!canAddPayment()" (click)="addPayment()" class="w-full">
+                            Adicionar Pagamento
+                        </button>
+                    </section>
+                </div>
+            </av-step>
+
+            <av-step title="Descontos" icon="local_offer">
+                <div class="pt-2 w-full h-full">
+                    <section
+                        class="flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-xs w-full h-full">
+                        <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-orange-500 text-lg">local_offer</span>
+                                <h2 class="m-0 text-xs font-bold uppercase tracking-wider text-slate-600">
+                                    Cupom & Descontos
+                                </h2>
+                            </div>
+                        </div>
+
+                        <div
+                            class="flex items-center justify-center rounded-xl border border-dashed border-slate-200 bg-slate-50/50 p-4 text-center text-slate-400">
+                            <p class="m-0 text-xs font-semibold">Nenhum cupom aplicado a este faturamento.</p>
+                        </div>
+                    </section>
+                </div>
+            </av-step>
+
+            <av-step title="Resumo" icon="receipt_long">
+                <div class="pt-2 w-full h-full">
+                    <section class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs flex flex-col gap-3">
+                        <h2
+                            class="m-0 pb-2 border-b border-slate-100 text-xs font-bold uppercase tracking-wider text-slate-600">
+                            Resumo Financeiro
+                        </h2>
+
+                        <div class="flex flex-col gap-2 text-xs font-semibold">
+                            @if (hasTableBreakdown()) {
+                            @for (item of billingBreakdown(); track item.type) {
+                            <div class="flex items-center justify-between text-slate-600"
+                                [ngClass]="breakdownClasses(item.type)">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="material-symbols-outlined text-sm">{{ item.icon || 'payments' }}</span>
+                                    <span>{{ item.label }}</span>
+                                </div>
+                                <span class="font-bold text-slate-800">{{ item.amount | currency:'BRL' }}</span>
+                            </div>
+                            }
+                            } @else {
+                            <div class="flex items-center justify-between text-slate-600">
+                                <span>Total do pedido</span>
+                                <span class="font-bold text-slate-800">{{ totalAmount() | currency:'BRL' }}</span>
+                            </div>
+                            }
+
+                            <div class="flex items-center justify-between" [ngClass]="{
+                                'text-orange-600': totalInstallmentAdjustment() > 0,
+                                'text-blue-600': totalInstallmentAdjustment() < 0,
+                                'text-slate-500': totalInstallmentAdjustment() === 0
+                            }">
+                                <span>Ajuste parcelamento</span>
+                                <span class="font-bold">{{ totalInstallmentAdjustment() | currency:'BRL' }}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-slate-500">
+                                <span>Desconto</span>
+                                <span class="font-bold text-slate-800">{{ 0 | currency:'BRL' }}</span>
+                            </div>
+
+                            <div class="flex items-center justify-between text-slate-700 pt-2 border-t border-slate-100">
+                                <span>Total Líquido</span>
+                                <span class="font-bold text-sm text-slate-900">{{ totalAdjustedPayments() | currency:'BRL'
+                                    }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Highlight: Restante a pagar -->
+                        <div class="mt-1 rounded-xl p-3.5 transition-colors" [ngClass]="{
+                            'bg-emerald-50 text-emerald-800 border border-emerald-200': isBalanced(),
+                            'bg-orange-50 text-orange-900 border border-orange-200': remainingAmount() > 0,
+                            'bg-red-50 text-red-900 border border-red-200': remainingAmount() < 0
+                        }">
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs font-bold uppercase tracking-wider">Restante a Pagar</span>
+                                <span class="text-lg font-black tracking-tight">{{ remainingAmount() | currency:'BRL'
+                                    }}</span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </av-step>
+        </av-stepper>
+    </div>
+
+    <!-- Footer -->
+    <footer class="shrink-0 border-t border-slate-200 bg-white px-6 py-3.5">
+        <div class="flex items-center justify-between gap-3">
+            <button av-button variant="gray-outlined" icon="close" [disabled]="isSaving()" (click)="close()">
+                Cancelar
+            </button>
+
+            <div class="flex items-center gap-3">
+                @if (currentStep() > 0) {
+                <button av-button variant="gray-outlined" icon="arrow_back" (click)="prevStep()">
+                    Anterior
+                </button>
+                }
+
+                <button av-button variant="blue" icon="receipt_long" [disabled]="!canSubmit() || isSaving()" [loading]="isSaving()"
+                    (click)="currentStep() < 2 ? nextStep() : onSubmit()">
+                    {{ currentStep() < 2 ? 'Próximo' : 'Salvar Fatura' }}
+                </button>
+            </div>
+        </div>
+    </footer>
+    }
+</div>

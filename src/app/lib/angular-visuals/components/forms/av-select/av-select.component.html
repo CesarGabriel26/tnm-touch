@@ -1,0 +1,87 @@
+<div class="av-select">
+  @if (label) {
+    <label class="av-select__label">
+      {{ label }}
+    </label>
+  }
+
+  <div
+    #triggerEl
+    cdkOverlayOrigin
+    #trigger="cdkOverlayOrigin"
+    (click)="toggleDropdown()"
+    tabindex="0"
+    class="av-select__trigger"
+    [class.av-select__trigger--with-icon]="icon"
+    [class.av-select__trigger--without-icon]="!icon"
+    [ngClass]="triggerClasses"
+  >
+    @if (icon) {
+      <div class="av-select__icon">
+        <span av-icon [name]="icon" [type]="iconProvider"></span>
+      </div>
+    }
+
+    <span class="av-select__value" [class.av-select__value--placeholder]="!selectedOption()">
+      {{ selectedOption() ? getItemLabel(selectedOption()) : placeholder }}
+    </span>
+
+    <div
+      class="av-select__chevron"
+      [class.av-select__chevron--open]="isOpen()"
+    >
+      <span av-icon name="expand_more" type="av" ></span>
+    </div>
+  </div>
+
+  @if (isInvalid || errorMessage()) {
+    <span class="av-select__error">
+      {{ errorMessage() || 'Seleção obrigatória' }}
+    </span>
+  }
+</div>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="isOpen()"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="closeDropdown()"
+>
+  <div
+    [ngClass]="panelClasses"
+    [style.width.px]="triggerEl.offsetWidth"
+  >
+    @if (searchable) {
+      <div class="av-select__search">
+        <span av-icon name="search" type="av" class="av-select__search-icon"></span>
+        <input
+          type="text"
+          [placeholder]="searchPlaceholder"
+          [value]="searchTerm()"
+          (input)="handleSearchInput($event)"
+          class="av-select__search-input"
+        />
+      </div>
+    }
+
+    <ul class="av-select__options">
+      @for (item of filteredData(); track getItemValue(item)) {
+        <li
+          (click)="selectOption(item)"
+          class="av-select__option"
+          [class.av-select__option--selected]="isSelected(item)"
+        >
+          <span class="av-select__option-label">{{ getItemLabel(item) }}</span>
+
+          @if (isSelected(item)) {
+            <span av-icon name="check" type="av" class="av-select__option-check"></span>
+          }
+        </li>
+      } @empty {
+        <li class="av-select__empty">Nenhuma opção encontrada</li>
+      }
+    </ul>
+  </div>
+</ng-template>

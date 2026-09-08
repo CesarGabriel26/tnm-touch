@@ -1,0 +1,228 @@
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 10002;
+  /* Above loading if needed, or slightly below */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.dialog-content {
+  background: white;
+  width: 90%;
+  max-width: 450px;
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: scaleIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dialog-header {
+  padding: 1.5rem 1.75rem 0.5rem;
+
+  .dialog-title {
+    margin: 0;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--gray-12, #1e293b);
+  }
+}
+
+.dialog-body {
+  padding: 0.5rem 1.75rem 1.5rem;
+
+  .dialog-message {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: var(--gray-10, #475569);
+  }
+
+  .dialog-controls {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .dialog-control-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .dialog-control-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gray-11, #64748b);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .dialog-input {
+      width: 100%;
+      padding: 0.8rem 1rem;
+      border-radius: 0.75rem;
+      border: 1px solid var(--gray-5, #e2e8f0);
+      background: var(--gray-1, #f8fafc);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.2s;
+      box-sizing: border-box;
+
+      &:focus {
+        border-color: var(--blue-9, #3b82f6);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+    }
+  }
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1rem 1.75rem 1.5rem;
+  background: var(--gray-1, #f8fafc);
+  border-top: 1px solid var(--gray-3, #f1f5f9);
+
+  button {
+    padding: 0.6rem 1.5rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    outline: none;
+  }
+
+  .btn-dialog-cancel {
+    background: transparent;
+    color: var(--gray-10, #475569);
+
+    &:hover {
+      background: var(--gray-3, #f1f5f9);
+      color: var(--gray-12, #1e293b);
+    }
+  }
+
+  .btn-dialog-confirm {
+    background: var(--blue-9, #3b82f6);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2), 0 2px 4px -2px rgba(59, 130, 246, 0.2);
+
+    &:hover {
+      background: var(--blue-10, #2563eb);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.3), 0 4px 6px -2px rgba(59, 130, 246, 0.2);
+    }
+
+    &:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px -1px rgba(59, 130, 246, 0.2);
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.dialog-radio-group {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.dialog-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  padding: 0.375rem 0.625rem;
+
+  border: none;
+  background: transparent;
+
+  cursor: pointer;
+
+  color: #334155;
+
+  transition:
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.dialog-radio-option:hover {
+  background: #f8fafc;
+  border-radius: 0.5rem;
+}
+
+.dialog-radio-option.selected {
+  color: #2563eb;
+}
+
+.dialog-radio {
+  width: 1rem;
+  height: 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border: 1.5px solid #cbd5e1;
+  border-radius: 9999px;
+
+  flex-shrink: 0;
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.dialog-radio-option.selected .dialog-radio {
+  border-color: #3b82f6;
+}
+
+.dialog-radio-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+
+  border-radius: 9999px;
+
+  background: #3b82f6;
+}
+
+.dialog-radio-label {
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}

@@ -1,0 +1,15 @@
+@reference "tailwindcss";
+
+.av-icon__glyph {
+  @apply inline-block select-none leading-none;
+}
+
+.av-icon__glyph--spin {
+  animation: av-icon-spin 1s linear infinite;
+}
+
+@keyframes av-icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

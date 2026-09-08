@@ -1,0 +1,36 @@
+<div class="av-currency-input">
+  @if (label) {
+    <label class="av-currency-input__label">
+      {{ label }}
+    </label>
+  }
+
+  <div class="av-currency-input__field">
+    @if (currencySymbol) {
+      <div class="av-currency-input__symbol">
+         {{currencySymbol}}
+      </div>
+    }
+
+    <input
+      #inputRef
+      type="text"
+      inputmode="numeric"
+      [value]="formattedValue()"
+      [disabled]="disabled()"
+      (input)="onInput($event)"
+      (blur)="onTouched()"
+      placeholder="0,00"
+      class="av-currency-input__control"
+      [class.av-currency-input__control--with-symbol]="currencySymbol"
+      [class.av-currency-input__control--without-symbol]="!currencySymbol"
+      [ngClass]="controlClasses"
+    />
+  </div>
+
+  @if (isInvalid || errorMessage()) {
+    <span class="av-currency-input__error">
+      {{ errorMessage() || 'Valor inválido' }}
+    </span>
+  }
+</div>

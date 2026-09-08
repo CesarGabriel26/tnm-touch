@@ -1,0 +1,43 @@
+<svg [attr.viewBox]="layout().viewBox" class="w-full h-full">
+
+    <!-- Mesa -->
+    <rect
+        [attr.x]="layout().tableX"
+        [attr.y]="layout().tableY"
+        [attr.width]="layout().tableWidth"
+        [attr.height]="layout().tableHeight"
+        rx="8"
+        fill="oklch(83.7% 0.128 66.29)"
+        stroke="oklch(83.7% 0.128 66.29)"
+        stroke-width="1.5"
+    />
+
+    <!-- Rótulo / Nome da mesa -->
+    @if (_label()) {
+    <text
+        [attr.x]="layout().tableX + layout().tableWidth / 2"
+        [attr.y]="layout().tableY + layout().tableHeight / 2 + 1"
+        text-anchor="middle"
+        dominant-baseline="central"
+        font-size="11"
+        font-weight="700"
+        fill="#2d3748"
+    >
+        {{ _label() }}
+    </text>
+    }
+
+    <!-- Cadeiras -->
+    @for (chair of layout().chairs; track $index) {
+    <g [attr.transform]="'translate(' + chair.x + ',' + chair.y + ') rotate(' + chair.rotate + ')'">
+
+        <!-- Encosto -->
+        <rect x="-6" y="-8" width="12" height="4" rx="2" fill="oklch(75% 0.183 55.934)" />
+
+        <!-- Assento -->
+        <rect x="-6" y="-3" width="12" height="9" rx="2.5" fill="oklch(75% 0.183 55.934)" stroke="oklch(83.7% 0.128 66.29)" stroke-width="0.5" />
+
+    </g>
+    }
+
+</svg>

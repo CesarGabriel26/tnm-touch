@@ -1,0 +1,78 @@
+<div class="auth-shell relative flex h-dvh w-dvw items-center justify-center overflow-hidden p-4 font-sans">
+  <div class="ambient-sweep"></div>
+
+  <section
+    class="glass-panel relative z-10 flex w-full max-w-md flex-col gap-7 overflow-hidden rounded-3xl border border-white/45 bg-white/72 px-6 py-8 text-center shadow-2xl shadow-slate-950/20 backdrop-blur-2xl sm:px-8 sm:py-10">
+
+    <header class="flex flex-col items-center gap-4">
+      <div class="brand-tile">
+        @if(companyId()) {
+        <img src="assets/img/tanamao.png" alt="Tanamao" class="h-full w-full object-cover">
+        } @else {
+        <span class="material-symbols-outlined text-4xl! text-amber-600">
+          warning
+        </span>
+        }
+      </div>
+
+
+      <div class="space-y-2">
+        <h1 class="text-3xl font-black text-slate-900">
+          @if(companyId()) {
+          Tanamao Touch
+          } @else {
+          Atenção!
+          }
+        </h1>
+
+
+        <p class="mx-auto max-w-sm text-sm font-medium leading-6 text-slate-600">
+          @if(companyId()) {
+          Acessando <strong class="font-black text-orange-600">{{ company().name || 'empresa local' }}</strong>.
+          Use seu usuário e PIN do PDV.
+          } @else {
+          Acesse pelo QR code do sistema
+          }
+        </p>
+      </div>
+    </header>
+
+    @if(companyId()) {
+    <form [formGroup]="loginForm" class="flex flex-col gap-5">
+      <div class="flex flex-col gap-4">
+        <av-input label="Usuário" ringColor="orange" placeholder="Seu usuário"
+          [formControl]="$any(loginForm.get('username'))" icon="person" iconProvider="material">
+        </av-input>
+
+        <av-input label="PIN" ringColor="orange" type="password" placeholder="Seu PIN"
+          [formControl]="$any(loginForm.get('password'))" icon="lock" iconProvider="material">
+        </av-input>
+
+        @if (errorMessage()) {
+        <div class="error-panel">
+          <span class="material-symbols-outlined text-base">error</span>
+          <span>{{ errorMessage() }}</span>
+        </div>
+        }
+      </div>
+
+      <div class="flex flex-col gap-3 pt-1">
+        <button type="submit" av-button (click)="onSubmit()" [loading]="loading()" variant="orange"
+          [disabled]="loading()">
+          @if (!loading()) {
+          <span class="inline-flex items-center justify-center gap-2 text-base font-bold">
+            <span class="material-symbols-outlined text-lg">login</span>
+            Entrar
+          </span>
+          } @else {
+          <span class="inline-flex items-center justify-center gap-2 text-base font-bold">
+            <span class="loader-dot"></span>
+            Validando
+          </span>
+          }
+        </button>
+      </div>
+    </form>
+    }
+  </section>
+</div>

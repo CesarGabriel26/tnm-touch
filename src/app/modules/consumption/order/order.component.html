@@ -1,0 +1,8 @@
+<div class="flex h-full min-h-0 w-full flex-col bg-slate-100">
+  <app-order-ticket-header [tableTicket]="tableTicket()" [itemsCount]="draftCount()" [itemsTotal]="draftTotal()"
+    (openBasket)="openBasket()" />
+
+  <app-order-product-catalog [products]="products()" [categories]="categories()" [searchControl]="search"
+    [categoryControl]="selectedCategory" [draftQuantities]="draftQuantities()" (itemAdd)="addItem($event)" />
+
+</div>

@@ -5,8 +5,9 @@ import { authGuard } from './guards/auth.guard';
 import { TablesComponent } from './modules/table-ticket/tables/tables.component';
 import { TicketsComponent } from './modules/table-ticket/tickets/tickets.component';
 import { SummaryComponent } from './modules/table-ticket/summary/summary.component';
-import { BasketComponent } from './modules/basket/basket.component';
+import { BasketComponent } from './modules/consumption/basket/basket.component';
 import { TabsComponent } from './components/tabs/tabs';
+import { OrderComponent } from './modules/consumption/order/order.component';
 
 export const routes: Routes = [
     {
@@ -49,6 +50,14 @@ export const routes: Routes = [
             {
                 path: 'basket',
                 component: BasketComponent
+            },
+            {
+                path: 'order',
+                redirectTo: 'home'
+            },
+            {
+                path: 'order/:id',
+                component: OrderComponent
             }
         ]
     }

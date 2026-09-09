@@ -8,8 +8,8 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { AvInput } from '../../lib/angular-visuals/components/forms';
-import { AvButton } from '../../lib/angular-visuals/components/buttons';
+import { AvInput } from '../../components/angular-visuals/components/forms';
+import { AvButton } from '../../components/angular-visuals/components/buttons';
 
 @Component({
   selector: 'app-login',

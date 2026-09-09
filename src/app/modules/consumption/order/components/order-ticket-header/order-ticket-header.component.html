@@ -1,0 +1,38 @@
+<div class="flex items-center gap-3 border-b border-slate-200 bg-white px-3 py-2 shadow-sm">
+  <div class="min-w-0 flex-1">
+    <div class="flex items-center gap-2">
+      <h1 class="truncate text-lg font-black text-slate-900">{{ title }}</h1>
+      @if (tableTicket) {
+      <span class="inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold"
+        [ngClass]="statusClass">
+        <span class="h-1.5 w-1.5 rounded-full bg-current"></span>
+        {{ statusLabel }}
+      </span>
+      }
+    </div>
+
+    @if (tableTicket?.keyOpen?.alias) {
+    <p class="truncate text-xs font-medium text-slate-500">{{ tableTicket?.keyOpen?.alias }}</p>
+    } @else {
+    <p class="text-xs text-slate-400">{{ tableTicket?.type === 'M' ? 'Pedido de mesa' : 'Pedido de comanda' }}</p>
+    }
+  </div>
+
+  <div class="shrink-0 text-right">
+    <p class="text-[11px] font-semibold uppercase text-slate-400">Novo</p>
+    <p class="text-sm font-black text-slate-900">{{ itemsTotal | currency: 'BRL' }}</p>
+  </div>
+
+  <button type="button"
+    class="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white shadow-lg disabled:cursor-not-allowed disabled:opacity-45"
+    [disabled]="itemsCount === 0"
+    (click)="openBasket.emit()"
+    title="Ver pedido">
+    <span av-icon name="shopping_basket" type="material" size="lg"></span>
+    @if (itemsCount > 0) {
+    <span class="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-black text-white">
+      {{ itemsCount }}
+    </span>
+    }
+  </button>
+</div>

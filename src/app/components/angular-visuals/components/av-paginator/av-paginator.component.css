@@ -1,0 +1,15 @@
+@reference "tailwindcss";
+
+.av-paginator {
+  display: grid !important;
+}
+
+.av-paginator [av-button] {
+  height: 100%;
+}
+
+.av-paginator__page {
+  aspect-ratio: 1;
+  height: 100%;
+  width: 100%;
+}

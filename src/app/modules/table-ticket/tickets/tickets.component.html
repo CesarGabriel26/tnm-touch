@@ -1,7 +1,26 @@
 <div class="w-full h-full flex flex-col min-h-0 gap-2 p-1">
 
-    <div class="flex flex-row">
-        <av-input icon="search" iconProvider="material" ringColor="orange" class="flex-1" placeholder="Buscar mesa" />
+    <div class="flex flex-col gap-2">
+        <av-input [formControl]="search" icon="search" iconProvider="material" ringColor="orange" class="flex-1"
+            placeholder="Buscar comanda" />
+
+        <div class="flex gap-2 overflow-x-auto">
+            <button type="button" class="rounded-full border px-3 py-1 text-xs font-semibold"
+                [ngClass]="status.value === '' ? 'border-orange-500 bg-orange-500 text-white' : 'border-slate-200 bg-white text-slate-600'"
+                (click)="selectStatus('')">
+                Todas
+            </button>
+            <button type="button" class="rounded-full border px-3 py-1 text-xs font-semibold"
+                [ngClass]="status.value === 'A' ? 'border-emerald-500 bg-emerald-500 text-white' : 'border-slate-200 bg-white text-slate-600'"
+                (click)="selectStatus('A')">
+                Disponíveis
+            </button>
+            <button type="button" class="rounded-full border px-3 py-1 text-xs font-semibold"
+                [ngClass]="status.value === 'O' ? 'border-red-500 bg-red-500 text-white' : 'border-slate-200 bg-white text-slate-600'"
+                (click)="selectStatus('O')">
+                Em uso
+            </button>
+        </div>
     </div>
 
     <div class="flex-1 overflow-y-scroll">
@@ -117,7 +136,7 @@
             @if(tickets().length === 0) {
             <div
                 class="p-4 gap-4 rounded-md border-2 border-gray-500 text-gray-500 border-dashed flex flex-col items-center justify-center cursor-pointer">
-                <span>Nenhuma comanda em aberto</span>
+                <span>Nenhuma comanda encontrada</span>
 
                 <span class="material-symbols-outlined text-gray-400 text-4xl!">
                     receipt

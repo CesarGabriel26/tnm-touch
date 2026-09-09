@@ -1,20 +1,20 @@
 import { Component, signal } from '@angular/core';
-import { AvGridComponent } from '../../../lib/angular-visuals/components/av-grid/grid.component';
+import { AvGridComponent } from '../../../components/angular-visuals/components/av-grid/grid.component';
 import { CommonModule } from '@angular/common';
-import { TableLayoutComponent } from "../../../components/table-layout/table-layout.component";
 import { TABLE_STATUS_LABEL, TableTicket } from '../../../models/table-ticket';
-import {  getTimeBetween } from '../../../utils/time.uitls';
+import { getTimeBetween } from '../../../utils/time.uitls';
 import { TableTicketService } from '../../../services/tableticket.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
-import { AvInput } from '../../../lib/angular-visuals/components/forms';
+import { AvInput } from '../../../components/angular-visuals/components/forms';
+import { AvBadgeComponent } from '../../../components/angular-visuals/components/av-badge/av-badge.component';
 
 @Component({
   selector: 'app-tables.component',
-  imports: [AvGridComponent, CommonModule, TableLayoutComponent, AvInput, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [AvGridComponent, CommonModule, AvBadgeComponent, AvInput, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './tables.component.html',
   styleUrl: './tables.component.css',
 })
@@ -42,8 +42,8 @@ export class TablesComponent {
   loadTables() {
     this.loadingOverlayService.show('Carregando mesas...');
     this.tableTicketService
-      .list(0, 50, { type: 'M' }).subscribe(async(data: any) => {
-        this.tables.set(data);
+      .list(1, 50, { type: 'M', search: this.search.value || '' }).subscribe(async (data: any) => {
+        this.tables.set(data.items);
         this.loadingOverlayService.hide();
       })
   }
@@ -59,13 +59,13 @@ export class TablesComponent {
   getStyle(status: string) {
     switch (status) {
       case 'A':
-        return 'bg-emerald-50 text-emerald-600 border border-emerald-100';
+        return 'emerald';
       case 'O':
-        return 'bg-rose-50 text-rose-500 border border-rose-100';
-      case 'R':
-        return 'bg-indigo-50 text-indigo-600 border border-indigo-100';
+        return 'rose';
+      case 'B':
+        return 'indigo';
       default:
-        return 'bg-slate-50 text-slate-600 border border-slate-100';
+        return 'slate';
     }
   }
 }

@@ -1,0 +1,323 @@
+@reference "tailwindcss";
+
+:host(.av-btn) {
+  --av-btn-bg: #64748b;
+  --av-btn-hover-bg: #475569;
+  --av-btn-color: #fff;
+  --av-btn-border: rgba(255, 255, 255, 0.12);
+  --av-btn-fill: #94a3b8;
+
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: .5rem;
+
+  border: 1px solid var(--av-btn-border);
+  border-radius: .5rem;
+
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--av-btn-bg) 92%, white),
+      var(--av-btn-bg));
+
+  color: var(--av-btn-color);
+
+  cursor: pointer;
+  font-weight: 500;
+
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, .12),
+    0 3px 8px rgba(0, 0, 0, .12),
+    inset 0 1px 0 rgba(255, 255, 255, .14);
+
+  transform: translateY(0);
+
+  transition:
+    background .18s ease,
+    box-shadow .18s ease,
+    transform .12s ease,
+    color .18s ease,
+    border-color .18s ease;
+}
+
+/* Hover */
+
+:host(.av-btn:hover:not([disabled])) {
+  background:
+    linear-gradient(180deg,
+      color-mix(in srgb, var(--av-btn-hover-bg) 92%, white),
+      var(--av-btn-hover-bg));
+
+  box-shadow:
+    0 2px 3px rgba(0, 0, 0, .12),
+    0 6px 14px rgba(0, 0, 0, .16),
+    inset 0 1px 0 rgba(255, 255, 255, .16);
+
+  transform: translateY(-1px);
+}
+
+/* Active */
+
+:host(.av-btn:active:not([disabled])) {
+  transform: translateY(1px) scale(.97);
+
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, .15),
+    inset 0 2px 4px rgba(0, 0, 0, .12);
+}
+
+/* Disabled */
+
+:host(.av-btn[disabled]) {
+  cursor: not-allowed;
+  opacity: .5;
+  box-shadow: none;
+}
+
+:host(.av-btn[disabled]:active) {
+  transform: none;
+}
+
+/* Focus */
+
+:host(.av-btn:focus-visible) {
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(59, 130, 246, .22),
+    0 4px 10px rgba(0, 0, 0, .14),
+    inset 0 1px 0 rgba(255, 255, 255, .14);
+}
+
+
+/* =========================================================
+   ROUNDED
+   ========================================================= */
+
+:host(.av-btn--rounded-none) {
+  border-radius: 0;
+}
+
+:host(.av-btn--rounded-sm) {
+  border-radius: .375rem;
+}
+
+:host(.av-btn--rounded-md) {
+  border-radius: .5rem;
+}
+
+:host(.av-btn--rounded-lg) {
+  border-radius: .75rem;
+}
+
+:host(.av-btn--rounded-full) {
+  border-radius: 9999px;
+}
+
+
+/* =========================================================
+   COLORS
+   ========================================================= */
+
+:host(.av-btn--blue) {
+  --av-btn-bg: #3b82f6;
+  --av-btn-hover-bg: #2563eb;
+  --av-btn-fill: #60a5fa;
+}
+
+:host(.av-btn--orange) {
+  --av-btn-bg: #f97316;
+  --av-btn-hover-bg: #ea580c;
+  --av-btn-fill: #fb923c;
+}
+
+:host(.av-btn--red) {
+  --av-btn-bg: #ef4444;
+  --av-btn-hover-bg: #dc2626;
+  --av-btn-fill: #f87171;
+}
+
+:host(.av-btn--slate) {
+  --av-btn-bg: #64748b;
+  --av-btn-hover-bg: #475569;
+  --av-btn-fill: #94a3b8;
+}
+
+:host(.av-btn--gray) {
+  --av-btn-bg: #6b7280;
+  --av-btn-hover-bg: #4b5563;
+  --av-btn-fill: #9ca3af;
+}
+
+
+/* =========================================================
+   OUTLINED
+   ========================================================= */
+
+:host(.av-btn--blue-outlined) {
+  --av-btn-bg: transparent;
+  --av-btn-color: #2563eb;
+  --av-btn-border: rgba(59, 130, 246, .5);
+  --av-btn-hover-bg: #3b82f6;
+  --av-btn-hover-color: #fff;
+  --av-btn-fill: #3b82f6;
+}
+
+:host(.av-btn--orange-outlined) {
+  --av-btn-bg: transparent;
+  --av-btn-color: #ea580c;
+  --av-btn-border: rgba(249, 115, 22, .5);
+  --av-btn-hover-bg: #f97316;
+  --av-btn-hover-color: #fff;
+  --av-btn-fill: #f97316;
+}
+
+:host(.av-btn--red-outlined) {
+  --av-btn-bg: transparent;
+  --av-btn-color: #dc2626;
+  --av-btn-border: rgba(239, 68, 68, .5);
+  --av-btn-hover-bg: #ef4444;
+  --av-btn-hover-color: #fff;
+  --av-btn-fill: #ef4444;
+}
+
+:host(.av-btn--slate-outlined) {
+  --av-btn-bg: transparent;
+  --av-btn-color: #475569;
+  --av-btn-border: rgba(100, 116, 139, .5);
+  --av-btn-hover-bg: #64748b;
+  --av-btn-hover-color: #fff;
+  --av-btn-fill: #64748b;
+}
+
+:host(.av-btn--gray-outlined) {
+  --av-btn-bg: transparent;
+  --av-btn-color: #4b5563;
+  --av-btn-border: rgba(107, 114, 128, .5);
+  --av-btn-hover-bg: #6b7280;
+  --av-btn-hover-color: #fff;
+  --av-btn-fill: #6b7280;
+}
+
+
+/* =========================================================
+   CONTENT
+   ========================================================= */
+
+.av-btn__content {
+  position: relative;
+  z-index: 10;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+
+  gap: .5rem;
+}
+
+
+/* =========================================================
+   LOADER
+   ========================================================= */
+
+.av-btn__loader {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+}
+
+
+/* =========================================================
+   FILL ANIMATION
+   ========================================================= */
+
+:host(.av-btn--fill-animation)::before {
+  content: '';
+
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background: var(--av-btn-fill);
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition: transform .3s ease-out;
+}
+
+:host(.av-btn--fill-animation:hover)::before {
+  transform: scaleX(1);
+}
+
+:host(.av-btn--fill-animation:hover) {
+  color: var(--av-btn-hover-color, var(--av-btn-color));
+}
+
+
+/* =========================================================
+   VALUE FILL
+   ========================================================= */
+
+.av-btn__value-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  height: 100%;
+
+  z-index: 0;
+
+  transition: width .3s ease-out;
+}
+
+.av-btn__value-fill--rounded-none {
+  border-radius: 0;
+}
+
+.av-btn__value-fill--rounded-sm {
+  border-radius: .375rem;
+}
+
+.av-btn__value-fill--rounded-md {
+  border-radius: .5rem;
+}
+
+.av-btn__value-fill--rounded-lg {
+  border-radius: .75rem;
+}
+
+.av-btn__value-fill--rounded-full {
+  border-radius: 9999px;
+}
+
+.av-btn__value-fill--blue,
+.av-btn__value-fill--blue-outlined {
+  background: #60a5fa;
+}
+
+.av-btn__value-fill--orange,
+.av-btn__value-fill--orange-outlined {
+  background: #fb923c;
+}
+
+.av-btn__value-fill--red,
+.av-btn__value-fill--red-outlined {
+  background: #f87171;
+}
+
+.av-btn__value-fill--slate,
+.av-btn__value-fill--slate-outlined {
+  background: #94a3b8;
+}
+
+.av-btn__value-fill--gray,
+.av-btn__value-fill--gray-outlined {
+  background: #9ca3af;
+}

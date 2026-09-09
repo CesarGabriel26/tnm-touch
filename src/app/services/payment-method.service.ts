@@ -1,41 +1,33 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Observable, of } from 'rxjs';
 import configs from '../config';
-import { PaymentMethod } from '../types/order/PayMethod';
+import { PaymentMethod } from '../models/PayMethod';
 import { buildFilters } from '../utils/filter.urils';
 
 @Injectable({
   providedIn: 'root',
 })
 export class PaymentMethodService {
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  async getAll(filters?: any): Promise<PaymentMethod[]> {
+  getAll(filters?: any): Observable<PaymentMethod[]> {
     const params = buildFilters(new HttpParams(), filters || {});
     try {
-      const res = await firstValueFrom(
-        this.http.get<PaymentMethod[] | { data: PaymentMethod[] }>(`${configs.apiUrl}/payment-method`, { params })
-      );
-      if (Array.isArray(res)) {
-        return res;
-      }
-      return (res as any)?.data || [];
+      return this.http.get<PaymentMethod[]>(`${configs.apiUrl}/payment-method`, { params })
     } catch (error) {
       console.error('Erro ao buscar formas de pagamento:', error);
-      return [];
+      return of([]);
     }
   }
 
-  async get(id: string): Promise<PaymentMethod | null> {
-    if (!id) return null;
+  get(id: string): Observable<PaymentMethod | null> {
+    if (!id) return of(null);
     try {
-      return await firstValueFrom(
-        this.http.get<PaymentMethod>(`${configs.apiUrl}/payment-method/${id}`)
-      );
+      return this.http.get<PaymentMethod>(`${configs.apiUrl}/payment-method/${id}`)
     } catch (error) {
       console.error(`Erro ao buscar forma de pagamento ${id}:`, error);
-      return null;
+      return of(null);
     }
   }
 }

@@ -3,7 +3,7 @@ export interface Consumption {
     companyId: string;
     keyOpen: string;
 
-    productId: string;
+    productId?: string;
     snapshot: any;
 
 
@@ -14,14 +14,14 @@ export interface Consumption {
 
     product: string;
     unityPrice: number;
-    unity: string;
+    unity?: string;
     quantity: number;
-    obs: string;
+    obs?: string;
 
-    professionalId: string;
+    professionalId?: string;
 
     status: number; // 0 pendente, 1 quitado, 2 cancelado, 3 estornado
 
     orderId?: string;
-    orderItemId?: string;
+    orderItemId?: number;
 }

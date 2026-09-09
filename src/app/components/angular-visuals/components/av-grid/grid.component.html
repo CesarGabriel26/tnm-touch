@@ -1,0 +1,12 @@
+<div class="w-full h-full"
+    [ngClass]="{
+        'grid items-start justify-start': !empty(),
+        'flex items-center justify-center': empty()
+    }"
+    [style]="{ 
+        gridTemplateColumns: 'repeat(' + cols.lg + ', 1fr)',
+        gap: gap() + 'rem'
+    }"
+>
+    <ng-content></ng-content>
+</div>

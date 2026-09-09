@@ -1,24 +1,23 @@
-import { Component, computed, OnInit, signal } from '@angular/core';
+import { Component, computed, effect, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TableTicket } from '../../../models/table-ticket';
 import { TableTicketService } from '../../../services/tableticket.service';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
 import { ConsumptionsService } from '../../../services/consumption.service';
 import { Consumption } from '../../../models/consumption';
-import { AvTableComponent } from '../../../lib/angular-visuals/components/av-table/av-table.component';
-import { AvSortableColumnDirective } from '../../../lib/angular-visuals/directives/av-sortable-column.directive';
-import { AvIcon, AvSortIcon } from '../../../lib/angular-visuals/components/icons';
-import { CurrencyPipe, DatePipe } from '@angular/common';
+import { AvTableComponent } from '../../../components/angular-visuals/components/av-table/av-table.component';
+import { AvSortableColumnDirective } from '../../../components/angular-visuals/directives/av-sortable-column.directive';
+import { AvIcon, AvSortIcon } from '../../../components/angular-visuals/components/icons';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { KeyOpen } from '../../../models/keyOpen';
 import { KeyOpenService } from '../../../services/keyopen.service';
-import { AvTabs, AvTab } from '../../../lib/angular-visuals/components/tabs';
-import { AvButton } from "../../../lib/angular-visuals/components/buttons";
-import { AvCheckbox } from "../../../lib/angular-visuals/components/forms";
+import { AvTabs, AvTab } from '../../../components/angular-visuals/components/tabs';
+import { AvButton } from "../../../components/angular-visuals/components/buttons";
+import { AvCheckbox } from "../../../components/angular-visuals/components/forms";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AvBadgeComponent } from "../../../lib/angular-visuals/components/av-badge/av-badge.component";
+import { AvBadgeComponent } from "../../../components/angular-visuals/components/av-badge/av-badge.component";
 import { DialogService } from '../../../services/dialog.service';
-import { InvoiceDialogComponent } from '../../../components/utils/dialog-models/invoice-dialog/invoice-dialog.component';
-import { SummaryOptionsComponent } from './components/summary-options/summary-options.component';
+import { SummaryOptionsComponent } from '../../../components/utils/dialog-models/summary-options/summary-options.component';
 
 interface tableConsumption extends Consumption {
   selected: boolean;
@@ -26,16 +25,20 @@ interface tableConsumption extends Consumption {
 
 @Component({
   selector: 'app-summary.component',
-  imports: [AvTableComponent, AvSortableColumnDirective, AvSortIcon, AvIcon, CurrencyPipe, DatePipe, AvTabs, AvTab, AvButton, AvCheckbox, FormsModule, ReactiveFormsModule, AvBadgeComponent],
+  imports: [CommonModule, AvTableComponent, AvSortableColumnDirective, AvSortIcon, AvIcon, CurrencyPipe, DatePipe, AvTabs, AvTab, AvButton, AvCheckbox, FormsModule, ReactiveFormsModule, AvBadgeComponent],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.css',
 })
 export class SummaryComponent implements OnInit {
+  pageSize = 8
   id = signal<string>('')
 
   tableTicket = signal<TableTicket | null>(null);
   keyOpen = signal<KeyOpen | null>(null)
   consumptions = signal<tableConsumption[]>([]);
+
+  page = signal<number>(0)
+  totalItems = signal<number>(0)
 
   selectedItensCount = computed(() => {
     return this.consumptions().filter((c) => c.selected).length
@@ -57,6 +60,13 @@ export class SummaryComponent implements OnInit {
     }
 
     this.id.set(id)
+
+    effect(() => {
+      this.page()
+      if (!this.keyOpen()) {
+        this.loadConsumptions()
+      }
+    })
   }
 
   ngOnInit(): void {
@@ -89,10 +99,11 @@ export class SummaryComponent implements OnInit {
   loadConsumptions() {
     this.loadingOverlayService.show('carregando consumos...')
 
-    this.consumptionsService.list(1, 500, {
+    this.consumptionsService.list(this.page(), this.pageSize, {
       keyOpen: this.tableTicket()?.keyOpenId
     }).subscribe((data) => {
-      this.consumptions.set(data.map((c) => ({ ...c, selected: false })))
+      this.totalItems.set(data.total)
+      this.consumptions.set(data.items.map((c) => ({ ...c, selected: false })))
       this.loadingOverlayService.hide()
     })
   }
@@ -112,13 +123,17 @@ export class SummaryComponent implements OnInit {
     }
   }
 
-  async options(){
+  async options() {
     const op = await this.dialogService.showComponent(SummaryOptionsComponent);
     console.log(op);
-    
+
   }
 
-  invoice(){
-    this.dialogService.showComponent(InvoiceDialogComponent)
+  invoice() {
+    // this.dialogService.showComponent(InvoiceDialogComponent)
+  }
+
+  goToOrder() {
+    this.router.navigate(['/order', this.id()]);
   }
 }

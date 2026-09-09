@@ -1,0 +1,75 @@
+@reference "tailwindcss";
+
+.av-input {
+  display: flex;
+  flex-direction: column;
+  gap: .25rem;
+  width: 100%;
+}
+
+.av-input__label {
+  color: #374151;
+  font-size: .875rem;
+  font-weight: 500;
+  text-align: start;
+}
+
+.av-input__field {
+  align-items: center;
+  display: flex;
+  position: relative;
+  width: 100%;
+  background-color: white;
+}
+
+.av-input__icon {
+  color: #9ca3af;
+  display: flex;
+  left: .75rem;
+  pointer-events: none;
+  position: absolute;
+}
+
+.av-input__control {
+  border: 1px solid #d1d5db;
+  border-radius: .5rem;
+  padding: .5rem 1rem;
+  transition: all .2s ease;
+  width: 100%;
+}
+
+.av-input__control:focus { outline: none; }
+.av-input__control:disabled { background: #f3f4f6; cursor: not-allowed; }
+.av-input__control--with-icon { padding-left: 2.5rem; }
+.av-input__control--without-icon { padding-left: 1rem; }
+
+.av-input__control--blue { --av-input-accent: #3b82f6; }
+.av-input__control--orange { --av-input-accent: #f97316; }
+.av-input__control--slate { --av-input-accent: #64748b; }
+.av-input__control--gray { --av-input-accent: #6b7280; }
+.av-input__control--red { --av-input-accent: #ef4444; }
+
+.av-input__control:focus {
+  border-color: var(--av-input-accent, #6b7280);
+  box-shadow: 0 0 0 2px var(--av-input-accent, #6b7280);
+}
+
+.av-input__control--invalid,
+.av-input__control--invalid:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px #ef4444;
+  color: #7f1d1d;
+  animation: av-input-shake .4s ease-in-out;
+}
+
+.av-input__error {
+  color: #ef4444;
+  font-size: .75rem;
+  font-weight: 500;
+}
+
+@keyframes av-input-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}

@@ -1,0 +1,127 @@
+<div class="flex h-full min-h-0 flex-col gap-3">
+  <div class="px-3 pt-3">
+    <av-input [formControl]="searchControl" icon="search" iconProvider="material" ringColor="orange"
+      placeholder="Buscar produto" class="block w-full" />
+  </div>
+
+  <div class="flex gap-2 overflow-x-auto px-3 pb-1 scrollbar-none">
+    @for (category of categories; track category.id) {
+    <button type="button" class="shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition" [ngClass]="categoryControl.value === category.id
+        ? 'border-orange-500 bg-orange-500 text-white shadow-md'
+        : 'border-slate-200 bg-white text-slate-600'" (click)="selectCategory(category.id)">
+      {{ category.name }}
+    </button>
+    }
+  </div>
+
+  <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
+    <div av-grid [empty]="products.length === 0" [gap]="0.75"
+      [cols]="{ 'xs': 1, 'sm': 1, 'md': 3, 'lg': 3, 'xl': 3, '2xl': 4 }">
+      @for (product of products; track productKey(product)) {
+      <button type="button"
+        class="relative flex flex-col  gap-3 rounded-xl border bg-white p-2 text-left shadow-sm transition active:scale-[0.99]"
+        [ngClass]="draftQuantities[productKey(product)]
+          ? 'border-orange-400 ring-2 ring-orange-100'
+          : 'border-slate-200'" (click)="openProduct(product)">
+        @if (draftQuantities[productKey(product)]) {
+        <span
+          class="absolute right-2 top-2 z-10 flex h-7 min-w-7 items-center justify-center rounded-full bg-orange-500 px-2 text-xs font-black text-white">
+          {{ draftQuantities[productKey(product)] }}
+        </span>
+        }
+
+        <div class="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+          <img [src]="imageUrl(product)" [alt]="product.name" class="h-full w-full object-cover" />
+        </div>
+
+        <div class="flex min-w-0 flex-1 flex-col justify-between">
+          <div class="min-w-0">
+            <h2 class="line-clamp-2 text-sm font-black leading-tight text-slate-900">{{ product.name }}</h2>
+            <p class="mt-1 line-clamp-2 text-xs text-slate-500">{{ product.description || 'Sem descrição' }}</p>
+          </div>
+
+          <!-- <div class="flex items-center justify-between gap-2">
+            <span class="text-sm font-black text-slate-900">
+              {{ productPrice(product) | currency: 'BRL' }}
+            </span>
+            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 text-white">
+              <span av-icon name="add" type="material" size="md"></span>
+            </span>
+          </div> -->
+        </div>
+      </button>
+      }
+
+      @if (products.length === 0) {
+      <div
+        class="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 p-6 text-slate-500">
+        <span av-icon name="search_off" type="material" size="xl"></span>
+        <span class="text-sm font-semibold">Nenhum produto encontrado</span>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (selectedProduct(); as product) {
+<div class="absolute bottom-0 left-0 fixed inset-0 z-50 bg-black/45" (click)="closeProduct()">
+  <div class="absolute bottom-0 left-0 w-full rounded-t-2xl bg-white p-4 shadow-2xl" [class.visible]="selectedProduct()"
+    (click)="$event.stopPropagation()">
+    <div class="flex items-start gap-3">
+      <div class="h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-slate-100">
+        <img [src]="imageUrl(product)" [alt]="product.name" class="h-full w-full object-cover" />
+      </div>
+
+      <div class="min-w-0 flex-1">
+        <h2 class="text-base font-black leading-tight text-slate-900">{{ product.name }}</h2>
+        <p class="mt-1 line-clamp-2 text-xs text-slate-500">{{ product.description || 'Sem descrição' }}</p>
+      </div>
+
+      <button type="button" class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-100"
+        (click)="closeProduct()">
+        <span av-icon name="close" type="material" size="md"></span>
+      </button>
+    </div>
+
+    @if (product.variations.length > 1) {
+    <div class="mt-4">
+      <p class="mb-2 text-xs font-bold uppercase text-slate-400">Variação</p>
+      <div class="grid grid-cols-2 gap-2">
+        @for (variation of product.variations; track variation.variationItemId) {
+        <button type="button" class="rounded-lg border px-3 py-2 text-left transition" [ngClass]="selectedVariationId() === variation.variationItemId
+            ? 'border-orange-500 bg-orange-50 text-orange-700'
+            : 'border-slate-200 bg-white text-slate-700'" (click)="selectedVariationId.set(variation.variationItemId)">
+          <span class="block text-sm font-bold">{{ variation.name || variation.variationName }}</span>
+          <span class="text-xs">{{ variation.saleValue | currency: 'BRL' }}</span>
+        </button>
+        }
+      </div>
+    </div>
+    }
+
+    <div class="mt-4">
+      <p class="mb-2 text-xs font-bold uppercase text-slate-400">Observação</p>
+      <textarea rows="2"
+        class="w-full resize-none rounded-xl border border-slate-200 p-3 text-sm outline-none focus:border-orange-400"
+        placeholder="Ex: sem cebola" [ngModel]="observation()" (ngModelChange)="observation.set($event)"></textarea>
+    </div>
+
+    <div class="mt-4 flex items-center gap-3">
+      <div class="flex h-12 px-2 items-center rounded-full border border-slate-200 bg-slate-50">
+        <button av-button rounded="full" variant="orange" (click)="decreaseQuantity()">
+          <span av-icon name="remove" type="material" size="md"></span>
+        </button>
+        <span class="w-10 text-center text-base font-black">{{ quantity() }}</span>
+        <button av-button rounded="full" variant="orange" (click)="increaseQuantity()">
+          <span av-icon name="add" type="material" size="md"></span>
+        </button>
+      </div>
+
+      <button av-button type="button" variant="orange" rounded="full" class="min-h-12 flex-1"
+        (click)="addSelectedProduct()">
+        Adicionar {{ itemBuilder.getPrice(product, selectedVariation()) * quantity() | currency: 'BRL' }}
+      </button>
+    </div>
+  </div>
+</div>
+}

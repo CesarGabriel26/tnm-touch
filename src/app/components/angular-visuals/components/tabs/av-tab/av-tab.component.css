@@ -1,0 +1,43 @@
+:host {
+  display: contents;
+  height: 100%;
+  width: 100%;
+}
+
+.av-tab {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.av-tab--hidden {
+  animation: fadeOut 0.3s ease-in-out forwards;
+}
+
+.av-tab--visible {
+  animation: fadeIn 0.3s ease-in-out forwards;
+}
+
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}

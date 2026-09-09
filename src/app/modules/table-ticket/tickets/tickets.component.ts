@@ -6,10 +6,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableTicketService } from '../../../services/tableticket.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AvGridComponent } from "../../../lib/angular-visuals/components/av-grid/grid.component";
+import { AvGridComponent } from "../../../components/angular-visuals/components/av-grid/grid.component";
 import { RouterLink } from '@angular/router';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
-import { AvInput } from '../../../lib/angular-visuals/components/forms';
+import { AvInput } from '../../../components/angular-visuals/components/forms';
 
 @Component({
   selector: 'app-tickets.component',
@@ -26,6 +26,7 @@ export class TicketsComponent {
 
   page = signal<number>(1)
   search = new FormControl<string>('')
+  status = new FormControl<string>('')
 
   tickets = signal<TableTicket[]>([])
 
@@ -40,15 +41,32 @@ export class TicketsComponent {
     ).subscribe(() => {
       this.getTicketsList()
     })
+
+    this.status.valueChanges.pipe(
+      debounceTime(150),
+      distinctUntilChanged(),
+      takeUntilDestroyed()
+    ).subscribe(() => {
+      this.getTicketsList()
+    })
+
     this.getTicketsList()
   }
 
   getTicketsList() {
     this.loadingOverlayService.show('Carregando comandas...');
-    this.tableTicketService.list(this.page(), 50, { type: 'C', status: 'O' }).subscribe(async (data: any) => {
-      this.tickets.set(data)
+    this.tableTicketService.list(this.page(), 50, {
+      type: 'C',
+      search: this.search.value || '',
+      status: this.status.value || ''
+    }).subscribe(async (data: any) => {
+      this.tickets.set(data.items)
       this.loadingOverlayService.hide();
     })
+  }
+
+  selectStatus(status: string) {
+    this.status.setValue(this.status.value === status ? '' : status);
   }
 
   getStyle(status: string) {

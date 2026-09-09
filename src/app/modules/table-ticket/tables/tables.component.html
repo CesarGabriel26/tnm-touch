@@ -1,20 +1,21 @@
 <div class="w-full h-full flex flex-col min-h-0 gap-2 p-1 relative">
     <div class="flex flex-row">
-        <av-input icon="search" iconProvider="material" ringColor="orange" class="flex-1" placeholder="Buscar mesa" />
+        <av-input [formControl]="search" icon="search" iconProvider="material" ringColor="orange" class="flex-1"
+            placeholder="Buscar mesa" />
     </div>
 
     <div class="flex-1 overflow-y-scroll">
-        <div av-grid [empty]="tables().length === 0" [cols]="{
+        <div av-grid [gap]=".2" [empty]="tables().length === 0" [cols]="{
             'xs': 1,
             'sm': 2,
-            'md': 2,
-            'lg': 2,
+            'md': 3,
+            'lg': 3,
             'xl': 5,
             '2xl': 6
             }">
             @for (table of tables(); track table.id) {
             <div [routerLink]="`/table-ticket-summary/${table.id}`"
-                class="rounded-2xl border border-gray-100 p-2.5 shadow-lg transition-all cursor-pointer flex flex-col justify-between group h-36"
+                class="rounded-2xl text-gray-600 relative border border-gray-100 p-2.5 shadow-xl  transition-all cursor-pointer flex flex-col justify-center group"
                 [ngClass]="{
                     'bg-emerald-300/70': table.status === 'A',
                     'bg-red-300/70': table.status === 'O',
@@ -22,35 +23,27 @@
                     'bg-slate-200': table.status === 'C'
                 }">
 
-                <div class="flex flex-row justify-between items-center gap-2 flex-1 min-h-0 overflow-hidden">
-                    <div class="flex-1 h-full flex items-center justify-center p-1 overflow-hidden min-w-0 min-h-0">
-                        <app-table-layout [seats]="table.keyOpen?.customers || 0"
-                            class="block w-full h-full max-h-24 max-w-full">
-                        </app-table-layout>
-                    </div>
+                <span class="absolute -top-1 right-0" av-badge
+                    [variant]="getStyle(table.status)">{{TABLE_STATUS_LABEL[table.status]}}</span>
 
-                    <div class="flex flex-col gap-1 shrink-0">
-                        <span class="rounded-full px-3 py-1 text-xs font-semibold shrink-0 text-center"
-                            [ngClass]="getStyle(table.status)">
-                            {{ TABLE_STATUS_LABEL[table.status] }}
-                        </span>
-                        <span class="font-semibold text-center">M-{{table.code}}</span>
-                        <span class="font-semibold text-center text-sm truncate max-w-[90px]">{{table.keyOpen?.alias ||
-                            ''}}</span>
-                    </div>
+                <div class="flex gap-1 items-center justify-between">
+                    <span class="font-semibold text-center">M-{{table.code}}</span>
+                    <span class="font-semibold text-center text-sm truncate max-w-[90px]">{{table.keyOpen?.alias
+                        ||
+                        ''}}</span>
                 </div>
 
                 <div
-                    class="flex flex-row justify-between items-center text-sm border-t border-gray-100/60 pt-1 shrink-0">
+                    class="flex flex-col text-sm border-t border-gray-100/60 pt-1 shrink-0">
                     <div class="flex items-center gap-2">
                         <span class="font-normal text-xs sm:text-sm">
-                            {{ table.keyOpen?.customers || 0 }} Pessoas
+                            {{ table.keyOpen?.customers || 0 }} Pessoa{{(table.keyOpen?.customers || 0) == 1 ? '' : 's' }}
                         </span>
                     </div>
 
                     <div class="flex items-center gap-1" [ngClass]="{'font-semibold': table.status === 'O'}">
-                        <span class="material-symbols-outlined text-sm">schedule</span>
-                        <span>{{getOpenTime(table)}}</span>
+                        <span class="material-symbols-outlined text-sm!">schedule</span>
+                        <span class="text-[11px]">{{getOpenTime(table)}}</span>
                     </div>
                 </div>
 

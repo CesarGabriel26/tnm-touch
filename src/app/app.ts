@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoadingOverlayComponent } from "./components/loading-overlay/loading-overlay.component";
+import { DialogComponent } from "./components/utils/dialog/dialog.component";
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LoadingOverlayComponent],
+  imports: [RouterOutlet, LoadingOverlayComponent, DialogComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

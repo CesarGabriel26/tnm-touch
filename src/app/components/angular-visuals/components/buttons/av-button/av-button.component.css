@@ -155,6 +155,13 @@
 }
 
 
+
+:host(.av-btn--emerald) {
+  --av-btn-bg: #10b981;
+  --av-btn-hover-bg: #059669;
+  --av-btn-fill: #059669;
+}
+
 /* =========================================================
    OUTLINED
    ========================================================= */
@@ -202,6 +209,16 @@
   --av-btn-hover-bg: #6b7280;
   --av-btn-hover-color: #fff;
   --av-btn-fill: #6b7280;
+}
+
+
+:host(.av-btn--emerald-outlined) {
+  --av-btn-bg: transparent;
+  --av-btn-color: #10b981;
+  --av-btn-border: #10b981;
+  --av-btn-hover-color: #fff;
+  --av-btn-hover-bg: #059669;
+  --av-btn-fill: #059669;
 }
 
 

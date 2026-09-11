@@ -97,6 +97,7 @@ export class OrderComponent {
     const categoryId = this.selectedCategory.value;
     const productFilters = {
       search: (this.search.value || '').toLowerCase(),
+      companyId: localStorage.getItem('@companyId')!,
       isActive: true,
       isAvailable: true,
       enableLocal: true,

@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnDestroy, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
 import { filter, Subscription } from 'rxjs';
@@ -8,6 +8,10 @@ import { OrderDraftService } from '../../services/order/order-draft.service';
 import { OfflineCacheRefreshService } from '../../services/offline-cache-refresh.service';
 import { AvBadgeComponent } from "../angular-visuals/components/av-badge/av-badge.component";
 import { OrderQueueSyncService } from '../../services/order/order-queue-sync.service';
+import { User } from '../../models/user';
+import { WebsocketClientService } from '../../services/websocketClient.service';
+import { LocalStorageService } from '../../services/localStorage.service';
+import configs from '../../config';
 
 @Component({
   selector: 'app-shell',
@@ -16,12 +20,16 @@ import { OrderQueueSyncService } from '../../services/order/order-queue-sync.ser
   templateUrl: './shell.html',
   styleUrl: './shell.css',
 })
-export class AppShell implements OnDestroy {
+export class AppShell implements OnDestroy, OnInit {
   drawerOpen = signal<boolean>(false);
 
   currentPath = signal<string>('');
   private routerSubscription!: Subscription;
   private itemAddedSubscription!: Subscription;
+  private disconnected = false;
+
+  user = signal<User>({} as User);
+  company = signal<any>({} as any);
 
   @ViewChild('basket', { read: ElementRef }) basket?: ElementRef<HTMLButtonElement>;
 
@@ -29,8 +37,10 @@ export class AppShell implements OnDestroy {
     private readonly router: Router,
     private readonly location: Location,
     public readonly orderDraftService: OrderDraftService,
-    private readonly offlineCacheRefreshService: OfflineCacheRefreshService,
+    private readonly localStorageService: LocalStorageService,
     private readonly orderQueueSyncService: OrderQueueSyncService,
+    private readonly websocketClientService: WebsocketClientService,
+    private readonly offlineCacheRefreshService: OfflineCacheRefreshService,
   ) {
     this.currentPath.set(this.router.url);
     this.offlineCacheRefreshService.start();
@@ -50,6 +60,31 @@ export class AppShell implements OnDestroy {
       void basket.offsetWidth;
       basket.classList.add('shake');
     });
+
+    const session = this.localStorageService.getSession()
+    if (!session) return;
+
+    this.user.set(session.user);
+    this.company.set(session.company);
+  }
+
+  ngOnInit(): void {
+    if (!this.touchConnectionId()) return
+
+    this.websocketClientService.connect(configs.wsUrl).onOpen(() => {
+      this.websocketClientService.send({
+        type: 'event',
+        event: 'touch.connect',
+        data: {
+          id: this.touchConnectionId(),
+          userId: this.user().id,
+          companyId: this.company().id,
+          companyName: this.company().name,
+          userName: this.user().name,
+          online: true
+        }
+      })
+    })
   }
 
   ngOnDestroy() {
@@ -61,6 +96,8 @@ export class AppShell implements OnDestroy {
       this.itemAddedSubscription.unsubscribe();
     }
 
+    this.notifyTouchDisconnect();
+
     this.offlineCacheRefreshService.stop();
     this.orderQueueSyncService.stop();
   }
@@ -71,6 +108,10 @@ export class AppShell implements OnDestroy {
 
   goBack() {
     this.location.back();
+  }
+
+  goHome(){
+    this.router.navigate(['/home']);
   }
 
   openOrder() {
@@ -89,5 +130,38 @@ export class AppShell implements OnDestroy {
     }
 
     this.router.navigate(['/home']);
+  }
+
+  leave() {
+    this.notifyTouchDisconnect();
+    localStorage.removeItem('@token')
+    const companyId = localStorage.getItem('@companyId')
+    localStorage.removeItem('@companyId')
+    localStorage.removeItem('@session')
+    this.router.navigate(['/login'], { queryParams: { companyId } });
+  }
+
+  private notifyTouchDisconnect(): void {
+    if (this.disconnected) return;
+    this.disconnected = true;
+
+    const id = this.touchConnectionId();
+    if (id) {
+      this.websocketClientService.send({
+        type: 'event',
+        event: 'touch.disconnect',
+        data: { id }
+      })
+    }
+
+    this.websocketClientService.close();
+  }
+
+  private touchConnectionId(): string {
+    const companyId = this.company().id;
+    const userId = this.user().id;
+
+    if (companyId && userId) return `${companyId}_${userId}`;
+    return userId || '';
   }
 }

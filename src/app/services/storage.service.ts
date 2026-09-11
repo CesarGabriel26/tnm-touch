@@ -375,7 +375,7 @@ export class StorageService {
         if (filters?.['keyOpen'] && item.keyOpen !== filters['keyOpen']) return false;
         if (filters?.['companyId'] && item.companyId !== filters['companyId']) return false;
         return true;
-      });
+      }).map(order => ({ ...order, local: true }));
     });
   }
 

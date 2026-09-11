@@ -1,45 +1,23 @@
-<div av-button-group class="av-paginator" [style.grid-template-columns]="gridCols">
-  <button
-    av-button
-    [variant]="variant"
-    type="button"
-    (click)="changePage(0)"
-    [disabled]="pageIndex() === 0"
-  >
+<div class="av-paginator">
+  <button av-button [variant]="variant" type="button" (click)="changePage(0)" [disabled]="pageIndex() === 0"
+    class="rounded-r-none!">
     <span av-icon name="double_arrow_left"></span>
   </button>
-  <button
-    av-button
-    [variant]="variant"
-    type="button"
-    (click)="changePage(pageIndex() - 1)"
-    [disabled]="pageIndex() === 0"
-  >
+  <button av-button [variant]="variant" type="button" (click)="changePage(pageIndex() - 1)"
+    [disabled]="pageIndex() === 0" class="rounded-l-none!">
     <span av-icon name="arrow_left" size="sm"></span>
   </button>
 
-  @for (item of Array(totalPages()); track $index) {
-    <button av-button class="av-paginator__page" [variant]="variant" type="button" (click)="changePage($index)">
-      <span>{{$index + 1}}</span>
-    </button>
-  }
+  <span class="text-sm font-bold flex items-center justify-center">
+    Página {{pageIndex() + 1}} de {{totalPages()}}
+  </span>
 
-  <button
-    av-button
-    [variant]="variant"
-    type="button"
-    (click)="changePage(pageIndex() + 1)"
-    [disabled]="pageIndex() + 1 >= totalPages()"
-  >
+  <button av-button [variant]="variant" type="button" (click)="changePage(pageIndex() + 1)"
+    [disabled]="pageIndex() + 1 >= totalPages()" class="rounded-r-none!">
     <span av-icon name="arrow_right" size="sm"></span>
   </button>
-  <button
-    av-button
-    [variant]="variant"
-    type="button"
-    (click)="changePage(totalPages() - 1)"
-    [disabled]="pageIndex() + 1 >= totalPages()"
-  >
+  <button av-button [variant]="variant" type="button" (click)="changePage(totalPages() - 1)"
+    [disabled]="pageIndex() + 1 >= totalPages()" class="rounded-l-none!">
     <span av-icon name="double_arrow_right"></span>
   </button>
 </div>

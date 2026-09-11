@@ -1,1 +1,32 @@
-<p>summary-options.component works!</p>
+<div class="w-[90%] bg-white rounded-lg p-2 flex flex-col gap-3 flex flex-col gap-2">
+    <div class="flex flex-row gap-2 items-center justify-between">
+        <span class="text-lg font-bold">Ações</span>
+        <button av-button variant="red" icon="close" (click)="close()"></button>
+    </div>
+
+    <div class="flex flex-col gap-2">
+        @if(hasSelectedItems) {
+        <button av-button iconProvider="material" icon="split_scene_left" variant="orange" (click)="select('split')">
+            Desmembrar
+        </button>
+
+        <button av-button iconProvider="material" icon="redo" (click)="select('transfer_selected')">
+            Transferir selecionados
+        </button>
+
+        <button av-button iconProvider="material" icon="receipt_long" variant="emerald"
+            (click)="select('invoice_selected')">
+            Faturar selecioados
+        </button>
+        } @else {
+        <button av-button iconProvider="material" icon="redo" (click)="select('transfer_all')">
+            Transferir tudo
+        </button>
+
+        <button av-button iconProvider="material" icon="receipt_long" variant="emerald" (click)="select('invoice_all')">
+            Faturar
+        </button>
+        }
+    </div>
+
+</div>

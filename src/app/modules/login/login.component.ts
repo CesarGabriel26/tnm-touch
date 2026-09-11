@@ -10,6 +10,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { AvInput } from '../../components/angular-visuals/components/forms';
 import { AvButton } from '../../components/angular-visuals/components/buttons';
+import { CompanyService } from '../../services/company.service';
+import { LocalStorageService } from '../../services/localStorage.service';
 
 @Component({
   selector: 'app-login',
@@ -51,12 +53,27 @@ export class LoginComponent implements OnInit {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly authService: AuthService,
+    private readonly companyService: CompanyService,
+    private readonly localStorageService: LocalStorageService
   ) { }
 
   async ngOnInit(): Promise<void> {
-    const companyId = this.route.snapshot.queryParamMap.get('companyId')
+    const companyId = this.route.snapshot.queryParamMap.get('companyId');
+    const server = this.route.snapshot.queryParamMap.get('server');
+    const port = this.route.snapshot.queryParamMap.get('port');
+
+    if (port) {
+      localStorage.setItem('@port', port);
+    }
+    if (server) {
+      localStorage.setItem('@server', server);
+    }
+
     if (companyId) {
-      localStorage.setItem('@companyId', companyId || '')
+      localStorage.setItem('@companyId', companyId);
+      this.companyService.get(companyId).subscribe((v) => {
+        this.company.set(v)
+      })
     }
     this.companyId.set(companyId)
   }
@@ -80,17 +97,14 @@ export class LoginComponent implements OnInit {
     } = this.loginForm.getRawValue();
 
     try {
-      console.log(username,
-        password);
-
-
       this.authService.login(this.companyId()!, username, password).subscribe({
         next: (response: any) => {
           if (!response.success) {
             console.log(response.error);
           }
 
-          localStorage.setItem('@token', response.token)
+          this.localStorageService.setItem('@token', response.token)
+          this.localStorageService.setItem('@session', response.session)
 
           this.router.navigate(['/']);
         },

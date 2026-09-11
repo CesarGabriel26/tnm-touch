@@ -3,15 +3,15 @@
     <!-- Header -->
     <div class="flex items-center gap-3 border-b border-slate-200 bg-white p-1 shadow-md">
         <div class="min-w-0 flex-1 flex items-center gap-2">
-            <div class="rounded-full w-10 h-10 bg-orange-500 flex items-center justify-center text-white font-bold">
-                <span>Us</span>
+            <div class="rounded-full shadow-lg  w-10 h-10 bg-orange-500 flex items-center justify-center text-white font-bold">
+                <span class="capitalize">{{user().name ? user().name.slice(0,2): ''}}</span>
             </div>
-            <span class="text-gray-700 text-sm">User name</span>
+            <span class="text-gray-700 text-sm capitalize">{{user().name}}</span>
         </div>
 
 
-        <button av-button (click)="drawerOpen.set(!drawerOpen())" class="shadow-sm">
-            <span av-icon [name]="'more_horiz'" type="material" size="md"></span>
+        <button av-button (click)="isHome ? drawerOpen.set(!drawerOpen()) : goHome()" class="shadow-sm">
+            <span av-icon [name]="isHome ? 'menu' : 'home'" type="material" size="md"></span>
         </button>
     </div>
 
@@ -68,17 +68,35 @@
     </div>
 
     <!-- drawer -->
-    <div class="absolute top-0 left-0 w-full -translate-x-full h-full bg-black/50 transition-all" [ngClass]="{
+    <div class="absolute top-0 left-0 z-999 w-full -translate-x-full h-full bg-black/50 transition-all" [ngClass]="{
             'translate-x-0': drawerOpen(),
         }">
-        <div class="absolute top-0 left-0 w-64 h-full bg-white">
-            <div class="flex flex-row gap-2 items-center">
-                <div class="p-4">
-                    <h1 class="text-2xl font-bold">Tanmao Touch</h1>
+        <div class="absolute top-0 left-0 w-64 h-full bg-white flex flex-col">
+            <div class="flex flex-row gap-2 px-2 items-center border-b border-gray-200 text-orange-500">
+                <div class="p-4 flex-1">
+                    <h1 class="text-[20px] font-bold">
+                        Tanmao Touch
+                    </h1>
                 </div>
 
-                <button av-button (click)="drawerOpen.set(false)">
-                    <span av-icon name="close" type="material" size="lg"></span>
+                <div>
+                    <button av-button (click)="drawerOpen.set(false)">
+                        <span av-icon name="close" type="material" size="lg"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex flex-row items-center justify-between mt-auto p-2 border-t border-gray-200">
+                <div class="min-w-0 flex-1 flex items-center gap-2 flex-1">
+                    <div
+                        class="rounded-full  w-10 h-10 bg-orange-500 flex items-center justify-center text-white font-bold">
+                        <span class="capitalize">{{user().name ? user().name.slice(0,2): ''}}</span>
+                    </div>
+                    <span class="text-gray-700 text-sm capitalize">{{user().name}}</span>
+                </div>
+
+                <button av-button variant="red" (click)="leave()">
+                    <span av-icon name="logout" type="material" size="lg"></span>
                 </button>
             </div>
         </div>

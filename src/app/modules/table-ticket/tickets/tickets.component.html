@@ -26,14 +26,15 @@
     <div class="flex-1 overflow-y-scroll">
         <div av-grid [empty]="tickets().length === 0" [cols]="{
             'xs': 1,
-            'sm': 2,
-            'md': 2,
-            'lg': 2,
+            'sm': 3,
+            'md': 3,
+            'lg': 3,
             'xl': 5,
             '2xl': 6
             }">
             @for (ticket of tickets(); track ticket.id) {
-            <div [routerLink]="`/table-ticket-summary/${ticket.id}`" class="group h-[max-content] relative bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-all cursor-pointer overflow-hidden"
+            <div [routerLink]="`/table-ticket-summary/${ticket.id}`"
+                class="group relative h-[max-content] relative bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-all cursor-pointer overflow-hidden"
                 [ngClass]="{
                 'hover:border-emerald-400': ticket.status === 'A',
                 'hover:border-red-400 bg-gradient-to-b from-red-50/20 to-transparent': ticket.status === 'O',
@@ -48,16 +49,12 @@
             }"></div>
 
                 <div>
-                    <!-- Topo: Código e Badges -->
-                    <div class="flex justify-between items-start gap-1">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400">Comanda</span>
-                            <h2 class="font-black text-xl text-slate-800">
-                                #{{ticket.code}}
-                            </h2>
-                        </div>
+                    <div class="flex justify-between items-center gap-1">
+                        <h2 class="font-black text-xl text-slate-800">
+                            #{{ticket.code}}
+                        </h2>
 
-                        <div class="flex flex-col items-end gap-1">
+                        <div class="flex flex-col items-end gap-1 absolute top-0 right-0">
                             <!-- Badge de Vinculo com Mesa -->
                             @if (ticket.masterTable) {
                             <span
@@ -103,10 +100,9 @@
                 <!-- Rodapé: Itens, Horário e Valor Total -->
                 <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
 
-                    <div class="flex justify-between items-center text-xs font-medium text-slate-500">
+                    <div class="flex flex-col border-t border-gray-100/60 ">
                         <!-- Quantidade de Itens -->
-                        <div class="flex items-center gap-1">
-                            <span class="material-symbols-outlined text-sm text-slate-400">receipt_long</span>
+                        <div class="flex items-center gap-1 text-xs">
                             <span class="font-semibold text-slate-700">
                                 {{ticket.consumptionsCount || 0}} ite{{ticket.consumptionsCount === 1 ? 'm' : 'ns'}}
                             </span>
@@ -115,8 +111,8 @@
                         <!-- Tempo Decorrido -->
                         <div class="flex items-center gap-1"
                             [ngClass]="{'text-red-500 font-semibold': ticket.status === 'O'}">
-                            <span class="material-symbols-outlined text-sm">schedule</span>
-                            <span>{{getOpenTime(ticket)}}</span>
+                            <span class="material-symbols-outlined text-sm!">schedule</span>
+                            <span class="text-[11px]">{{getOpenTime(ticket)}}</span>
                         </div>
                     </div>
 

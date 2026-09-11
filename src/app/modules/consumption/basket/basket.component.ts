@@ -85,7 +85,7 @@ export class BasketComponent {
       });
 
       this.orderDraftService.finishOrder();
-      void this.orderQueueSyncService.syncQueue();
+      this.orderQueueSyncService.syncQueue();
       this.loadingOverlayService.hide();
       this.router.navigate(['/table-ticket-summary', queuedOrder.tableTicketId]);
     } catch (err: any) {

@@ -1,7 +1,13 @@
 @reference "tailwindcss";
 
+:host {
+  display: contents;
+}
+
 .av-paginator {
   display: grid !important;
+  grid-template-columns: auto auto 1fr auto auto;
+  width: 100%;
 }
 
 .av-paginator [av-button] {

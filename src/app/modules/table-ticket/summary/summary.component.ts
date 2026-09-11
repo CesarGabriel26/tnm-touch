@@ -21,6 +21,7 @@ import { SummaryOptionsComponent } from '../../../components/utils/dialog-models
 
 interface tableConsumption extends Consumption {
   selected: boolean;
+  local?: boolean;
 }
 
 @Component({
@@ -124,7 +125,9 @@ export class SummaryComponent implements OnInit {
   }
 
   async options() {
-    const op = await this.dialogService.showComponent(SummaryOptionsComponent);
+    const op = await this.dialogService.showComponent(SummaryOptionsComponent, {
+      hasSelectedItems: this.selectedItensCount() > 0
+    });
     console.log(op);
 
   }

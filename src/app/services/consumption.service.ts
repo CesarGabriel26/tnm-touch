@@ -68,4 +68,7 @@ export class ConsumptionsService {
     return forkJoin(consumptions.map((consumption) => this.createOrUpdate(consumption)));
   }
 
+  split(consumptions: string[], parts?: number): Observable<any> {
+    return this.http.post(`${configs.apiUrl}consumption/split`, { consumptions, parts });
+  }
 }

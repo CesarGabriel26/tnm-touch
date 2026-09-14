@@ -1,5 +1,5 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import configs from '../config';
 import { buildFilters } from '../utils/filter.urils';
 import { catchError, forkJoin, from, map, Observable, of, switchMap } from 'rxjs';
@@ -11,6 +11,8 @@ import { PaginatedResponse } from '../types/response';
   providedIn: 'root',
 })
 export class ConsumptionsService {
+  updated = new EventEmitter<void>();
+
   constructor(
     private http: HttpClient,
     private storageService: StorageService,
@@ -65,10 +67,28 @@ export class ConsumptionsService {
 
   createBatch(consumptions: Partial<Consumption>[]): Observable<Consumption[]> {
     if (consumptions.length === 0) return of([]);
-    return forkJoin(consumptions.map((consumption) => this.createOrUpdate(consumption)));
+    const existing = consumptions.filter((consumption) => consumption.id);
+    const news = consumptions.filter((consumption) => !consumption.id);
+    const requests: Observable<Consumption[]>[] = [];
+
+    if (existing.length > 0) {
+      requests.push(forkJoin(existing.map((consumption) => this.createOrUpdate(consumption))));
+    }
+
+    if (news.length > 0) {
+      requests.push(this.http.post<Consumption[]>(`${configs.apiUrl}/consumption`, news));
+    }
+
+    return forkJoin(requests).pipe(
+      map((results) => results.flat())
+    );
   }
 
   split(consumptions: string[], parts?: number): Observable<any> {
-    return this.http.post(`${configs.apiUrl}consumption/split`, { consumptions, parts });
+    return this.http.post(`${configs.apiUrl}/consumption/split`, { consumptions, parts });
+  }
+
+  transfer(consumptions: string[], destination: string): Observable<any> {
+    return this.http.post(`${configs.apiUrl}/consumption/transfer`, { consumptions, destination });
   }
 }

@@ -103,7 +103,7 @@ export class LoginComponent implements OnInit {
             console.log(response.error);
           }
 
-          this.localStorageService.setItem('@token', response.token)
+          localStorage.setItem('@token', response.token)
           this.localStorageService.setItem('@session', response.session)
 
           this.router.navigate(['/']);

@@ -29,6 +29,7 @@ export class AvSelectComponent implements ControlValueAccessor {
   data = input.required<any[]>();
 
   @Input() labelKey: string = 'label';
+  @Input() labelFormat: string = '';
   @Input() valueKey: string = 'value';
   @Input() placeholder: string = 'Selecione uma opção';
   @Input() label: string = '';
@@ -57,15 +58,15 @@ export class AvSelectComponent implements ControlValueAccessor {
 
 
   // Funções de callback do ControlValueAccessor
-  onChange: any = () => {};
-  onTouched: any = () => {};
+  onChange: any = () => { };
+  onTouched: any = () => { };
 
   constructor(@Optional() @Self() public ngControl: NgControl) {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
 
-    effect(()=>{
+    effect(() => {
       this._value.set(this.value())
     })
   }
@@ -108,7 +109,23 @@ export class AvSelectComponent implements ControlValueAccessor {
 
   // Auxiliares para extrair as chaves de objetos dinâmicos
   getItemLabel(item: any): string {
-    return typeof item === 'object' && item !== null ? item[this.labelKey] : item;
+    if (typeof item === 'object' && item !== null) {
+
+      if (!this.labelFormat || this.labelFormat.trim() === '') {
+        return item[this.labelKey];
+      }
+
+      let label = this.labelFormat;
+
+      Object.keys(item).forEach(key => {
+        // Reatribui o resultado para a variável 'label'
+        label = label.replaceAll(`{${key}}`, item[key] ?? '');
+      });
+
+      return label;
+    } else {
+      return item;
+    }
   }
 
   getItemValue(item: any): any {

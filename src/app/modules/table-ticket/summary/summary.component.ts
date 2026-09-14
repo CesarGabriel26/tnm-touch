@@ -1,4 +1,5 @@
 import { Component, computed, effect, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TableTicket } from '../../../models/table-ticket';
 import { TableTicketService } from '../../../services/tableticket.service';
@@ -18,6 +19,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AvBadgeComponent } from "../../../components/angular-visuals/components/av-badge/av-badge.component";
 import { DialogService } from '../../../services/dialog.service';
 import { SummaryOptionsComponent } from '../../../components/utils/dialog-models/summary-options/summary-options.component';
+import { TableTicketSearchComponent } from './components/table-ticket-search/table-ticket-search.component';
 
 interface tableConsumption extends Consumption {
   selected: boolean;
@@ -68,6 +70,10 @@ export class SummaryComponent implements OnInit {
         this.loadConsumptions()
       }
     })
+
+    this.consumptionsService.updated.pipe(
+      takeUntilDestroyed()
+    ).subscribe(() => this.loadTable());
   }
 
   ngOnInit(): void {
@@ -98,6 +104,7 @@ export class SummaryComponent implements OnInit {
   }
 
   loadConsumptions() {
+    if (!this.tableTicket()?.keyOpenId) return
     this.loadingOverlayService.show('carregando consumos...')
 
     this.consumptionsService.list(this.page(), this.pageSize, {
@@ -128,7 +135,54 @@ export class SummaryComponent implements OnInit {
     const op = await this.dialogService.showComponent(SummaryOptionsComponent, {
       hasSelectedItems: this.selectedItensCount() > 0
     });
+
     console.log(op);
+
+    switch (op) {
+      case ('split'): {
+        const confirm = await this.dialogService.confirm('Desmembrar', 'Deseja desmembrar os itens selecionados?')
+
+        if (!confirm) return;
+
+        const selected = this.consumptions().filter(c => c.selected).map(c => c.id) as string[];
+        let quantity = undefined
+
+        if (this.selectedItensCount() === 1) {
+          quantity = await this.dialogService.prompt("Desmembrar", 'Em quantas partes deseja dividir este item?',
+            [
+              {
+                inputType: 'number',
+                initialValue: 1,
+                label: 'Quantidade'
+              }
+            ],
+            "Confirmar",
+            "Voltar"
+          );
+
+          if (!quantity) return
+
+        }
+
+        this.consumptionsService.split(selected, quantity).subscribe({
+          next: () => this.loadTable()
+        })
+        break;
+      }
+      case ('transfer_selected'): {
+        const confirm = await this.dialogService.confirm('Transferir', 'Deseja transferir os itens selecionados?')
+
+        if (!confirm) return;
+
+        const selected = this.consumptions().filter(c => c.selected).map(c => c.id) as string[];
+
+        const destination = await this.dialogService.showComponent(TableTicketSearchComponent)
+
+        if (!destination) return;
+
+
+      }
+    }
 
   }
 

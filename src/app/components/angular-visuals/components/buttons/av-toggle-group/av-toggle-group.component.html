@@ -1,0 +1,19 @@
+<div class="av-toggle-group" role="radiogroup" [attr.aria-label]="ariaLabel">
+  @for (option of options; track option.value) {
+    <button
+      av-button
+      type="button"
+      hoverAnimation="fill"
+      [icon]="option.icon"
+      [iconProvider]="iconProvider"
+      [variant]="buttonVariant(option)"
+      [rounded]="rounded"
+      [disabled]="disabled() || option.disabled"
+      [attr.aria-checked]="isSelected(option)"
+      role="radio"
+      (click)="select(option)"
+    >
+      {{ option.label }}
+    </button>
+  }
+</div>

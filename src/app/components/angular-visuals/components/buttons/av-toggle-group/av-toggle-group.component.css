@@ -1,0 +1,24 @@
+@reference "tailwindcss";
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.av-toggle-group {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: .375rem;
+  width: 100%;
+}
+
+.av-toggle-group [av-button] {
+  min-height: 2.5rem;
+  width: 100%;
+  white-space: nowrap;
+}
+
+.av-toggle-group [role="radio"][aria-checked="true"] {
+  font-weight: 700;
+}

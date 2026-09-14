@@ -5,6 +5,7 @@ import configs from '../../config';
 import { Consumption } from '../../models/consumption';
 import { KeyOpen } from '../../models/keyOpen';
 import { TableStatus, TableTicket } from '../../models/table-ticket';
+import { ConsumptionsService } from '../consumption.service';
 import { QueuedOrderRecord, StorageService } from '../storage.service';
 
 type ConsumptionPayload = Partial<Consumption> & {
@@ -29,6 +30,7 @@ export class OrderQueueSyncService {
   constructor(
     private readonly http: HttpClient,
     private readonly storageService: StorageService,
+    private readonly consumptionsService: ConsumptionsService,
   ) { }
 
   start(intervalMs = this.retryIntervalMs) {
@@ -95,22 +97,30 @@ export class OrderQueueSyncService {
     currentOrder = remoteOrder.order;
 
     const sentItemIndexes = new Set(currentOrder.sentItemIndexes || []);
+    const pendingItems = currentOrder.items
+      .map((item, index) => ({ item, index }))
+      .filter(({ index }) => !sentItemIndexes.has(index));
 
-    for (const [index, item] of currentOrder.items.entries()) {
-      if (sentItemIndexes.has(index)) continue;
-
-      await firstValueFrom(this.http.post<Consumption>(
+    if (pendingItems.length > 0) {
+      await firstValueFrom(this.http.post<Consumption[]>(
         `${configs.apiUrl}/consumption`,
-        this.toConsumptionPayload(item, remoteOrder.keyOpenId, index)
+        pendingItems.map(({ item, index }) => this.toConsumptionPayload(item, remoteOrder.keyOpenId, index))
       ));
 
-      sentItemIndexes.add(index);
+      for (const { index } of pendingItems) {
+        sentItemIndexes.add(index);
+      }
+
       currentOrder = await this.storageService.updateQueuedOrder(currentOrder.id, {
         sentItemIndexes: [...sentItemIndexes],
       }) ?? currentOrder;
     }
 
     await this.storageService.removeQueuedOrder(currentOrder.id);
+
+    if (pendingItems.length > 0) {
+      this.consumptionsService.updated.emit();
+    }
   }
 
   private async resolveRemoteKeyOpen(order: QueuedOrderRecord): Promise<{ order: QueuedOrderRecord; keyOpenId: string }> {

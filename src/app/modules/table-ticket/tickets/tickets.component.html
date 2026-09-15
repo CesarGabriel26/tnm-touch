@@ -33,96 +33,120 @@
             '2xl': 6
             }">
             @for (ticket of tickets(); track ticket.id) {
-            <div [routerLink]="`/table-ticket-summary/${ticket.id}`"
-                class="group relative h-[max-content] relative bg-white rounded-2xl border border-slate-200 p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-all cursor-pointer overflow-hidden"
-                [ngClass]="{
-                'hover:border-emerald-400': ticket.status === 'A',
-                'hover:border-red-400 bg-gradient-to-b from-red-50/20 to-transparent': ticket.status === 'O',
-            }">
+            <div [routerLink]="`/table-ticket-summary/${ticket.id}`" class="group relative min-w-0 h-[150px] bg-white rounded-xl border border-slate-200
+           p-2.5 flex flex-col shadow-xs hover:shadow-md transition-all
+           cursor-pointer overflow-hidden" [ngClass]="{
+        'hover:border-emerald-400': ticket.status === 'A',
+        'hover:border-red-400 bg-gradient-to-b from-red-50/20 to-transparent': ticket.status === 'O'
+    }">
 
-                <!-- Indicador de Status (Linha Superior) -->
+                <!-- Linha de status -->
                 <div class="absolute top-0 left-0 w-full h-1" [ngClass]="{
-                'bg-emerald-400': ticket.status === 'A',
-                'bg-red-500': ticket.status === 'O',
-                'bg-indigo-500': ticket.status === 'B',
-                'bg-slate-300': ticket.status === 'C'
-            }"></div>
-
-                <div>
-                    <div class="flex justify-between items-center gap-1">
-                        <h2 class="font-black text-xl text-slate-800">
-                            #{{ticket.code}}
-                        </h2>
-
-                        <div class="flex flex-col items-end gap-1 absolute top-0 right-0">
-                            <!-- Badge de Vinculo com Mesa -->
-                            @if (ticket.masterTable) {
-                            <span
-                                class="inline-flex items-center gap-1 rounded-full bg-orange-50 border border-orange-200/60 text-orange-600 px-2.5 py-0.5 text-xs font-semibold">
-                                <span class="material-symbols-outlined text-[14px]">table_restaurant</span>
-                                Mesa {{ticket.masterTable.code}}
-                            </span>
-                            }
-
-                            <!-- Status Leve (Tag) -->
-                            <span
-                                class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold"
-                                [ngClass]="{
-                        'bg-emerald-50 text-emerald-700 border border-emerald-200/60': ticket.status === 'A',
-                        'bg-red-50 text-red-700 border border-red-200/60': ticket.status === 'O',
-                        'bg-indigo-50 text-indigo-700 border border-indigo-200/60': ticket.status === 'B',
-                        'bg-slate-100 text-slate-600 border border-slate-200': ticket.status === 'C'
-                    }">
-                                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="{
-                            'bg-emerald-500 animate-pulse': ticket.status === 'A',
-                            'bg-red-500': ticket.status === 'O',
-                            'bg-indigo-500': ticket.status === 'B',
-                            'bg-slate-400': ticket.status === 'C'
-                        }"></span>
-                                {{ TICKET_STATUS_LABEL[ticket.status] }}
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Nome / Cliente / Apelido -->
-                    @if (ticket.keyOpen?.customerId || ticket.keyOpen?.alias) {
-                    <p class="mt-3 font-semibold text-sm text-slate-700 truncate"
-                        title="{{ticket.keyOpen?.customerId || ticket.keyOpen?.alias}}">
-                        {{ticket.keyOpen?.customerId || ticket.keyOpen?.alias}}
-                    </p>
-                    } @else {
-                    <p class="mt-3 font-normal italic text-xs text-slate-400">
-                        Sem identificação
-                    </p>
-                    }
+            'bg-emerald-400': ticket.status === 'A',
+            'bg-red-500': ticket.status === 'O',
+            'bg-indigo-500': ticket.status === 'B',
+            'bg-slate-300': ticket.status === 'C'
+        }">
                 </div>
 
-                <!-- Rodapé: Itens, Horário e Valor Total -->
-                <div class="mt-4 pt-3 border-t border-slate-100 space-y-2">
+                <!-- Cabeçalho -->
+                <div class="flex items-center justify-between gap-1 mt-1">
 
-                    <div class="flex flex-col border-t border-gray-100/60 ">
-                        <!-- Quantidade de Itens -->
-                        <div class="flex items-center gap-1 text-xs">
-                            <span class="font-semibold text-slate-700">
-                                {{ticket.consumptionsCount || 0}} ite{{ticket.consumptionsCount === 1 ? 'm' : 'ns'}}
-                            </span>
-                        </div>
+                    <h2 class="font-black text-lg leading-none text-slate-800">
+                        #{{ ticket.code }}
+                    </h2>
 
-                        <!-- Tempo Decorrido -->
-                        <div class="flex items-center gap-1"
-                            [ngClass]="{'text-red-500 font-semibold': ticket.status === 'O'}">
-                            <span class="material-symbols-outlined text-sm!">schedule</span>
-                            <span class="text-[11px]">{{getOpenTime(ticket)}}</span>
-                        </div>
-                    </div>
+                    <!-- Status -->
+                    <span class="shrink-0 inline-flex items-center gap-1
+                   px-1.5 py-0.5 rounded-full
+                   text-[9px] leading-none font-semibold" [ngClass]="{
+                'bg-emerald-50 text-emerald-700': ticket.status === 'A',
+                'bg-red-50 text-red-700': ticket.status === 'O',
+                'bg-indigo-50 text-indigo-700': ticket.status === 'B',
+                'bg-slate-100 text-slate-600': ticket.status === 'C'
+            }">
 
-                    <!-- Valor Total -->
-                    <!-- <div class="flex justify-between items-baseline pt-1">
-                    <span class="text-[11px] text-slate-400 font-medium">Consumo</span>
-                    <span class="font-bold text-base text-slate-800">
-                        {{ticket.keyOpen ? (ticket.total | currency: 'BRL') : 'R$ 0,00'}}
+                        <span class="w-1.5 h-1.5 rounded-full" [ngClass]="{
+                    'bg-emerald-500': ticket.status === 'A',
+                    'bg-red-500': ticket.status === 'O',
+                    'bg-indigo-500': ticket.status === 'B',
+                    'bg-slate-400': ticket.status === 'C'
+                }">
+                        </span>
+
+                        <span class="truncate max-w-[55px]">
+                            {{ TICKET_STATUS_LABEL[ticket.status] }}
+                        </span>
                     </span>
-                </div> -->
+
+                </div>
+
+                <!-- Mesa -->
+                @if (ticket.masterTable) {
+                <div class="mt-1 inline-flex items-center gap-1
+                   text-[9px] font-semibold text-orange-600
+                   truncate">
+
+                    <span class="material-symbols-outlined text-[13px]!">
+                        table_restaurant
+                    </span>
+
+                    <span class="truncate">
+                        Mesa {{ ticket.masterTable.code }}
+                    </span>
+                </div>
+                }
+
+                <!-- Identificação -->
+                <div class="flex-1 min-h-0 flex items-center">
+
+                    @if (ticket.keyOpen?.customerId || ticket.keyOpen?.alias) {
+
+                    <p class="w-full text-[11px] font-semibold text-slate-700 truncate"
+                        [title]="ticket.keyOpen?.customerId || ticket.keyOpen?.alias">
+
+                        {{ ticket.keyOpen?.customerId || ticket.keyOpen?.alias }}
+
+                    </p>
+
+                    } @else {
+
+                    <p class="text-[10px] leading-tight italic text-slate-400">
+                        Sem identificação
+                    </p>
+
+                    }
+
+                </div>
+
+                <!-- Rodapé -->
+                <div class="pt-1.5 border-t border-slate-100">
+
+                    <div class="flex items-center justify-between gap-1">
+
+                        <!-- Itens -->
+                        <span class="text-[10px] font-semibold text-slate-700 truncate">
+                            {{ ticket.consumptionsCount || 0 }}
+                            {{ ticket.consumptionsCount === 1 ? 'item' : 'itens' }}
+                        </span>
+
+                        <!-- Tempo -->
+                        <div class="flex items-center gap-0.5 shrink-0" [ngClass]="{
+                    'text-red-500 font-semibold': ticket.status === 'O',
+                    'text-slate-500': ticket.status !== 'O'
+                }">
+
+                            <span class="material-symbols-outlined text-[13px]!">
+                                schedule
+                            </span>
+
+                            <span class="text-[9px]">
+                                {{ getOpenTime(ticket) }}
+                            </span>
+
+                        </div>
+
+                    </div>
 
                 </div>
 

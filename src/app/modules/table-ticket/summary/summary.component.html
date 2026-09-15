@@ -1,175 +1,510 @@
-<div class="flex flex-col w-full h-full bg-gray-100 overflow-y-auto relative">
-    <div class="flex flex-row p-2 bg-white border-b border-gray-200 shadow-sm gap-2 sticky top-0 z-10">
-        <!-- Identificação & Status -->
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2">
-                <span class="text-xl font-bold text-gray-800">
-                    {{tableTicket() ? tableTicket()!.type === 'M' ? 'Mesa' : 'Comanda' : ''}} {{tableTicket()?.code}}
-                </span>
-                @if (keyOpen()) {
-                <div class="flex flex-row gap-2 items-center text-sm">
-                    <span class="text-slate-500">
-                        @switch (tableTicket()!.status) {
-                        @case ('B') { Agendado as: }
-                        @case ('O') { Abertura }
-                        @case ('C') { Fechamento }
-                        @default { {{ keyOpen()!.openedAt ? 'Abertura' : '' }} }
-                        }
+<div class="flex h-full w-full flex-col overflow-hidden bg-slate-100">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-20 shrink-0
+               border-b border-slate-200/80
+               bg-white/95
+               px-3 py-2
+               backdrop-blur-xl">
+
+        <div class="flex items-center gap-2">
+
+            <!-- Identificação -->
+            <div class="min-w-0 flex-1">
+
+                <div class="flex items-center gap-2 min-w-0">
+
+                    <span class="truncate text-base font-bold text-slate-800">
+                        {{ tableTicket()
+                        ? tableTicket()!.type === 'M'
+                        ? 'Mesa'
+                        : 'Comanda'
+                        : ''
+                        }}
+                        {{ tableTicket()?.code }}
                     </span>
 
-                    <span class="font-semibold text-slate-800">
-                        @if (tableTicket()!.status === 'B' && keyOpen()!.bookedAt) {
-                        {{ keyOpen()!.bookedAt | date: 'HH:mm' }}
-                        } @else if (tableTicket()!.status === 'C' && keyOpen()!.closedAt) {
-                        {{ keyOpen()!.closedAt | date: 'HH:mm' }}
-                        } @else if (keyOpen()!.openedAt) {
-                        {{ keyOpen()!.openedAt | date: 'HH:mm' }}
-                        } @else {
-                        --:--
-                        }
-                    </span>
-                </div>
-                }
-            </div>
-            @if(tableTicket()){
-            <span class="px-2 py-0.5 text-xs font-semibold rounded-full flex items-center gap-1" [ngClass]="{
-                    'bg-indigo-100 text-indigo-600' : tableTicket()!.status === 'B',
-                    'bg-red-100 text-red-600' : tableTicket()!.status === 'O',
-                    'bg-emerald-100 text-emerald-600' : tableTicket()!.status === 'A'
-                }">
-                @switch (tableTicket()!.status) {
-                @case ('B') {
-                <span class="w-2 h-2 rounded-full bg-indigo-500"></span> Reservado
-                }
-                @case ('O') {
-                <span class="w-2 h-2 rounded-full bg-red-500"></span> Em Uso
-                }
-                @default {
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Disponivel
-                }
-                }
-            </span>
-            }
-        </div>
+                    @if (tableTicket()) {
 
-        <div class="ml-auto">
-            <button av-button (click)="options()">
-                <span av-icon name="more_vert" type="material" size="lg"></span>
-            </button>
-        </div>
-    </div>
+                    <span class="inline-flex shrink-0 items-center gap-1
+                                   rounded-full
+                                   px-2 py-0.5
+                                   text-[9px] font-bold" [ngClass]="{
+                                'bg-indigo-50 text-indigo-600':
+                                    tableTicket()!.status === 'B',
 
-    <av-tab-container variant="orange">
-        <av-tab title="Resumo">
-            <div class="p-1 grid gap-2">
-                <div class="p-1.5 border rounded-lg bg-gray-50 flex flex-col">
-                    <span class="text-gray-500">Produtos</span>
-                    <span class="font-bold text-gray-800">{{tableTicket()?.totalProducts | currency:'BRL'}}</span>
-                </div>
-                <div class="p-1.5 border rounded-lg bg-gray-50 flex flex-col justify-between">
-                    <span class="text-gray-500">Serviço</span>
-                    <span class="font-bold text-gray-800">{{tableTicket()?.totalService | currency:'BRL'}}</span>
-                </div>
-                <div class="p-1.5 border rounded-lg bg-gray-50 flex flex-col">
-                    <span class="text-gray-500">Couvert</span>
-                    <span class="font-bold text-green-600">{{tableTicket()?.totalCouvert | currency:'BRL'}}</span>
-                </div>
-                <div class="p-1.5 border rounded-lg bg-gray-50 flex flex-col">
-                    <span class="text-gray-500">Créditos</span>
-                    <span class="font-bold text-green-600">{{0 | currency:'BRL'}}</span>
-                </div>
-                <div class="p-1.5 border rounded-lg bg-blue-50 border-blue-200 flex flex-col">
-                    <span class="text-blue-600">Total</span>
-                    <span class="font-bold text-blue-700">{{tableTicket()?.total| currency:'BRL'}}</span>
-                </div>
-                <div class="p-1.5 border rounded-lg bg-red-50 border-red-200 flex flex-col">
-                    <span class="text-red-600">À pagar</span>
-                    <span class="font-bold text-red-700 text-sm">{{tableTicket()?.totalPending | currency:'BRL'}}</span>
-                </div>
-            </div>
-        </av-tab>
-        <av-tab title="Consumos">
-            <div class="min-h-0 flex h-full flex-col">
-                <div class="bg-white p-2 border-b border-gray-200 shadow-lg flex items-center ">
-                    <span av-badge variant="orange">{{selectedItensCount()}} ite{{selectedItensCount() > 1 ? 'ns' :
-                        'm'}} selecionados</span>
+                                'bg-red-50 text-red-600':
+                                    tableTicket()!.status === 'O',
 
-                </div>
-                <div class="flex-1 min-h-0">
-                    <av-table [value]="consumptions()" variant="orange">
-                        <ng-template #header>
-                            <tr>
-                                <th class="p-2 text-[13px] font-bold">
-                                    <av-checkbox (changed)="select($event)" />
-                                </th>
-                                <th class="p-2 text-[13px] font-bold" avSortableColumn="date_time">
-                                    Data/Hora <av-sort-icon field="date_time" />
-                                </th>
-                                <th class="p-2 text-[13px] font-bold" avSortableColumn="product">
-                                    Produto / Obs <av-sort-icon field="product" />
-                                </th>
-                                <th class="p-2 text-[13px] font-bold text-right">
-                                    Total
-                                </th>
-                            </tr>
-                        </ng-template>
-                        <ng-template #body let-consumption>
-                            <tr class="border-b border-gray-200 bg-white" [ngClass]="{
-                                    'bg-red-100!': consumption.local
+                                'bg-emerald-50 text-emerald-600':
+                                    tableTicket()!.status === 'A'
+                            }">
+
+                        <span class="h-1.5 w-1.5 rounded-full" [ngClass]="{
+                                    'bg-indigo-500':
+                                        tableTicket()!.status === 'B',
+
+                                    'bg-red-500':
+                                        tableTicket()!.status === 'O',
+
+                                    'bg-emerald-500':
+                                        tableTicket()!.status === 'A'
                                 }">
-                                <td class="p-2 text-xs text-gray-500 align-top">
-                                    <av-checkbox [ngModel]="consumption.selected"
-                                        (changed)="select($event, consumption.id || consumption)" />
-                                </td>
-                                <td class="p-2 text-xs text-gray-500 align-top">
-                                    {{consumption.dateTime | date:'dd/MM/yyyy HH:mm'}}
-                                </td>
-                                <td class="p-2 align-top">
-                                    <div class="font-bold text-gray-800 text-sm">
-                                        {{consumption.product}}
-                                        <span
-                                            class="text-xs text-gray-500 font-normal">({{consumption.quantity}}un.)</span>
-                                    </div>
-                                    <!-- Exibição da Observação do Produto -->
-                                    @if (consumption.observation) {
-                                    <div class="text-xs text-gray-500 italic mt-0.5 border-l-2 border-orange-300 pl-1">
-                                        {{consumption.observation}}
-                                    </div>
-                                    }
-                                </td>
-                                <td class="p-2 text-right align-top">
-                                    <div class="text-xs text-gray-400">
-                                        {{consumption.quantity}}x {{consumption.unityPrice | currency:'BRL'}}
-                                    </div>
-                                    <div class="font-bold text-gray-800 text-sm">
-                                        {{consumption.unityPrice * consumption.quantity | currency: 'BRL'}}
-                                    </div>
-                                </td>
-                            </tr>
-                        </ng-template>
-                    </av-table>
-                </div>
-            </div>
-        </av-tab>
-    </av-tab-container>
-    <!-- Ações de Rodapé (Touch/Mobile) -->
-    <!-- <div class="p-2 bg-white border-t border-gray-200 flex flex-col gap-2 sticky bottom-0 z-50 shadow-lg">
-        <div class="grid grid-cols-2 gap-1.5 text-xs">
-            <button
-                class="p-2 border border-gray-300 rounded-md font-semibold text-gray-700 bg-gray-50">Desmembrar</button>
-            <button class="p-2 border border-gray-300 rounded-md font-semibold text-gray-700 bg-gray-50">Transferir
-                Produto</button>
-            <button class="p-2 border border-gray-300 rounded-md font-semibold text-gray-700 bg-gray-50">Recebimento
-                Parcial</button>
-            <button class="p-2 border border-gray-300 rounded-md font-semibold text-gray-700 bg-gray-50">Transferir
-                Tudo</button>
-        </div>
-        <div class="flex gap-2">
-            <button class="w-2/3 py-2.5 bg-emerald-600 text-white font-bold rounded-md text-sm">
-                Faturar {{tableTicket()?.totalPending | currency:'BRL'}}
-            </button>
-        </div>
-    </div> -->
+                        </span>
 
+                        @switch (tableTicket()!.status) {
+
+                        @case ('B') {
+                        Reservado
+                        }
+
+                        @case ('O') {
+                        Em uso
+                        }
+
+                        @default {
+                        Disponível
+                        }
+
+                        }
+
+                    </span>
+                    }
+
+                </div>
+
+
+                <!-- Horário -->
+                @if (keyOpen()) {
+
+                <div class="mt-0.5 flex items-center gap-1 text-[10px]">
+
+                    <span class="text-slate-400">
+
+                        @switch (tableTicket()!.status) {
+
+                        @case ('B') {
+                        Agendado:
+                        }
+
+                        @case ('O') {
+                        Abertura:
+                        }
+
+                        @case ('C') {
+                        Fechamento:
+                        }
+
+                        @default {
+                        Abertura:
+                        }
+
+                        }
+
+                    </span>
+
+                    <span class="font-semibold text-slate-600">
+
+                        @if (
+                        tableTicket()!.status === 'B'
+                        && keyOpen()!.bookedAt
+                        ) {
+
+                        {{ keyOpen()!.bookedAt | date:'HH:mm' }}
+
+                        } @else if (
+                        tableTicket()!.status === 'C'
+                        && keyOpen()!.closedAt
+                        ) {
+
+                        {{ keyOpen()!.closedAt | date:'HH:mm' }}
+
+                        } @else if (keyOpen()!.openedAt) {
+
+                        {{ keyOpen()!.openedAt | date:'HH:mm' }}
+
+                        } @else {
+
+                        --:--
+
+                        }
+
+                    </span>
+
+                </div>
+
+                }
+
+            </div>
+
+
+            <!-- Menu -->
+            <button av-button (click)="options()" class="!h-9 !w-9 !rounded-xl
+                       !border-0
+                       bg-slate-100
+                       shadow-none
+                       active:scale-95
+                       transition-transform">
+
+                <span av-icon name="more_vert" type="material" size="lg">
+                </span>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- Conteúdo -->
+    <div class="min-h-0 flex-1 overflow-hidden">
+
+        <av-tab-container variant="orange">
+
+            <!-- ===================== -->
+            <!-- RESUMO -->
+            <!-- ===================== -->
+
+            <av-tab title="Resumo">
+
+                <div class="h-full overflow-y-auto px-3 py-3">
+
+                    <div class="flex flex-col gap-3">
+
+
+                        <!-- Resumo dos valores -->
+                        <div class="grid grid-cols-2 gap-2">
+
+                            <!-- Produtos -->
+                            <div class="rounded-xl border border-slate-200
+                                       bg-white p-3 shadow-sm">
+
+                                <span class="text-[10px] font-medium text-slate-400">
+                                    Produtos
+                                </span>
+
+                                <div class="mt-1 text-sm font-bold text-slate-800">
+                                    {{ tableTicket()?.totalProducts | currency:'BRL' }}
+                                </div>
+
+                            </div>
+
+
+                            <!-- Serviço -->
+                            <div class="rounded-xl border border-slate-200
+                                       bg-white p-3 shadow-sm">
+
+                                <span class="text-[10px] font-medium text-slate-400">
+                                    Serviço
+                                </span>
+
+                                <div class="mt-1 text-sm font-bold text-slate-800">
+                                    {{ tableTicket()?.totalService | currency:'BRL' }}
+                                </div>
+
+                            </div>
+
+
+                            <!-- Couvert -->
+                            <div class="rounded-xl border border-slate-200
+                                       bg-white p-3 shadow-sm">
+
+                                <span class="text-[10px] font-medium text-slate-400">
+                                    Couvert
+                                </span>
+
+                                <div class="mt-1 text-sm font-bold text-emerald-600">
+                                    {{ tableTicket()?.totalCouvert | currency:'BRL' }}
+                                </div>
+
+                            </div>
+
+
+                            <!-- Créditos -->
+                            <div class="rounded-xl border border-slate-200
+                                       bg-white p-3 shadow-sm">
+
+                                <span class="text-[10px] font-medium text-slate-400">
+                                    Créditos
+                                </span>
+
+                                <div class="mt-1 text-sm font-bold text-emerald-600">
+                                    {{ 0 | currency:'BRL' }}
+                                </div>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Total -->
+                        <div class="rounded-2xl border border-blue-200
+                                   bg-blue-50/80 p-4">
+
+                            <div class="flex items-center justify-between">
+
+                                <div>
+                                    <p class="text-[11px] font-semibold text-blue-600">
+                                        TOTAL
+                                    </p>
+
+                                    <p class="mt-0.5 text-[10px] text-blue-400">
+                                        Consumo da {{ tableTicket()?.type === 'M' ? 'mesa' : 'comanda' }}
+                                    </p>
+                                </div>
+
+                                <span class="text-xl font-black text-blue-700">
+                                    {{ tableTicket()?.total | currency:'BRL' }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- À pagar -->
+                        <div class="rounded-2xl border border-red-200
+                                   bg-red-50/80 p-4">
+
+                            <div class="flex items-center justify-between">
+
+                                <div>
+                                    <p class="text-[11px] font-semibold text-red-600">
+                                        À PAGAR
+                                    </p>
+
+                                    <p class="mt-0.5 text-[10px] text-red-400">
+                                        Valor pendente
+                                    </p>
+                                </div>
+
+                                <span class="text-xl font-black text-red-600">
+                                    {{ tableTicket()?.totalPending | currency:'BRL' }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- Ações -->
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+
+                            <button class="flex items-center justify-center gap-1.5
+                                       rounded-xl border border-slate-200
+                                       bg-white px-3 py-2.5
+                                       text-xs font-semibold text-slate-600
+                                       shadow-sm
+                                       active:scale-[0.98]">
+
+                                <span class="material-symbols-outlined text-[17px]!">
+                                    call_split
+                                </span>
+
+                                Desmembrar
+
+                            </button>
+
+
+                            <button class="flex items-center justify-center gap-1.5
+                                       rounded-xl border border-slate-200
+                                       bg-white px-3 py-2.5
+                                       text-xs font-semibold text-slate-600
+                                       shadow-sm
+                                       active:scale-[0.98]">
+
+                                <span class="material-symbols-outlined text-[17px]!">
+                                    swap_horiz
+                                </span>
+
+                                Transferir
+
+                            </button>
+
+                        </div>
+
+
+                        <!-- Faturar -->
+                        @if ((tableTicket()?.totalPending || 0) > 0) {
+
+                        <button class="flex w-full items-center justify-between
+                                       rounded-xl bg-emerald-500
+                                       px-4 py-3
+                                       text-white
+                                       shadow-sm shadow-emerald-500/20
+                                       active:scale-[0.99]
+                                       transition-transform">
+
+                            <span class="text-sm font-bold">
+                                Faturar
+                            </span>
+
+                            <span class="text-sm font-black">
+                                {{ tableTicket()?.totalPending | currency:'BRL' }}
+                            </span>
+
+                        </button>
+
+                        }
+
+                    </div>
+
+                </div>
+
+            </av-tab>
+
+
+            <!-- ===================== -->
+            <!-- CONSUMOS -->
+            <!-- ===================== -->
+
+            <av-tab title="Consumos">
+
+                <div class="flex h-full min-h-0 flex-col bg-slate-100">
+
+                    <!-- Barra de seleção -->
+                    <div class="shrink-0 border-b border-slate-200
+                               bg-white px-3 py-2">
+
+                        <div class="flex items-center justify-between gap-2">
+
+                            <span av-badge variant="orange">
+                                {{ selectedItensCount() }}
+                                ite{{ selectedItensCount() > 1 ? 'ns' : 'm' }}
+                                selecionado{{ selectedItensCount() > 1 ? 's' : '' }}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- Tabela -->
+                    <div class="min-h-0 flex-1 overflow-auto">
+
+                        <av-table [value]="consumptions()" variant="orange">
+
+                            <ng-template #header>
+
+                                <tr>
+
+                                    <th class="p-2 text-[12px] font-bold">
+                                        <av-checkbox (changed)="select($event)" />
+                                    </th>
+
+                                    <th class="p-2 text-[12px] font-bold" avSortableColumn="date_time">
+
+                                        Data/Hora
+
+                                        <av-sort-icon field="date_time" />
+
+                                    </th>
+
+                                    <th class="p-2 text-[12px] font-bold" avSortableColumn="product">
+
+                                        Produto / Obs
+
+                                        <av-sort-icon field="product" />
+
+                                    </th>
+
+                                    <th class="p-2 text-right text-[12px] font-bold">
+                                        Total
+                                    </th>
+
+                                </tr>
+
+                            </ng-template>
+
+
+                            <ng-template #body let-consumption>
+
+                                <tr class="border-b border-slate-100 bg-white" [ngClass]="{
+                                        'bg-red-50!': consumption.local
+                                    }">
+
+                                    <!-- Checkbox -->
+                                    <td class="p-2 align-top">
+
+                                        <av-checkbox [ngModel]="consumption.selected" (changed)="select(
+                                                $event,
+                                                consumption.id || consumption
+                                            )" />
+
+                                    </td>
+
+
+                                    <!-- Data -->
+                                    <td class="p-2 align-top">
+
+                                        <span class="whitespace-nowrap text-[10px] text-slate-500">
+                                            {{ consumption.dateTime | date:'dd/MM HH:mm' }}
+                                        </span>
+
+                                    </td>
+
+
+                                    <!-- Produto -->
+                                    <td class="p-2 align-top">
+
+                                        <div class="text-xs font-bold text-slate-800">
+
+                                            {{ consumption.product }}
+
+                                            <span class="text-[10px] font-normal text-slate-400">
+
+                                                ({{ consumption.quantity }}un.)
+
+                                            </span>
+
+                                        </div>
+
+
+                                        @if (consumption.observation) {
+
+                                        <div class="mt-1
+                                                       border-l-2 border-orange-300
+                                                       pl-1.5
+                                                       text-[10px]
+                                                       italic text-slate-500">
+
+                                            {{ consumption.observation }}
+
+                                        </div>
+
+                                        }
+
+                                    </td>
+
+
+                                    <!-- Total -->
+                                    <td class="p-2 text-right align-top">
+
+                                        <div class="text-[10px] text-slate-400">
+                                            {{ consumption.quantity }}x
+                                            {{ consumption.unityPrice | currency:'BRL' }}
+                                        </div>
+
+                                        <div class="text-xs font-bold text-slate-800">
+                                            {{ consumption.unityPrice * consumption.quantity | currency:'BRL' }}
+                                        </div>
+
+                                    </td>
+
+                                </tr>
+
+                            </ng-template>
+
+                        </av-table>
+
+                    </div>
+
+                </div>
+
+            </av-tab>
+
+        </av-tab-container>
+
+    </div>
 
 </div>

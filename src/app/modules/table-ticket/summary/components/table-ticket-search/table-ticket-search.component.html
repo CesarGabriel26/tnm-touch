@@ -1,22 +1,101 @@
-<div class="w-[95vw] bg-white rounded-lg p-2 flex flex-col gap-2">
-  <span class="text-orange-500 text-lg font-bold">
-    Selecionar destino
-  </span>
-  <div class="flex flex-col gap-2">
-    <av-toggle-group [options]="typeOptions" [formControl]="type" variant="orange" inactiveVariant="orange-outlined"
-      rounded="full" ariaLabel="Tipo de destino"></av-toggle-group>
+<div class="w-[94vw] max-w-[440px]
+           overflow-hidden
+           rounded-2xl
+           border border-slate-200
+           bg-white
+           shadow-2xl">
 
-    <av-select [formControl]="destination" valueKey="id" ringColor="orange" labelKey="code" [data]="tableTickets()"
-      [onSearch]="onSearch" [searchPlaceholder]="'Buscar por codigo da ' + (type.value === 'M' ? 'mesa' : 'comanda')"
-      [labelFormat]="`${type.value === 'M'? 'Mesa' : 'Comanda'} - ` + '{code}'" />
+  <!-- Header -->
+  <div class="border-b border-slate-100
+               px-4 py-3">
+
+    <div class="flex items-center gap-2">
+
+      <div class="flex h-9 w-9 shrink-0 items-center justify-center
+                       rounded-xl
+                       bg-orange-50
+                       text-orange-500">
+
+        <span av-icon name="swap_horiz" type="material" size="lg">
+        </span>
+
+      </div>
+
+      <div class="min-w-0">
+
+        <h2 class="text-base font-bold text-slate-800">
+          Selecionar destino
+        </h2>
+
+        <p class="text-[11px] text-slate-400">
+          Escolha onde os itens serão transferidos
+        </p>
+
+      </div>
+
+    </div>
+
   </div>
-  <div class="flex flex-row gap-2">
-    <button av-button icon="undo" iconProvider="material" (click)="close()">
+
+
+  <!-- Conteúdo -->
+  <div class="flex flex-col gap-3 p-3">
+
+    <!-- Tipo -->
+    <div class="flex flex-col gap-1.5">
+
+      <span class="px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        Tipo de destino
+      </span>
+
+      <av-toggle-group [options]="typeOptions" [formControl]="type" variant="orange" inactiveVariant="orange-outlined"
+        rounded="full" ariaLabel="Tipo de destino">
+      </av-toggle-group>
+
+    </div>
+
+
+    <!-- Destino -->
+    <div class="flex flex-col gap-1.5">
+
+      <span class="px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+        Destino
+      </span>
+
+      <av-select [formControl]="destination" valueKey="id" ringColor="orange" labelKey="code" [data]="tableTickets()"
+        [onSearch]="onSearch" [searchPlaceholder]="
+                    'Buscar por código da ' +
+                    (type.value === 'M' ? 'mesa' : 'comanda')
+                " [labelFormat]="
+                    `${type.value === 'M' ? 'Mesa' : 'Comanda'} - ` + '{code}'
+                ">
+      </av-select>
+
+    </div>
+
+  </div>
+
+
+  <!-- Footer -->
+  <div class="flex gap-2
+               border-t border-slate-100
+               bg-slate-50/60
+               p-3">
+
+    <button av-button icon="undo" iconProvider="material" (click)="close()" class="flex-1 !rounded-xl">
+
       Voltar
+
     </button>
-    <button av-button icon="send" iconProvider="material"
-      [disabled]="!destination.value || destination.value.trim() === ''" (click)="continue()">
+
+    <button av-button icon="send" iconProvider="material" variant="orange"
+      [disabled]="!destination.value || destination.value.trim() === ''" (click)="continue()"
+      class="flex-[1.4] !rounded-xl">
+
       Transferir
+
     </button>
+
   </div>
+
 </div>

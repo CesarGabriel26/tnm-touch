@@ -1,104 +1,225 @@
-<div class="flex flex-col h-dvh w-dvw bg-gray-100 relative">
+<div class="relative flex flex-col h-dvh w-dvw overflow-hidden bg-slate-100">
 
     <!-- Header -->
-    <div class="flex items-center gap-3 border-b border-slate-200 bg-white p-1 shadow-md">
-        <div class="min-w-0 flex-1 flex items-center gap-2">
-            <div class="rounded-full shadow-lg  w-10 h-10 bg-orange-500 flex items-center justify-center text-white font-bold">
-                <span class="capitalize">{{user().name ? user().name.slice(0,2): ''}}</span>
+    <header class="relative z-30 flex h-14 shrink-0 items-center gap-3
+               border-b border-slate-200/80
+               bg-white/90 px-3
+               backdrop-blur-xl">
+
+        <!-- Usuário -->
+        <div class="flex min-w-0 flex-1 items-center gap-2.5">
+
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center
+                       rounded-full bg-orange-500
+                       text-xs font-bold text-white
+                       shadow-sm shadow-orange-500/20">
+
+                <span class="capitalize">
+                    {{ user().name ? user().name.slice(0, 2) : '' }}
+                </span>
+
             </div>
-            <span class="text-gray-700 text-sm capitalize">{{user().name}}</span>
+
+            <div class="min-w-0">
+                <p class="truncate text-sm font-semibold text-slate-700">
+                    {{ user().name }}
+                </p>
+            </div>
+
         </div>
 
 
-        <button av-button (click)="isHome ? drawerOpen.set(!drawerOpen()) : goHome()" class="shadow-sm">
-            <span av-icon [name]="isHome ? 'menu' : 'home'" type="material" size="md"></span>
-        </button>
-    </div>
+        <!-- Menu / Home -->
+        <button av-button (click)="isHome ? drawerOpen.set(!drawerOpen()) : goHome()" class="!h-10 !w-10 !rounded-xl !border-0
+                   bg-slate-100 shadow-none
+                   hover:bg-slate-200
+                   active:scale-95 transition-all">
 
-    <!-- open tab -->
-    <div class="flex-1 overflow-auto">
+            <span av-icon [name]="isHome ? 'menu' : 'home'" type="material" size="md">
+            </span>
+
+        </button>
+
+    </header>
+
+
+    <!-- Conteúdo -->
+    <main class="min-h-0 flex-1 overflow-hidden">
+
         <router-outlet />
-    </div>
 
-    <!-- Nav -->
-    <div class="
-    relative
-    flex
-    items-center
-    justify-between
-    px-3
-    py-2
-    bg-white/95
-    backdrop-blur-md
-    border-t
-    border-gray-200/80
-    shadow-[0_-4px_16px_rgba(0,0,0,0.08)]
-  ">
-        <!-- Voltar / menu -->
-        <button av-button (click)="goBack()" [disabled]="isHome" class="shadow-sm">
-            <span av-icon [name]="'arrow_back'" type="material" size="xl"></span>
+    </main>
+
+
+    <!-- Bottom Navigation -->
+    <nav class="relative z-30 flex h-[68px] shrink-0 items-center
+               justify-between
+               border-t border-slate-200/80
+               bg-white/95
+               px-3 pb-2 pt-2
+               backdrop-blur-xl
+               shadow-[0_-8px_30px_rgba(15,23,42,0.08)]">
+
+        <!-- Voltar -->
+        <button av-button (click)="goBack()" [disabled]="isHome" class="!h-11 !w-11 !rounded-xl
+                   !border-0
+                   shadow-none
+                   disabled:opacity-30
+                   active:scale-95 transition-all">
+
+            <span av-icon name="arrow_back" type="material" size="xl">
+            </span>
+
         </button>
 
 
-        <!-- Novo pedido -->
-        <div class="relative">
-            <button av-button variant="blue" rounded="full" (click)="openOrder()" class="
-                absolute
-                -top-6
-                w-14
-                h-14
-                border-4
-                border-white
-                shadow-[0_6px_18px_rgba(59,130,246,0.35)]
-            ">
-                <span av-icon name="add" type="material" size="2xl"></span>
-            </button>
-        </div>
+        <!-- Ação principal -->
+        <button av-button variant="blue" rounded="full" (click)="openOrder()" class="absolute left-1/2 top-1/2
+                   !h-14 !w-14
+                   -translate-x-1/2 -translate-y-[calc(100%+40px)]
+                   !border-4 !border-slate-100
+                   shadow-[0_6px_20px_rgba(59,130,246,0.30)]
+                   active:scale-95
+                   transition-transform">
+
+            <span av-icon name="add" type="material" size="2xl">
+            </span>
+
+        </button>
 
 
         <!-- Carrinho -->
-        <button #basket av-button variant="orange" routerLink="/basket" class="relative shadow-sm overflow-visible!">
-            <span av-icon name="shopping_basket" type="material" size="xl"></span>
-            @if (orderDraftService.quantity() > 0) {
-            <span av-badge variant="red" class="absolute -top-4 -right-4">
-                {{ orderDraftService.quantity() }}
+        <button #basket av-button variant="orange" routerLink="/basket" class="relative !h-11 !w-11 !rounded-xl
+                   !border-0
+                   shadow-none
+                   active:scale-95
+                   transition-all
+                   overflow-visible!">
+
+            <span av-icon name="shopping_basket" type="material" size="xl">
             </span>
+
+            @if (orderDraftService.quantity() > 0) {
+
+            <span av-badge variant="red" class="absolute -right-1.5 -top-1.5
+                           min-w-5 !h-5
+                           !px-1
+                           flex items-center justify-center
+                           text-[10px]
+                           border-2 border-white">
+
+                {{ orderDraftService.quantity() }}
+
+            </span>
+
             }
+
         </button>
-    </div>
 
-    <!-- drawer -->
-    <div class="absolute top-0 left-0 z-999 w-full -translate-x-full h-full bg-black/50 transition-all" [ngClass]="{
-            'translate-x-0': drawerOpen(),
-        }">
-        <div class="absolute top-0 left-0 w-64 h-full bg-white flex flex-col">
-            <div class="flex flex-row gap-2 px-2 items-center border-b border-gray-200 text-orange-500">
-                <div class="p-4 flex-1">
-                    <h1 class="text-[20px] font-bold">
-                        Tanmao Touch
+    </nav>
+
+
+    <!-- Drawer -->
+    <div class="absolute inset-0 z-50
+               bg-slate-950/30
+               backdrop-blur-[2px]
+               transition-opacity duration-300" [ngClass]="{
+            'opacity-100 pointer-events-auto': drawerOpen(),
+            'opacity-0 pointer-events-none': !drawerOpen()
+        }" (click)="drawerOpen.set(false)">
+
+        <!-- Drawer -->
+        <aside class="absolute left-0 top-0
+                   flex h-full w-[280px] flex-col
+                   bg-white
+                   shadow-[8px_0_30px_rgba(15,23,42,0.12)]
+                   transition-transform duration-300" [ngClass]="{
+                'translate-x-0': drawerOpen(),
+                '-translate-x-full': !drawerOpen()
+            }" (click)="$event.stopPropagation()">
+
+
+            <!-- Drawer Header -->
+            <div class="flex h-16 shrink-0 items-center gap-2
+                       border-b border-slate-100 px-3">
+
+                <div class="flex h-10 w-10 items-center justify-center
+                           rounded-xl">
+
+                    <img src="assets/icon.svg" alt="">
+
+                </div>
+
+                <div class="min-w-0 flex-1">
+
+                    <h1 class="truncate text-base font-bold text-slate-800">
+                        Tanamao Touch
                     </h1>
+
+                    <p class="text-[10px] text-slate-400">
+                        Atendimento
+                    </p>
+
                 </div>
 
-                <div>
-                    <button av-button (click)="drawerOpen.set(false)">
-                        <span av-icon name="close" type="material" size="lg"></span>
-                    </button>
-                </div>
-            </div>
+                <button av-button (click)="drawerOpen.set(false)" class="!h-9 !w-9 !rounded-xl !border-0
+                           bg-slate-100 shadow-none">
 
-            <div class="flex flex-row items-center justify-between mt-auto p-2 border-t border-gray-200">
-                <div class="min-w-0 flex-1 flex items-center gap-2 flex-1">
-                    <div
-                        class="rounded-full  w-10 h-10 bg-orange-500 flex items-center justify-center text-white font-bold">
-                        <span class="capitalize">{{user().name ? user().name.slice(0,2): ''}}</span>
-                    </div>
-                    <span class="text-gray-700 text-sm capitalize">{{user().name}}</span>
-                </div>
+                    <span av-icon name="close" type="material" size="lg">
+                    </span>
 
-                <button av-button variant="red" (click)="leave()">
-                    <span av-icon name="logout" type="material" size="lg"></span>
                 </button>
+
             </div>
-        </div>
+
+
+            <!-- Conteúdo futuro do menu -->
+            <div class="flex-1 overflow-auto p-3">
+
+                <!-- itens de menu podem entrar aqui -->
+
+            </div>
+
+
+            <!-- Usuário -->
+            <div class="flex shrink-0 items-center gap-2
+                       border-t border-slate-100
+                       bg-slate-50/70
+                       p-3">
+
+                <div class="flex h-9 w-9 shrink-0 items-center justify-center
+                           rounded-full bg-orange-500
+                           text-xs font-bold text-white">
+
+                    <span class="capitalize">
+                        {{ user().name ? user().name.slice(0, 2) : '' }}
+                    </span>
+
+                </div>
+
+                <div class="min-w-0 flex-1">
+
+                    <p class="truncate text-xs font-semibold text-slate-700">
+                        {{ user().name }}
+                    </p>
+
+                    <p class="text-[10px] text-slate-400">
+                        Usuário conectado
+                    </p>
+
+                </div>
+
+                <button av-button variant="red" (click)="leave()" class="!h-9 !w-9 !rounded-xl !border-0">
+
+                    <span av-icon name="logout" type="material" size="lg">
+                    </span>
+
+                </button>
+
+            </div>
+
+        </aside>
+
     </div>
+
 </div>

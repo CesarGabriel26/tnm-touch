@@ -28,7 +28,7 @@ interface tableConsumption extends Consumption {
 
 @Component({
   selector: 'app-summary.component',
-  imports: [CommonModule, AvTableComponent, AvSortableColumnDirective, AvSortIcon, AvIcon, CurrencyPipe, DatePipe, AvTabs, AvTab, AvButton, AvCheckbox, FormsModule, ReactiveFormsModule, AvBadgeComponent],
+  imports: [CommonModule, AvTableComponent, AvBadgeComponent, AvSortableColumnDirective, AvSortIcon, AvIcon, CurrencyPipe, DatePipe, AvTabs, AvTab, AvButton, AvCheckbox, FormsModule, ReactiveFormsModule, AvBadgeComponent],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.css',
 })

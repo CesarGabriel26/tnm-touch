@@ -1,32 +1,168 @@
-<div class="w-[90%] bg-white rounded-lg p-2 flex flex-col gap-3 flex flex-col gap-2">
-    <div class="flex flex-row gap-2 items-center justify-between">
-        <span class="text-lg font-bold">Ações</span>
-        <button av-button variant="red" icon="close" (click)="close()"></button>
+<div
+    class="w-[92vw] max-w-[420px]
+           overflow-hidden
+           rounded-2xl
+           border border-slate-200
+           bg-white
+           shadow-2xl">
+
+    <!-- Header -->
+    <div
+        class="flex items-center justify-between
+               border-b border-slate-100
+               px-4 py-3">
+
+        <div class="flex flex-col">
+
+            <span class="text-base font-bold text-slate-800">
+                Ações
+            </span>
+
+            <span class="text-[11px] text-slate-400">
+                {{ hasSelectedItems
+                    ? 'Escolha uma ação para os itens selecionados'
+                    : 'Escolha uma ação para esta mesa/comanda'
+                }}
+            </span>
+
+        </div>
+
+        <button
+            av-button
+            variant="red"
+            icon="close"
+            (click)="close()"
+            class="!h-9 !w-9 !rounded-xl !border-0">
+        </button>
+
     </div>
 
-    <div class="flex flex-col gap-2">
-        @if(hasSelectedItems) {
-        <button av-button iconProvider="material" icon="split_scene_left" variant="orange" (click)="select('split')">
-            Desmembrar
-        </button>
 
-        <button av-button iconProvider="material" icon="redo" (click)="select('transfer_selected')">
-            Transferir selecionados
-        </button>
+    <!-- Ações -->
+    <div class="flex flex-col gap-2 p-3">
 
-        <button av-button iconProvider="material" icon="receipt_long" variant="emerald"
-            (click)="select('invoice_selected')">
-            Faturar selecioados
-        </button>
+        @if (hasSelectedItems) {
+
+            <!-- Desmembrar -->
+            <button
+                av-button
+                iconProvider="material"
+                icon="split_scene_left"
+                variant="orange"
+                (click)="select('split')"
+                class="!min-h-12 !justify-start !rounded-xl">
+
+                <span class="flex flex-col items-start">
+
+                    <span class="font-semibold">
+                        Desmembrar
+                    </span>
+
+                    <span class="text-[10px] opacity-70 font-normal">
+                        Separar os itens selecionados
+                    </span>
+
+                </span>
+
+            </button>
+
+
+            <!-- Transferir selecionados -->
+            <button
+                av-button
+                iconProvider="material"
+                icon="redo"
+                (click)="select('transfer_selected')"
+                class="!min-h-12 !justify-start !rounded-xl">
+
+                <span class="flex flex-col items-start">
+
+                    <span class="font-semibold">
+                        Transferir selecionados
+                    </span>
+
+                    <span class="text-[10px] opacity-70 font-normal">
+                        Mover os itens para outra mesa ou comanda
+                    </span>
+
+                </span>
+
+            </button>
+
+
+            <!-- Faturar selecionados -->
+            <button
+                av-button
+                iconProvider="material"
+                icon="receipt_long"
+                variant="emerald"
+                (click)="select('invoice_selected')"
+                class="!min-h-12 !justify-start !rounded-xl">
+
+                <span class="flex flex-col items-start">
+
+                    <span class="font-semibold">
+                        Faturar selecionados
+                    </span>
+
+                    <span class="text-[10px] opacity-70 font-normal">
+                        Iniciar o faturamento dos itens selecionados
+                    </span>
+
+                </span>
+
+            </button>
+
         } @else {
-        <button av-button iconProvider="material" icon="redo" (click)="select('transfer_all')">
-            Transferir tudo
-        </button>
 
-        <button av-button iconProvider="material" icon="receipt_long" variant="emerald" (click)="select('invoice_all')">
-            Faturar
-        </button>
+            <!-- Transferir tudo -->
+            <button
+                av-button
+                iconProvider="material"
+                icon="redo"
+                (click)="select('transfer_all')"
+                class="!min-h-12 !justify-start !rounded-xl">
+
+                <span class="flex flex-col items-start">
+
+                    <span class="font-semibold">
+                        Transferir tudo
+                    </span>
+
+                    <span class="text-[10px] opacity-70 font-normal">
+                        Transferir todos os consumos
+                    </span>
+
+                </span>
+
+            </button>
+
+
+            <!-- Faturar -->
+            <button
+                av-button
+                iconProvider="material"
+                icon="receipt_long"
+                variant="emerald"
+                (click)="select('invoice_all')"
+                class="!min-h-12 !justify-start !rounded-xl">
+
+                <span class="flex flex-col items-start">
+
+                    <span class="font-semibold">
+                        Faturar
+                    </span>
+
+                    <span class="text-[10px] opacity-70 font-normal">
+                        Faturar todos os consumos
+                    </span>
+
+                </span>
+
+            </button>
+
         }
+
     </div>
 
 </div>

@@ -1,6 +1,7 @@
 import { AvButton, AvToggleGroup } from '@/app/components/angular-visuals/components/buttons';
 import { AvSelect } from '@/app/components/angular-visuals/components/forms';
 import { TableTicket } from '@/app/models/table-ticket';
+import { DialogService } from '@/app/services/dialog.service';
 import { TableTicketService } from '@/app/services/tableticket.service';
 import { Component, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -29,7 +30,10 @@ export class TableTicketSearchComponent {
     validators: [Validators.required]
   });
 
+  destination = new FormControl<string>('')
+
   constructor(
+    private readonly dialogService: DialogService,
     private readonly tableTicketService: TableTicketService
   ) {
     this.search.valueChanges.pipe(
@@ -57,5 +61,13 @@ export class TableTicketSearchComponent {
         this.tableTickets.set(value.items)
       }
     })
+  }
+
+  close() {
+    this.dialogService.close()
+  }
+
+  continue() {
+    this.dialogService.close(this.destination.value)
   }
 }

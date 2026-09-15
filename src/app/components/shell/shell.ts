@@ -110,7 +110,7 @@ export class AppShell implements OnDestroy, OnInit {
     this.location.back();
   }
 
-  goHome(){
+  goHome() {
     this.router.navigate(['/home']);
   }
 
@@ -122,14 +122,7 @@ export class AppShell implements OnDestroy, OnInit {
       return;
     }
 
-    const activeTableTicket = this.orderDraftService.tableTicket();
-
-    if (activeTableTicket?.id) {
-      this.router.navigate(['/order', activeTableTicket.id]);
-      return;
-    }
-
-    this.router.navigate(['/home']);
+    this.router.navigate(['/order']);
   }
 
   leave() {

@@ -1,0 +1,44 @@
+<div class="w-[92vw] max-w-md bg-white rounded-2xl p-5 flex flex-col gap-4 shadow-xl border border-slate-100">
+  <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+    <div>
+      <h2 class="text-slate-900 text-lg font-black tracking-tight">Selecionar Destino</h2>
+      <p class="text-xs text-slate-500 font-medium">Escolha como deseja registrar este consumo</p>
+    </div>
+    <button type="button" class="text-slate-400 hover:text-slate-600 p-1" (click)="close()">
+      <span av-icon name="close" type="material" size="md"></span>
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-3">
+    <av-toggle-group [options]="destinationTypeOptions" [formControl]="type" variant="orange"
+      inactiveVariant="orange-outlined" rounded="full" ariaLabel="Tipo de destino"></av-toggle-group>
+
+    @if (type.value === 'A') {
+    <div class="bg-orange-50 border border-orange-200 rounded-xl p-3.5 flex items-start gap-3">
+      <span av-icon name="info" type="material" size="md" class="text-orange-600 shrink-0 mt-0.5"></span>
+      <p class="text-xs text-orange-900 leading-relaxed font-medium">
+        Este consumo será enviado como <strong>Venda Avulsa</strong>. Uma nova abertura de atendimento (keyOpen) será gerada para este pedido.
+      </p>
+    </div>
+    } @else {
+    <div class="flex flex-col gap-1.5">
+      <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+        {{ type.value === 'M' ? 'Mesa de Destino' : 'Comanda de Destino' }}
+      </label>
+      <av-select [formControl]="destinationId" valueKey="id" ringColor="orange" labelKey="code" [data]="tableTickets()"
+        [onSearch]="onSearch" [searchPlaceholder]="'Buscar número da ' + (type.value === 'M' ? 'mesa' : 'comanda')"
+        [labelFormat]="(type.value === 'M' ? 'Mesa ' : 'Comanda ') + '{code}'" />
+    </div>
+    }
+  </div>
+
+  <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100">
+    <button av-button variant="gray" (click)="close()">
+      Cancelar
+    </button>
+    <button av-button variant="orange" [disabled]="!isValid" (click)="confirm()">
+      <span av-icon name="send" type="material" size="sm"></span>
+      Confirmar e Enviar
+    </button>
+  </div>
+</div>

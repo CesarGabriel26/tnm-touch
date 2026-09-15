@@ -76,7 +76,8 @@ export class OrderComponent {
     const tableTicketId = this.route.snapshot.paramMap.get('id');
 
     if (!tableTicketId) {
-      this.router.navigate(['/home']);
+      this.tableTicket.set(null);
+      this.orderDraft.startOrder(null);
       return;
     }
 
@@ -144,8 +145,6 @@ export class OrderComponent {
 
   addItem(item: IOrderItem) {
     const tableTicket = this.tableTicket();
-    if (!tableTicket) return;
-
     this.orderDraft.add(tableTicket, item);
   }
 

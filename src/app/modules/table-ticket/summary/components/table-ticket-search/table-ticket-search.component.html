@@ -3,25 +3,19 @@
     Selecionar destino
   </span>
   <div class="flex flex-col gap-2">
-    <av-toggle-group
-      [options]="typeOptions"
-      [formControl]="type"
-      variant="orange"
-      inactiveVariant="orange-outlined"
-      rounded="full"
-      ariaLabel="Tipo de destino"
-    ></av-toggle-group>
+    <av-toggle-group [options]="typeOptions" [formControl]="type" variant="orange" inactiveVariant="orange-outlined"
+      rounded="full" ariaLabel="Tipo de destino"></av-toggle-group>
 
-    <av-select ringColor="orange" labelKey="code" [data]="tableTickets()" [onSearch]="onSearch"
-      [searchPlaceholder]="'Buscar por codigo da ' + (type.value === 'M' ? 'mesa' : 'comanda')"
-      [labelFormat]="`${type.value === 'M'? 'Mesa' : 'Comanda'} - ` + '{code}'"
-    />
+    <av-select [formControl]="destination" valueKey="id" ringColor="orange" labelKey="code" [data]="tableTickets()"
+      [onSearch]="onSearch" [searchPlaceholder]="'Buscar por codigo da ' + (type.value === 'M' ? 'mesa' : 'comanda')"
+      [labelFormat]="`${type.value === 'M'? 'Mesa' : 'Comanda'} - ` + '{code}'" />
   </div>
   <div class="flex flex-row gap-2">
-    <button av-button icon="undo" iconProvider="material">
+    <button av-button icon="undo" iconProvider="material" (click)="close()">
       Voltar
     </button>
-    <button av-button icon="send" iconProvider="material">
+    <button av-button icon="send" iconProvider="material"
+      [disabled]="!destination.value || destination.value.trim() === ''" (click)="continue()">
       Transferir
     </button>
   </div>

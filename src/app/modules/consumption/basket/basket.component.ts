@@ -9,6 +9,8 @@ import { LoadingOverlayService } from '../../../services/loading-overlay.service
 import { DraftConsumption, OrderDraftService } from '../../../services/order/order-draft.service';
 import { OrderQueueSyncService } from '../../../services/order/order-queue-sync.service';
 import { StorageService } from '../../../services/storage.service';
+import { KeyOpenService } from '../../../services/keyopen.service';
+import { OrderDestinationModalComponent, OrderDestinationResult } from './components/order-destination-modal/order-destination-modal.component';
 
 @Component({
   selector: 'app-basket.component',
@@ -31,11 +33,12 @@ export class BasketComponent {
     private readonly loadingOverlayService: LoadingOverlayService,
     private readonly storageService: StorageService,
     private readonly orderQueueSyncService: OrderQueueSyncService,
+    private readonly keyOpenService: KeyOpenService,
   ) { }
 
   get title(): string {
     const tableTicket = this.tableTicket();
-    if (!tableTicket) return 'Pedido';
+    if (!tableTicket) return 'Pedido Avulso';
 
     return `${tableTicket.type === 'M' ? 'Mesa' : 'Comanda'} ${tableTicket.code}`;
   }
@@ -59,7 +62,7 @@ export class BasketComponent {
       return;
     }
 
-    this.router.navigate(['/home']);
+    this.router.navigate(['/order']);
   }
 
   itemSubtotal(item: DraftConsumption): number {
@@ -67,27 +70,71 @@ export class BasketComponent {
   }
 
   async saveOrder() {
-    const tableTicket = this.tableTicket();
     const items = this.items();
+    if (items.length === 0 || this.saving()) return;
 
-    if (!tableTicket || items.length === 0 || this.saving()) return;
+    let tableTicket = this.tableTicket();
+    let isAvulso = false;
+
+    if (!tableTicket) {
+      const destinationResult: OrderDestinationResult | null = await this.dialogService.showComponent(
+        OrderDestinationModalComponent
+      );
+
+      if (!destinationResult) return;
+
+      if (destinationResult.type === 'avulso') {
+        isAvulso = true;
+      } else if (destinationResult.type === 'table_ticket' && destinationResult.tableTicket) {
+        tableTicket = destinationResult.tableTicket;
+        this.orderDraftService.startOrder(tableTicket);
+      } else {
+        return;
+      }
+    }
 
     this.saving.set(true);
     this.loadingOverlayService.show('Salvando pedido');
 
     try {
-      const customers = await this.getCustomersForQueue(tableTicket);
-      const keyOpenId = tableTicket.keyOpenId || tableTicket.keyOpen?.id || '';
-      const queuedOrder = await this.storageService.enqueueOrder({
-        tableTicket,
-        customers,
-        items: this.orderDraftService.prepareForSave(keyOpenId),
-      });
+      if (isAvulso) {
+        const companyId = localStorage.getItem('@companyId') || '';
+        let keyOpenId = '';
 
-      this.orderDraftService.finishOrder();
-      this.orderQueueSyncService.syncQueue();
-      this.loadingOverlayService.hide();
-      this.router.navigate(['/table-ticket-summary', queuedOrder.tableTicketId]);
+        try {
+          const keyOpen = await this.keyOpenService.create({
+            companyId,
+            customers: 1,
+            openedAt: new Date().toISOString(),
+          });
+          keyOpenId = keyOpen.id;
+        } catch {
+          keyOpenId = `local-${Date.now()}`;
+        }
+
+        await this.storageService.enqueueOrder({
+          keyOpenId,
+          items: this.orderDraftService.prepareForSave(keyOpenId),
+        });
+
+        this.orderDraftService.finishOrder();
+        this.orderQueueSyncService.syncQueue();
+        this.loadingOverlayService.hide();
+        this.router.navigate(['/home']);
+      } else if (tableTicket) {
+        const customers = await this.getCustomersForQueue(tableTicket);
+        const keyOpenId = tableTicket.keyOpenId || tableTicket.keyOpen?.id || '';
+        const queuedOrder = await this.storageService.enqueueOrder({
+          tableTicket,
+          customers,
+          items: this.orderDraftService.prepareForSave(keyOpenId),
+        });
+
+        this.orderDraftService.finishOrder();
+        this.orderQueueSyncService.syncQueue();
+        this.loadingOverlayService.hide();
+        this.router.navigate(['/table-ticket-summary', queuedOrder.tableTicketId]);
+      }
     } catch (err: any) {
       if (err?.message === 'Abertura cancelada') {
         this.loadingOverlayService.hide();

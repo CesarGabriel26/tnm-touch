@@ -13,8 +13,10 @@
 
     @if (tableTicket?.keyOpen?.alias) {
     <p class="truncate text-xs font-medium text-slate-500">{{ tableTicket?.keyOpen?.alias }}</p>
-    } @else {
+    } @else if (tableTicket) {
     <p class="text-xs text-slate-400">{{ tableTicket?.type === 'M' ? 'Pedido de mesa' : 'Pedido de comanda' }}</p>
+    } @else {
+    <p class="text-xs text-slate-400">Novo pedido sem destino</p>
     }
   </div>
 

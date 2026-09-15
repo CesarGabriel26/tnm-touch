@@ -9,7 +9,8 @@ import {
   signal,
   computed,
   effect,
-  output
+  output,
+  AfterViewInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NgControl, ReactiveFormsModule } from '@angular/forms';
@@ -49,6 +50,7 @@ export class AvSelectComponent implements ControlValueAccessor {
   errorMessage = input<string>('');
 
   @ViewChild('triggerEl') triggerEl!: ElementRef<HTMLDivElement>;
+  @ViewChild('inputEl') inputEl!: ElementRef<HTMLInputElement>;
 
   // Sinais de controle do estado interno
   isOpen = signal<boolean>(false);
@@ -139,8 +141,15 @@ export class AvSelectComponent implements ControlValueAccessor {
   toggleDropdown(): void {
     if (this.disabled()) return;
     this.isOpen.set(!this.isOpen());
+
     if (!this.isOpen()) {
       this.onTouched();
+    }
+  }
+
+  onOverlayAttach(): void {
+    if (this.searchable && this.inputEl) {
+      setTimeout(() => this.inputEl.nativeElement.focus(), 100);
     }
   }
 

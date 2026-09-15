@@ -54,7 +54,8 @@ export interface StoredOrderDraft<TItem = unknown> {
 }
 
 export interface QueueOrderPayload {
-  tableTicket: TableTicket;
+  tableTicket?: TableTicket | null;
+  keyOpenId?: string;
   items: Consumption[];
   customers?: number;
 }
@@ -293,30 +294,32 @@ export class StorageService {
     const db = await this.database();
     const now = new Date().toISOString();
     const id = this.createId();
-    const keyOpenId = payload.tableTicket.keyOpenId || payload.tableTicket.keyOpen?.id;
+    const keyOpenId = payload.keyOpenId || payload.tableTicket?.keyOpenId || payload.tableTicket?.keyOpen?.id;
     const localKeyOpenId = keyOpenId ? undefined : `local-${id}`;
     const effectiveKeyOpenId = keyOpenId || localKeyOpenId!;
-    const needsOpening = !keyOpenId || payload.tableTicket.status === TableStatus.BOOKED;
-    const customers = Math.max(1, Number(payload.customers) || Number(payload.tableTicket.keyOpen?.customers) || 1);
-    const tableTicket = this.buildQueuedTableTicket(payload.tableTicket, effectiveKeyOpenId, customers, now);
+    const needsOpening = payload.tableTicket ? (!keyOpenId || payload.tableTicket.status === TableStatus.BOOKED) : false;
+    const customers = Math.max(1, Number(payload.customers) || Number(payload.tableTicket?.keyOpen?.customers) || 1);
+    const tableTicket = payload.tableTicket ? this.buildQueuedTableTicket(payload.tableTicket, effectiveKeyOpenId, customers, now) : undefined;
+    const companyId = payload.tableTicket?.companyId || localStorage.getItem('@companyId') || '';
     const items = payload.items.map((item) => ({
       ...item,
+      companyId,
       keyOpen: effectiveKeyOpenId,
       dateTime: now,
     }));
 
     const order: QueuedOrderRecord = {
       id,
-      tableTicketId: payload.tableTicket.id,
-      companyId: payload.tableTicket.companyId,
-      type: payload.tableTicket.type,
-      code: payload.tableTicket.code,
+      tableTicketId: payload.tableTicket?.id || '',
+      companyId,
+      type: payload.tableTicket?.type || 'A',
+      code: payload.tableTicket?.code || 0,
       status: 'pending',
       needsOpening,
       customers,
       keyOpenId,
       localKeyOpenId,
-      tableTicket,
+      tableTicket: tableTicket!,
       items,
       sentItemIndexes: [],
       attempts: 0,
@@ -326,7 +329,9 @@ export class StorageService {
 
     await db.transaction('rw', db.orderQueue, db.tableTickets, async () => {
       await db.orderQueue.put(order);
-      await db.tableTickets.put(this.toTableTicketCacheRecord(tableTicket, now));
+      if (tableTicket) {
+        await db.tableTickets.put(this.toTableTicketCacheRecord(tableTicket, now));
+      }
     });
 
     return order;

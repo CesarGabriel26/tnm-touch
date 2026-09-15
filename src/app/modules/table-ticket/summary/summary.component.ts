@@ -33,15 +33,11 @@ interface tableConsumption extends Consumption {
   styleUrl: './summary.component.css',
 })
 export class SummaryComponent implements OnInit {
-  pageSize = 8
   id = signal<string>('')
 
   tableTicket = signal<TableTicket | null>(null);
   keyOpen = signal<KeyOpen | null>(null)
   consumptions = signal<tableConsumption[]>([]);
-
-  page = signal<number>(0)
-  totalItems = signal<number>(0)
 
   selectedItensCount = computed(() => {
     return this.consumptions().filter((c) => c.selected).length
@@ -63,13 +59,6 @@ export class SummaryComponent implements OnInit {
     }
 
     this.id.set(id)
-
-    effect(() => {
-      this.page()
-      if (!this.keyOpen()) {
-        this.loadConsumptions()
-      }
-    })
 
     this.consumptionsService.updated.pipe(
       takeUntilDestroyed()
@@ -107,10 +96,9 @@ export class SummaryComponent implements OnInit {
     if (!this.tableTicket()?.keyOpenId) return
     this.loadingOverlayService.show('carregando consumos...')
 
-    this.consumptionsService.list(this.page(), this.pageSize, {
+    this.consumptionsService.list(0, 999999, {
       keyOpen: this.tableTicket()?.keyOpenId
     }).subscribe((data) => {
-      this.totalItems.set(data.total)
       this.consumptions.set(data.items.map((c) => ({ ...c, selected: false })))
       this.loadingOverlayService.hide()
     })
@@ -170,20 +158,32 @@ export class SummaryComponent implements OnInit {
         break;
       }
       case ('transfer_selected'): {
-        const confirm = await this.dialogService.confirm('Transferir', 'Deseja transferir os itens selecionados?')
-
-        if (!confirm) return;
-
         const selected = this.consumptions().filter(c => c.selected).map(c => c.id) as string[];
-
-        const destination = await this.dialogService.showComponent(TableTicketSearchComponent)
-
-        if (!destination) return;
-
-
+        this.transfer(selected)
+        break;
+      }
+      case ('transfer_all'): {
+        const selected = this.consumptions().map(c => c.id) as string[];
+        this.transfer(selected)
+        break;
       }
     }
 
+  }
+
+  async transfer(items: any[]) {
+    const confirm = await this.dialogService.confirm('Transferir', 'Deseja transferir os itens selecionados?')
+
+    if (!confirm) return;
+
+    const destination = await this.dialogService.showComponent(TableTicketSearchComponent)
+    console.log(destination);
+    
+    if (!destination) return;
+
+    this.consumptionsService.transfer(items, destination).subscribe({
+      next: () => this.loadTable()
+    });
   }
 
   invoice() {

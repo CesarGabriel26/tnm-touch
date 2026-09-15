@@ -53,7 +53,7 @@ export const routes: Routes = [
             },
             {
                 path: 'order',
-                redirectTo: 'home'
+                component: OrderComponent
             },
             {
                 path: 'order/:id',

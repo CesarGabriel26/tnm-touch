@@ -48,11 +48,13 @@ export class OrderDraftService {
     });
   }
 
-  startOrder(table: TableTicket) {
+  startOrder(table: TableTicket | null) {
     this.markTouched();
     const active = this.activeTableTicket();
+    const activeId = active?.id || null;
+    const nextId = table?.id || null;
 
-    if (!active || active.id !== table.id) {
+    if (activeId !== nextId) {
       this.draftItems.set([]);
     }
 
@@ -67,7 +69,7 @@ export class OrderDraftService {
     }
   }
 
-  add(table: TableTicket, item: IOrderItem) {
+  add(table: TableTicket | null, item: IOrderItem) {
     this.startOrder(table);
 
     const productId = this.getProductId(item);
@@ -81,9 +83,12 @@ export class OrderDraftService {
       return;
     }
 
+    const companyId = table?.companyId || localStorage.getItem('@companyId') || '';
+    const keyOpen = table?.keyOpenId || table?.keyOpen?.id || '';
+
     const newItem: DraftConsumption = {
-      companyId: table.companyId,
-      keyOpen: table.keyOpenId || table.keyOpen?.id || '',
+      companyId,
+      keyOpen,
       productId,
       snapshot: item,
       orderGroup: 1,

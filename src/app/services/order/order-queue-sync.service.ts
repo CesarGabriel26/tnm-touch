@@ -102,10 +102,12 @@ export class OrderQueueSyncService {
       .filter(({ index }) => !sentItemIndexes.has(index));
 
     if (pendingItems.length > 0) {
-      await firstValueFrom(this.http.post<Consumption[]>(
+      const createdConsumptions = await firstValueFrom(this.http.post<Consumption[]>(
         `${configs.apiUrl}/consumption`,
         pendingItems.map(({ item, index }) => this.toConsumptionPayload(item, remoteOrder.keyOpenId, index))
       ));
+
+      await this.enqueuePrintQueue(createdConsumptions, currentOrder.companyId);
 
       for (const { index } of pendingItems) {
         sentItemIndexes.add(index);
@@ -120,6 +122,20 @@ export class OrderQueueSyncService {
 
     if (pendingItems.length > 0) {
       this.consumptionsService.updated.emit();
+    }
+  }
+
+  private async enqueuePrintQueue(consumptions: Consumption[], companyId: string) {
+    if (consumptions.length === 0 || !companyId) return;
+
+    try {
+      await firstValueFrom(this.http.post(`${configs.apiUrl}/print-queue/enqueue`, {
+        companyId,
+        type: 'consumptions',
+        data: consumptions,
+      }));
+    } catch (error) {
+      console.error('Erro ao gerar fila de impressão dos consumos:', error);
     }
   }
 

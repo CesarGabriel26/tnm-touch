@@ -52,11 +52,6 @@
             }
         </div>
 
-        <!-- <button av-button variant="orange" rounded="full" class="w-full justify-center py-2" (click)="goToOrder()">
-            <span av-icon name="add_shopping_cart" type="material" size="md"></span>
-            Adicionar pedido
-        </button> -->
-
         <div class="ml-auto">
             <button av-button (click)="options()">
                 <span av-icon name="more_vert" type="material" size="lg"></span>
@@ -101,9 +96,7 @@
 
                 </div>
                 <div class="flex-1 min-h-0">
-                    <av-table [value]="consumptions()" [pageIndex]="page()" [pageSize]="pageSize"
-                        [totalRecords]="totalItems()" [paginator]="true" variant="orange" currentPageLabel=""
-                        (onPage)="page.set($event.page)">
+                    <av-table [value]="consumptions()" variant="orange">
                         <ng-template #header>
                             <tr>
                                 <th class="p-2 text-[13px] font-bold">

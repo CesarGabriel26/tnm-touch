@@ -23,7 +23,8 @@ export class ConsumptionsService {
       ...filters,
       limit: size,
       offset: Math.max(0, page) * size,
-      orderBy: orderBy || 'orderGroup'
+      orderBy: 'orderGroup',
+      orderDirection: 'desc'
     })
 
     return this.http.get<PaginatedResponse<Consumption>>(`${configs.apiUrl}/consumption`, { params: httpParams }).pipe(

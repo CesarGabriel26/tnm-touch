@@ -87,7 +87,7 @@ export class BasketComponent {
         isAvulso = true;
       } else if (destinationResult.type === 'table_ticket' && destinationResult.tableTicket) {
         tableTicket = destinationResult.tableTicket;
-        this.orderDraftService.startOrder(tableTicket);
+        this.orderDraftService.setTableTicket(tableTicket);
       } else {
         return;
       }

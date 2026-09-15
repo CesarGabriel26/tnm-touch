@@ -48,6 +48,11 @@ export class OrderDraftService {
     });
   }
 
+  setTableTicket(table: TableTicket) {
+    this.markTouched();
+    this.activeTableTicket.set(table);
+  }
+
   startOrder(table: TableTicket | null) {
     this.markTouched();
     const active = this.activeTableTicket();

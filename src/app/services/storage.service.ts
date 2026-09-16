@@ -10,7 +10,7 @@ import { Variation } from '../models/product/variation.model';
 import { TableStatus, TableTicket } from '../models/table-ticket';
 import { PaginatedResponse } from '../types/response';
 
-const CACHE_REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const CACHE_REFRESH_INTERVAL_MS = 60 * 1000;
 
 interface CacheMetadata {
   key: string;
@@ -273,7 +273,13 @@ export class StorageService {
     const now = new Date().toISOString();
 
     await db.transaction('rw', db.complements, db.cacheMetadata, async () => {
-      await db.complements.bulkPut(complements.map((complement) => this.toComplementCacheRecord(complement, now)));
+      const records = await Promise.all(complements.map(async (complement) => {
+        const data = this.withEntityId(complement);
+        const current = await db.complements.get(this.getEntityId(data));
+        return this.toComplementCacheRecord(this.keepComplementOptions(current?.data, data), now);
+      }));
+
+      await db.complements.bulkPut(records);
       await db.cacheMetadata.put({ key: cacheKey, updatedAt: Date.now() });
     });
 
@@ -282,7 +288,9 @@ export class StorageService {
 
   async cacheComplement(complement: Complement) {
     const db = await this.database();
-    await db.complements.put(this.toComplementCacheRecord(complement, new Date().toISOString()));
+    const data = this.withEntityId(complement);
+    const current = await db.complements.get(this.getEntityId(data));
+    await db.complements.put(this.toComplementCacheRecord(this.keepComplementOptions(current?.data, data), new Date().toISOString()));
     this.notifyCacheUpdated(this.complementsCacheKey());
   }
 
@@ -617,6 +625,20 @@ export class StorageService {
       updatedAt,
       data,
     };
+  }
+
+  private keepComplementOptions(current: Complement | undefined, incoming: Complement): Complement {
+    if (Array.isArray(current?.options) && !Array.isArray(incoming.options)) {
+      return {
+        ...incoming,
+        options: current!.options,
+        optionsLoaded: (current as Complement & { optionsLoaded?: boolean }).optionsLoaded,
+      } as Complement & {
+        optionsLoaded?: boolean;
+      };
+    }
+
+    return incoming;
   }
 
   private toVariationCacheRecord(variation: Variation, updatedAt: string): VariationCacheRecord {

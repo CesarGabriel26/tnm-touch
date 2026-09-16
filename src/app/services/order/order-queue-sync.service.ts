@@ -21,9 +21,10 @@ interface QueueSyncResult {
   providedIn: 'root',
 })
 export class OrderQueueSyncService {
-  private readonly retryIntervalMs = 30 * 1000;
+  private readonly retryIntervalMs = 10 * 1000;
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private syncing = false;
+  private readonly handleOnline = () => void this.syncQueue();
 
   readonly lastResult = signal<QueueSyncResult>({ sent: 0, failed: 0 });
 
@@ -36,6 +37,7 @@ export class OrderQueueSyncService {
   start(intervalMs = this.retryIntervalMs) {
     if (this.intervalId || typeof window === 'undefined') return;
 
+    window.addEventListener('online', this.handleOnline);
     void this.syncQueue();
     this.intervalId = setInterval(() => void this.syncQueue(), intervalMs);
   }
@@ -45,9 +47,11 @@ export class OrderQueueSyncService {
 
     clearInterval(this.intervalId);
     this.intervalId = null;
+    window.removeEventListener('online', this.handleOnline);
   }
 
   async syncQueue(): Promise<QueueSyncResult> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) return this.lastResult();
     if (this.syncing) return this.lastResult();
 
     this.syncing = true;

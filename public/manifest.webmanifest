@@ -9,7 +9,10 @@
   "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
-  "categories": ["food", "shopping", "pos"],
+  "categories": [
+    "food",
+    "shopping"
+  ],
   "icons": [
     {
       "src": "/icons/android/launchericon-48x48.png",

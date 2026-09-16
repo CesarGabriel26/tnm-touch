@@ -21,7 +21,7 @@ interface QueueSyncResult {
   providedIn: 'root',
 })
 export class OrderQueueSyncService {
-  private readonly retryIntervalMs = 60 * 1000;
+  private readonly retryIntervalMs = 30 * 1000;
   private intervalId: ReturnType<typeof setInterval> | null = null;
   private syncing = false;
 

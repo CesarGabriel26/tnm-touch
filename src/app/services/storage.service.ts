@@ -379,6 +379,16 @@ export class StorageService {
     this.notifyCacheUpdated(this.tableTicketsCacheKey(tableTicket.type));
   }
 
+  async removeCachedTableTicket(id: string, type?: string) {
+    const db = await this.database();
+    const current = await db.tableTickets.get(id);
+    await db.tableTickets.delete(id);
+
+    this.notifyCacheUpdated(`table-ticket:${id}`);
+    this.notifyCacheUpdated(this.tableTicketsCacheKey(type || current?.type));
+    this.notifyCacheUpdated(this.tableTicketsCacheKey());
+  }
+
   async getCachedTableTickets(filters?: Record<string, unknown>, options?: CacheListOptions): Promise<PaginatedResponse<TableTicket>> {
     const db = await this.database();
     const records = await db.tableTickets.toArray();

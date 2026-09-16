@@ -16,8 +16,7 @@
   </div>
 
   <div class="min-h-0 flex-1 overflow-y-auto p-3">
-    @if (!tableTicket() && items().length < 1) {
-    <div
+    @if (!tableTicket() && items().length < 1) { <div
       class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-slate-200 bg-white p-5 text-center text-slate-400">
       <span av-icon name="table_restaurant" type="material" size="2xl"></span>
       <div>
@@ -28,74 +27,98 @@
         (click)="addMore()">
         Escolher atendimento
       </button>
+  </div>
+  } @else if (items().length === 0) {
+  <div
+    class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-slate-200 bg-white p-5 text-center text-slate-400">
+    <span av-icon name="receipt_long" type="material" size="2xl"></span>
+    <div>
+      <h2 class="text-base font-black text-slate-700">Pedido vazio</h2>
+      <p class="mt-1 text-sm font-semibold text-slate-400">Adicione produtos para montar o pedido.</p>
     </div>
-    } @else if (items().length === 0) {
-    <div
-      class="flex h-full min-h-64 flex-col items-center justify-center gap-3 rounded-lg border-2 border-dashed border-slate-200 bg-white p-5 text-center text-slate-400">
-      <span av-icon name="receipt_long" type="material" size="2xl"></span>
-      <div>
-        <h2 class="text-base font-black text-slate-700">Pedido vazio</h2>
-        <p class="mt-1 text-sm font-semibold text-slate-400">Adicione produtos para montar o pedido.</p>
-      </div>
-      <button av-button type="button" variant="orange" rounded="full" class="mt-2 px-4 py-2 text-sm font-black"
-        (click)="addMore()">
-        Adicionar produtos
-      </button>
-    </div>
-    } @else {
-    @for (item of items(); track $index) {
-    <div class="mb-3 rounded-lg border border-orange-100 bg-white p-3 shadow-sm">
-      <div class="flex items-start justify-between gap-2">
-        <div class="min-w-0 flex-1">
-          <h3 class="line-clamp-2 text-sm font-black leading-tight text-slate-900">{{ item.product }}</h3>
-          @if (item.snapshot.variation?.name) {
-          <p class="mt-0.5 text-xs font-semibold text-orange-700">{{ item.snapshot.variation?.name }}</p>
-          }
+    <button av-button type="button" variant="orange" rounded="full" class="mt-2 px-4 py-2 text-sm font-black"
+      (click)="addMore()">
+      Adicionar produtos
+    </button>
+  </div>
+  } @else {
+  @for (item of items(); track $index) {
+  <div class="mb-3 rounded-xl border border-orange-100 bg-white p-3 shadow-xs">
+    <div class="flex items-start justify-between gap-2">
+      <div class="min-w-0 flex-1">
+        <h3 class="text-sm font-black leading-tight text-slate-900 break-words">{{ item.product }}</h3>
+
+        @if (item.snapshot.variation?.name) {
+        <p class="mt-0.5 text-xs font-bold text-orange-600">{{ item.snapshot.variation?.name }}</p>
+        }
+        @if (item.obs || (item.snapshot.complements && item.snapshot.complements.length > 0)) {
+        <div
+          class="mt-2 text-xs text-slate-600 p-2 rounded-lg border border-orange-200 border-dashed bg-orange-50/40 space-y-1">
           @if (item.obs) {
-          <p class="mt-1 text-xs italic text-slate-500">Obs: {{ item.obs }}</p>
+          <span class="font-medium text-amber-700 block text-[11px] break-words">Obs: {{ item.obs }}</span>
+          }
+
+          @if (item.snapshot.complements && item.snapshot.complements.length > 0) {
+          <div class="text-[11px] text-slate-600 space-y-0.5">
+            @for (complement of item.snapshot.complements; track $index) {
+            <div class="flex flex-wrap items-center gap-1">
+              @if (complement.name) {
+              <span class="font-bold text-slate-700 text-[11px]">{{ complement.name }}:</span>
+              }
+              @for (additionData of complement.data; track $index) {
+              <span class="text-slate-600">{{ additionData.name }}{{ $index < complement.data.length - 1 ? ' • ' : ''
+                  }}</span>
+                  }
+            </div>
+            }
+          </div>
           }
         </div>
+        }
+      </div>
 
+      <button type="button"
+        class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-50 text-red-500 hover:bg-red-50 transition-colors"
+        (click)="remove($index)">
+        <span av-icon name="delete" type="material" size="sm"></span>
+      </button>
+    </div>
+
+    <div class="mt-3 flex items-center justify-between gap-3 pt-2 border-t border-slate-100">
+      <div class="flex h-9 items-center rounded-full border border-orange-200 bg-orange-50">
         <button type="button"
-          class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-50 text-red-500"
-          (click)="remove($index)">
-          <span av-icon name="delete" type="material" size="sm"></span>
+          class="flex h-9 w-9 items-center justify-center text-orange-700 hover:bg-orange-100 rounded-l-full transition-colors"
+          (click)="decrease($index, item.quantity)">
+          <span av-icon name="remove" type="material" size="sm"></span>
+        </button>
+        <span class="w-8 text-center text-sm font-black text-slate-900">{{ item.quantity }}</span>
+        <button type="button"
+          class="flex h-9 w-9 items-center justify-center text-orange-700 hover:bg-orange-100 rounded-r-full transition-colors"
+          (click)="increase($index, item.quantity)">
+          <span av-icon name="add" type="material" size="sm"></span>
         </button>
       </div>
 
-      <div class="mt-3 flex items-center justify-between gap-3">
-        <div class="flex h-9 items-center rounded-full border border-orange-200 bg-orange-50">
-          <button type="button" class="flex h-9 w-9 items-center justify-center text-orange-700"
-            (click)="decrease($index, item.quantity)">
-            <span av-icon name="remove" type="material" size="sm"></span>
-          </button>
-          <span class="w-8 text-center text-sm font-black text-slate-900">{{ item.quantity }}</span>
-          <button type="button" class="flex h-9 w-9 items-center justify-center text-orange-700"
-            (click)="increase($index, item.quantity)">
-            <span av-icon name="add" type="material" size="sm"></span>
-          </button>
-        </div>
-
-        <div class="text-right">
-          <p class="text-[11px] text-slate-400">{{ item.quantity }}x {{ item.unityPrice | currency: 'BRL' }}</p>
-          <p class="text-sm font-black text-slate-900">{{ itemSubtotal(item) | currency: 'BRL' }}</p>
-        </div>
+      <div class="text-right whitespace-nowrap">
+        <p class="text-[11px] text-slate-400">{{ item.quantity }}x {{ item.unityPrice | currency: 'BRL' }}</p>
+        <p class="text-sm font-black text-slate-900">{{ itemSubtotal(item) | currency: 'BRL' }}</p>
       </div>
     </div>
-    }
-    }
+  </div>
+  }
+  }
+</div>
+
+<div class="border-t border-slate-200 bg-white p-3 shadow-[0_-4px_16px_rgba(15,23,42,0.08)]">
+  <div class="mb-3 flex items-center justify-between">
+    <span class="text-xs font-black uppercase text-slate-400">Total do pedido</span>
+    <span class="text-xl font-black text-slate-900">{{ total() | currency: 'BRL' }}</span>
   </div>
 
-  <div class="border-t border-slate-200 bg-white p-3 shadow-[0_-4px_16px_rgba(15,23,42,0.08)]">
-    <div class="mb-3 flex items-center justify-between">
-      <span class="text-xs font-black uppercase text-slate-400">Total do pedido</span>
-      <span class="text-xl font-black text-slate-900">{{ total() | currency: 'BRL' }}</span>
-    </div>
-
-    <button av-button type="button" variant="blue" rounded="full" class="min-h-12 w-full text-sm font-black"
-      [loading]="saving()" [disabled]="items().length === 0 || saving()" (click)="saveOrder()">
-      <span av-icon name="send" type="material" size="sm"></span>
-      Enviar pedido
-    </button>
-  </div>
+  <button av-button type="button" variant="blue" rounded="full" class="min-h-12 w-full text-sm font-black"
+    [loading]="saving()" [disabled]="items().length === 0 || saving()" (click)="saveOrder()">
+    <span av-icon name="send" type="material" size="sm"></span>
+    Enviar pedido
+  </button>
+</div>
 </div>

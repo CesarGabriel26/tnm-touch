@@ -251,12 +251,6 @@
                                     <p class="mt-0.5 text-[10px] text-blue-400">
                                         Consumo da {{ tableTicket()?.type === 'M' ? 'mesa' : 'comanda' }}
                                     </p>
-
-                                    @if (totalStatusLabel()) {
-                                    <p class="mt-1 text-[10px] font-semibold text-amber-600">
-                                        {{ totalStatusLabel() }}
-                                    </p>
-                                    }
                                 </div>
 
                                 <span class="text-xl font-black text-blue-700">
@@ -315,8 +309,9 @@
 
 
                             <!-- Faturar -->
-                            <button [disabled]="true" av-button iconProvider="material" icon="receipt_long" variant="emerald"
-                                (click)="options('invoice_all')" class="!min-h-12 !justify-start !rounded-xl">
+                            <button [disabled]="true" av-button iconProvider="material" icon="receipt_long"
+                                variant="emerald" (click)="options('invoice_all')"
+                                class="!min-h-12 !justify-start !rounded-xl">
 
                                 <span class="flex flex-col items-start">
 
@@ -409,73 +404,71 @@
                                     }">
 
                                     <!-- Checkbox -->
-                                    <td class="p-2 align-top">
-
+                                    <td class="p-2 align-top shrink-0">
                                         <av-checkbox [ngModel]="consumption.selected" (changed)="select(
-                                                $event,
-                                                consumption.id || consumption
-                                            )" />
-
+                                            $event,
+                                            consumption.id || consumption
+                                        )" />
                                     </td>
-
 
                                     <!-- Data -->
-                                    <td class="p-2 align-top">
-
-                                        <span class="whitespace-nowrap text-[10px] text-slate-500">
+                                    <td class="p-2 align-top whitespace-nowrap">
+                                        <span class="text-[10px] text-slate-500">
                                             {{ consumption.dateTime | date:'dd/MM HH:mm' }}
                                         </span>
-
                                     </td>
 
-
-                                    <!-- Produto -->
-                                    <td class="p-2 align-top">
-
-                                        <div class="text-xs font-bold text-slate-800">
-
+                                    <!-- Produto e Adicionais -->
+                                    <td class="p-2 align-top min-w-0">
+                                        <div class="text-xs font-bold text-slate-800 break-words">
                                             {{ consumption.product }}
-
-                                            <span class="text-[10px] font-normal text-slate-400">
-
+                                            <span class="text-[10px] font-normal text-slate-400 whitespace-nowrap">
                                                 ({{ consumption.quantity }}un.)
-
                                             </span>
-
                                         </div>
-
 
                                         @if (consumption.observation) {
-
-                                        <div class="mt-1
-                                                       border-l-2 border-orange-300
-                                                       pl-1.5
-                                                       text-[10px]
-                                                       italic text-slate-500">
-
+                                        <div
+                                            class="mt-1 border-l-2 border-orange-300 pl-1.5 text-[10px] italic text-slate-500 break-words">
                                             {{ consumption.observation }}
-
                                         </div>
-
                                         }
 
+                                        @if (consumption.obs || (consumption.snapshot?.complements &&
+                                        consumption.snapshot.complements.length > 0)) {
+                                        <div
+                                            class="mt-1 text-[11px] text-slate-500 italic p-1.5 rounded border border-orange-300 border-dashed bg-orange-50/40 break-words">
+                                            @if (consumption.obs) {
+                                            <span class="font-medium text-amber-700 not-italic block">Obs: {{
+                                                consumption.obs }}</span>
+                                            }
+
+                                            @if (consumption.snapshot?.complements &&
+                                            consumption.snapshot.complements.length > 0) {
+                                            <div class="mt-0.5 text-[10px] text-slate-600">
+                                                @for (addition of consumption.snapshot.complements; track $index) {
+                                                @for (additionData of addition.data; track $index) {
+                                                <span>{{ additionData.name }}{{ $index < addition.data.length - 1
+                                                        ? ' • ' : '' }}</span>
+                                                        }
+                                                        <span>{{ $index < consumption.snapshot.complements.length - 1
+                                                                ? ' • ' : '' }}</span>
+                                                                }
+                                            </div>
+                                            }
+                                        </div>
+                                        }
                                     </td>
 
-
                                     <!-- Total -->
-                                    <td class="p-2 text-right align-top">
-
+                                    <td class="p-2 text-right align-top whitespace-nowrap">
                                         <div class="text-[10px] text-slate-400">
-                                            {{ consumption.quantity }}x
-                                            {{ consumption.unityPrice | currency:'BRL' }}
+                                            {{ consumption.quantity }}x {{ consumption.unityPrice | currency:'BRL' }}
                                         </div>
-
                                         <div class="text-xs font-bold text-slate-800">
                                             {{ consumption.unityPrice * consumption.quantity | currency:'BRL' }}
                                         </div>
-
                                     </td>
-
                                 </tr>
 
                             </ng-template>

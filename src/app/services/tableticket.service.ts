@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import configs from '../config';
 import { buildFilters } from '../utils/filter.urils';
 import { TableStatus, TableTicket } from '../models/table-ticket';
-import { catchError, from, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, from, Observable, of, switchMap, tap, throwError } from 'rxjs';
 import { KeyOpenService } from './keyopen.service';
 import { StorageService } from './storage.service';
 import { PaginatedResponse } from '../types/response';
@@ -32,31 +32,37 @@ export class TableTicketService {
       orderBy: orderBy || 'code'
     })
 
-    return from(Promise.all([
-      this.storageService.isCacheFresh(cacheKey),
-      this.storageService.getCachedTableTickets(filters || {}, {
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedTableTickets(filters || {}, {
         limit: size,
         offset,
         orderBy: orderBy || 'code',
-      }),
-    ])).pipe(
-      switchMap(([isFresh, cachedTableTickets]) => {
-        if (!options?.forceRefresh && isFresh && cachedTableTickets.total > 0) {
-          return of(cachedTableTickets);
-        }
+      }));
+    }
 
-        return this.http.get<PaginatedResponse<TableTicket>>(`${configs.apiUrl}/table-ticket`, { params: httpParams }).pipe(
-          tap((tableTickets) => void this.storageService.cacheTableTickets(tableTickets.items, cacheKey)),
-          catchError((error) => {
-            console.error('Erro ao buscar mesas/comandas:', error);
-            return of(cachedTableTickets);
-          })
-        );
+    return this.http.get<PaginatedResponse<TableTicket>>(`${configs.apiUrl}/table-ticket`, { params: httpParams }).pipe(
+      tap((tableTickets) => void this.storageService.cacheTableTickets(tableTickets.items, cacheKey)),
+      catchError((error) => {
+        console.error('Erro ao buscar mesas/comandas:', error);
+        return from(this.storageService.getCachedTableTickets(filters || {}, {
+          limit: size,
+          offset,
+          orderBy: orderBy || 'code',
+        }));
       })
     );
   }
 
-  get(id: string): Observable<TableTicket> {
+  get(id: string, options?: CacheReadOptions): Observable<TableTicket> {
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedTableTicket(id)).pipe(
+        switchMap((cachedTableTicket) => {
+          if (cachedTableTicket) return of(cachedTableTicket);
+          return throwError(() => new Error('Mesa/comanda nao encontrada no cache'));
+        })
+      );
+    }
+
     return from(this.storageService.getCachedTableTicket(id)).pipe(
       switchMap((cachedTableTicket) => {
         const cachedKeyOpenId = cachedTableTicket?.keyOpenId || cachedTableTicket?.keyOpen?.id || '';
@@ -89,7 +95,7 @@ export class TableTicketService {
 
   async openTable(id: string, customers: number = 1): Promise<TableTicket> {
     const table = await new Promise<TableTicket>((resolve, reject) => {
-      this.get(id).subscribe({ next: resolve, error: reject });
+      this.get(id, { forceRefresh: true }).subscribe({ next: resolve, error: reject });
     });
 
     if (table.keyOpenId || table.keyOpen) {

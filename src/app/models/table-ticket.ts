@@ -38,8 +38,16 @@ export interface TableTicket {
     totalPaid: number;
     totalPending: number;
     totalProducts: number;
+    totalProductsPending?: number;
+    totalProductsPaid?: number;
     totalService: number;
     totalServicePaid: number;
+    totalServicePending?: number;
     totalCouvert: number;
     totalCouvertPaid: number;
+    totalCouvertPending?: number;
+
+    cacheUpdatedAt?: string;
+    hasPendingLocal?: boolean;
+    totalEstimated?: boolean;
 }

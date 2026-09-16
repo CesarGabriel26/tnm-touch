@@ -1,7 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { buildFilters } from '../utils/filter.urils';
-import { catchError, from, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, from, Observable, of, tap } from 'rxjs';
 import configs from '../config';
 import { Category } from '../models/category/category.model';
 import { StorageService } from './storage.service';
@@ -23,28 +23,25 @@ export class CategoryService {
   getAll(filters?: any, options?: CacheReadOptions): Observable<PaginatedResponse<Category>> {
     const params = buildFilters(new HttpParams(), filters || {});
 
-    return from(Promise.all([
-      this.storageService.isCacheFresh(this.storageService.categoriesCacheKey()),
-      this.storageService.getCachedCategories(filters || {}),
-    ])).pipe(
-      switchMap(([isFresh, cachedCategories]) => {
-        if (!options?.forceRefresh && isFresh && cachedCategories.total > 0) {
-          return of(cachedCategories);
-        }
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedCategories(filters || {}));
+    }
 
-        return this.http.get<PaginatedResponse<Category>>(`${configs.apiUrl}/category`, { params }).pipe(
-          tap((categories) => void this.storageService.cacheCategories(categories.items)),
-          catchError((error) => {
-            console.error('Erro ao buscar categorias:', error);
-            return of(cachedCategories);
-          })
-        );
+    return this.http.get<PaginatedResponse<Category>>(`${configs.apiUrl}/category`, { params }).pipe(
+      tap((categories) => void this.storageService.cacheCategories(categories.items)),
+      catchError((error) => {
+        console.error('Erro ao buscar categorias:', error);
+        return from(this.storageService.getCachedCategories(filters || {}));
       })
     );
   }
 
-  get(id: string): Observable<Category | null> {
+  get(id: string, options?: CacheReadOptions): Observable<Category | null> {
     if (!id) return of(null);
+
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedCategory(id));
+    }
 
     return this.http.get<Category>(`${configs.apiUrl}/category/${id}`).pipe(
       tap((category) => void this.storageService.cacheCategory(category)),

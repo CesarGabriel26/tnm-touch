@@ -7,6 +7,10 @@ import { Consumption } from '../models/consumption';
 import { StorageService } from './storage.service';
 import { PaginatedResponse } from '../types/response';
 
+interface CacheReadOptions {
+  forceRefresh?: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -18,16 +22,34 @@ export class ConsumptionsService {
     private storageService: StorageService,
   ) { }
 
-  list(page: number, size: number, filters?: any, orderBy?: string): Observable<PaginatedResponse<Consumption>> {
+  list(page: number, size: number, filters?: any, orderBy?: string, options?: CacheReadOptions): Observable<PaginatedResponse<Consumption>> {
+    const offset = Math.max(0, page) * size;
     const httpParams = buildFilters(new HttpParams(), {
       ...filters,
       limit: size,
-      offset: Math.max(0, page) * size,
+      offset,
       orderBy: 'orderGroup',
       orderDirection: 'desc'
     })
 
+    if (!options?.forceRefresh) {
+      return from(Promise.all([
+        this.storageService.getCachedConsumptions(filters || {}, { limit: size, offset, orderBy }),
+        this.storageService.getQueuedConsumptions(filters || {}),
+      ])).pipe(
+        map(([cachedConsumptions, queuedConsumptions]) => ({
+          items: [...cachedConsumptions.items, ...queuedConsumptions],
+          total: cachedConsumptions.total + queuedConsumptions.length,
+        }))
+      );
+    }
+
     return this.http.get<PaginatedResponse<Consumption>>(`${configs.apiUrl}/consumption`, { params: httpParams }).pipe(
+      switchMap((consumptions) => from(this.storageService.cacheConsumptions(
+        consumptions.items,
+        this.storageService.consumptionsCacheKey(filters?.keyOpen),
+        filters?.keyOpen
+      )).pipe(map(() => consumptions))),
       switchMap((consumptions) => from(this.storageService.getQueuedConsumptions(filters || {})).pipe(
         map((queuedConsumptions) => {
           return {
@@ -38,13 +60,14 @@ export class ConsumptionsService {
       )),
       catchError((error) => {
         console.error('Erro ao buscar consumos:', error);
-        return from(this.storageService.getQueuedConsumptions(filters || {})).pipe(
-          map((queuedConsumptions) => {
-            return {
-              items: queuedConsumptions,
-              total: queuedConsumptions.length
-            }
-          })
+        return from(Promise.all([
+          this.storageService.getCachedConsumptions(filters || {}, { limit: size, offset, orderBy }),
+          this.storageService.getQueuedConsumptions(filters || {}),
+        ])).pipe(
+          map(([cachedConsumptions, queuedConsumptions]) => ({
+            items: [...cachedConsumptions.items, ...queuedConsumptions],
+            total: cachedConsumptions.total + queuedConsumptions.length,
+          }))
         );
       })
     );

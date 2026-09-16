@@ -58,24 +58,14 @@ export class LoginComponent implements OnInit {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    const companyId = this.route.snapshot.queryParamMap.get('companyId');
-    const server = this.route.snapshot.queryParamMap.get('server');
-    const port = this.route.snapshot.queryParamMap.get('port');
-
-    if (port) {
-      localStorage.setItem('@port', port);
-    }
-    if (server) {
-      localStorage.setItem('@server', server);
-    }
+    const companyId = localStorage.getItem('@companyId');
 
     if (companyId) {
-      localStorage.setItem('@companyId', companyId);
+      this.companyId.set(companyId);
       this.companyService.get(companyId).subscribe((v) => {
-        this.company.set(v)
-      })
+        this.company.set(v);
+      });
     }
-    this.companyId.set(companyId)
   }
 
   async onSubmit(): Promise<void> {

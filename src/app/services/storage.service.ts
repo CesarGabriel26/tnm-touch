@@ -1,9 +1,12 @@
 import { Injectable, signal } from '@angular/core';
 import Dexie, { type EntityTable } from 'dexie';
+import { Subject } from 'rxjs';
 import { Category } from '../models/category/category.model';
 import { Consumption } from '../models/consumption';
 import { KeyOpen } from '../models/keyOpen';
+import { Complement } from '../models/product/complement.model';
 import { Product } from '../models/product/product.model';
+import { Variation } from '../models/product/variation.model';
 import { TableStatus, TableTicket } from '../models/table-ticket';
 import { PaginatedResponse } from '../types/response';
 
@@ -35,6 +38,22 @@ interface CategoryCacheRecord {
   data: Category;
 }
 
+interface ComplementCacheRecord {
+  id: string;
+  companyId?: string;
+  name: string;
+  updatedAt: string;
+  data: Complement;
+}
+
+interface VariationCacheRecord {
+  id: string;
+  companyId?: string;
+  name: string;
+  updatedAt: string;
+  data: Variation;
+}
+
 interface TableTicketCacheRecord {
   id: string;
   code: number;
@@ -44,6 +63,16 @@ interface TableTicketCacheRecord {
   companyId: string;
   updatedAt: string;
   data: TableTicket;
+}
+
+interface ConsumptionCacheRecord {
+  id: string;
+  companyId: string;
+  keyOpen: string;
+  status: number;
+  dateTime: string;
+  updatedAt: string;
+  data: Consumption;
 }
 
 export interface StoredOrderDraft<TItem = unknown> {
@@ -71,7 +100,7 @@ export interface QueuedOrderRecord {
   customers: number;
   keyOpenId?: string;
   localKeyOpenId?: string;
-  tableTicket: TableTicket;
+  tableTicket?: TableTicket;
   items: Consumption[];
   sentItemIndexes?: number[];
   attempts: number;
@@ -89,7 +118,10 @@ interface CacheListOptions {
 type PdvTouchDatabase = Dexie & {
   products: EntityTable<ProductCacheRecord, 'id'>;
   categories: EntityTable<CategoryCacheRecord, 'id'>;
+  complements: EntityTable<ComplementCacheRecord, 'id'>;
+  variations: EntityTable<VariationCacheRecord, 'id'>;
   tableTickets: EntityTable<TableTicketCacheRecord, 'id'>;
+  consumptions: EntityTable<ConsumptionCacheRecord, 'id'>;
   cacheMetadata: EntityTable<CacheMetadata, 'key'>;
   orderDrafts: EntityTable<StoredOrderDraft, 'id'>;
   orderQueue: EntityTable<QueuedOrderRecord, 'id'>;
@@ -101,6 +133,8 @@ type PdvTouchDatabase = Dexie & {
 export class StorageService {
   readonly cacheRefreshIntervalMs = CACHE_REFRESH_INTERVAL_MS;
   db = signal<PdvTouchDatabase | null>(null);
+  private readonly cacheUpdatedSubject = new Subject<string>();
+  readonly cacheUpdated$ = this.cacheUpdatedSubject.asObservable();
   private readonly ready: Promise<PdvTouchDatabase>;
 
   constructor() {
@@ -110,10 +144,13 @@ export class StorageService {
   async init(): Promise<PdvTouchDatabase> {
     const db = new Dexie('pdv-touch') as PdvTouchDatabase;
 
-    db.version(2).stores({
+    db.version(3).stores({
       products: 'id, pdvId, name, productType, isActive, isAvailable, enableLocal, updatedAt',
       categories: 'id, name, updatedAt',
+      complements: 'id, companyId, name, updatedAt',
+      variations: 'id, companyId, name, updatedAt',
       tableTickets: 'id, type, status, code, keyOpenId, companyId, updatedAt',
+      consumptions: 'id, companyId, keyOpen, status, dateTime, updatedAt',
       cacheMetadata: 'key, updatedAt',
       orderDrafts: 'id, updatedAt',
       orderQueue: 'id, status, tableTicketId, companyId, type, createdAt',
@@ -132,8 +169,20 @@ export class StorageService {
     return 'categories';
   }
 
+  complementsCacheKey(): string {
+    return 'complements';
+  }
+
+  variationsCacheKey(): string {
+    return 'variations';
+  }
+
   tableTicketsCacheKey(type?: string): string {
     return `table-tickets:${type || 'all'}`;
+  }
+
+  consumptionsCacheKey(keyOpen?: string): string {
+    return `consumptions:${keyOpen || 'all'}`;
   }
 
   async isCacheFresh(key: string, ttlMs = this.cacheRefreshIntervalMs): Promise<boolean> {
@@ -152,11 +201,14 @@ export class StorageService {
       await db.products.bulkPut(products.map((product) => this.toProductCacheRecord(product, now)));
       await db.cacheMetadata.put({ key: cacheKey, updatedAt: Date.now() });
     });
+
+    this.notifyCacheUpdated(cacheKey);
   }
 
   async cacheProduct(product: Product) {
     const db = await this.database();
     await db.products.put(this.toProductCacheRecord(product, new Date().toISOString()));
+    this.notifyCacheUpdated(this.productsCacheKey());
   }
 
   async getCachedProducts(filters?: Record<string, unknown>, categoryId?: string): Promise<Product[]> {
@@ -186,29 +238,107 @@ export class StorageService {
       await db.categories.bulkPut(categories.map((category) => this.toCategoryCacheRecord(category, now)));
       await db.cacheMetadata.put({ key: cacheKey, updatedAt: Date.now() });
     });
+
+    this.notifyCacheUpdated(cacheKey);
   }
 
   async cacheCategory(category: Category) {
     const db = await this.database();
     await db.categories.put(this.toCategoryCacheRecord(category, new Date().toISOString()));
+    this.notifyCacheUpdated(this.categoriesCacheKey());
   }
 
   async getCachedCategories(filters?: Record<string, unknown>): Promise<PaginatedResponse<Category>> {
     const db = await this.database();
     const records = await db.categories.toArray();
+    const items = records
+      .map((record) => record.data)
+      .filter((category) => this.matchesCategory(category, filters))
+      .sort((left, right) => (left.name || '').localeCompare(right.name || ''));
 
     return {
-      items: records
-        .map((record) => record.data)
-        .filter((category) => this.matchesCategory(category, filters))
-        .sort((left, right) => (left.name || '').localeCompare(right.name || '')),
-      total: records.length,
+      items,
+      total: items.length,
     }
   }
 
   async getCachedCategory(id: string): Promise<Category | null> {
     const db = await this.database();
     const record = await db.categories.get(id);
+    return record?.data ?? null;
+  }
+
+  async cacheComplements(complements: Complement[], cacheKey = this.complementsCacheKey()) {
+    const db = await this.database();
+    const now = new Date().toISOString();
+
+    await db.transaction('rw', db.complements, db.cacheMetadata, async () => {
+      await db.complements.bulkPut(complements.map((complement) => this.toComplementCacheRecord(complement, now)));
+      await db.cacheMetadata.put({ key: cacheKey, updatedAt: Date.now() });
+    });
+
+    this.notifyCacheUpdated(cacheKey);
+  }
+
+  async cacheComplement(complement: Complement) {
+    const db = await this.database();
+    await db.complements.put(this.toComplementCacheRecord(complement, new Date().toISOString()));
+    this.notifyCacheUpdated(this.complementsCacheKey());
+  }
+
+  async getCachedComplements(ids?: string[]): Promise<Complement[]> {
+    const db = await this.database();
+    const records = ids?.length
+      ? (await Promise.all(ids.map((id) => db.complements.get(id)))).filter((record): record is ComplementCacheRecord => !!record)
+      : await db.complements.toArray();
+
+    return records
+      .map((record) => record.data)
+      .sort((left, right) => (left.name || '').localeCompare(right.name || ''));
+  }
+
+  async getCachedComplement(id: string): Promise<Complement | null> {
+    const db = await this.database();
+    const record = await db.complements.get(id);
+    return record?.data ?? null;
+  }
+
+  async cacheVariations(variations: Variation[], cacheKey = this.variationsCacheKey()) {
+    const db = await this.database();
+    const now = new Date().toISOString();
+
+    await db.transaction('rw', db.variations, db.cacheMetadata, async () => {
+      await db.variations.bulkPut(variations.map((variation) => this.toVariationCacheRecord(variation, now)));
+      await db.cacheMetadata.put({ key: cacheKey, updatedAt: Date.now() });
+    });
+
+    this.notifyCacheUpdated(cacheKey);
+  }
+
+  async cacheVariation(variation: Variation) {
+    const db = await this.database();
+    await db.variations.put(this.toVariationCacheRecord(variation, new Date().toISOString()));
+    this.notifyCacheUpdated(this.variationsCacheKey());
+  }
+
+  async getCachedVariations(filters?: Record<string, unknown>): Promise<PaginatedResponse<Variation>> {
+    const db = await this.database();
+    const records = await db.variations.toArray();
+
+    const items = records
+      .map((record) => record.data)
+      .filter((variation) => this.matchesVariation(variation, filters))
+      .sort((left, right) => (left.name || '').localeCompare(right.name || ''));
+
+    return {
+      items,
+      total: items.length,
+    };
+  }
+
+  async getCachedVariation(id: string): Promise<Variation | null> {
+    const db = await this.database();
+    const record = await db.variations.get(id);
     return record?.data ?? null;
   }
 
@@ -229,20 +359,27 @@ export class StorageService {
         await db.cacheMetadata.put({ key: cacheKey, updatedAt: Date.now() });
       }
     });
+
+    this.notifyCacheUpdated(cacheKey || this.tableTicketsCacheKey());
   }
 
   async cacheTableTicket(tableTicket: TableTicket) {
     const db = await this.database();
     const safeTableTicket = await this.keepPendingTableTicket(db, tableTicket);
     await db.tableTickets.put(this.toTableTicketCacheRecord(safeTableTicket, new Date().toISOString()));
+    this.notifyCacheUpdated(`table-ticket:${tableTicket.id}`);
+    this.notifyCacheUpdated(this.tableTicketsCacheKey(tableTicket.type));
   }
 
   async getCachedTableTickets(filters?: Record<string, unknown>, options?: CacheListOptions): Promise<PaginatedResponse<TableTicket>> {
     const db = await this.database();
     const records = await db.tableTickets.toArray();
 
-    let tableTickets = records
-      .map((record) => record.data)
+    let tableTickets = await Promise.all(records
+      .map((record) => this.withCacheState(db, record))
+    );
+
+    tableTickets = tableTickets
       .filter((tableTicket) => this.matchesTableTicket(tableTicket, filters));
 
     tableTickets = this.sortTableTickets(tableTickets, options?.orderBy);
@@ -261,7 +398,7 @@ export class StorageService {
   async getCachedTableTicket(id: string): Promise<TableTicket | null> {
     const db = await this.database();
     const record = await db.tableTickets.get(id);
-    return record?.data ?? null;
+    return record ? this.withCacheState(db, record) : null;
   }
 
   async getCachedKeyOpen(id: string): Promise<KeyOpen | null> {
@@ -272,6 +409,45 @@ export class StorageService {
       .find((currentKeyOpen) => currentKeyOpen?.id === id);
 
     return keyOpen ?? null;
+  }
+
+  async cacheConsumptions(consumptions: Consumption[], cacheKey?: string, replaceKeyOpen?: string) {
+    const db = await this.database();
+    const now = new Date().toISOString();
+
+    await db.transaction('rw', db.consumptions, db.cacheMetadata, async () => {
+      if (replaceKeyOpen) {
+        await db.consumptions.where('keyOpen').equals(replaceKeyOpen).delete();
+      }
+
+      await db.consumptions.bulkPut(consumptions.map((consumption) => this.toConsumptionCacheRecord(consumption, now)));
+
+      if (cacheKey) {
+        await db.cacheMetadata.put({ key: cacheKey, updatedAt: Date.now() });
+      }
+    });
+
+    this.notifyCacheUpdated(cacheKey || this.consumptionsCacheKey(replaceKeyOpen));
+  }
+
+  async getCachedConsumptions(filters?: Record<string, unknown>, options?: CacheListOptions): Promise<PaginatedResponse<Consumption>> {
+    const db = await this.database();
+    const records = await db.consumptions.toArray();
+    let consumptions = records
+      .map((record) => record.data)
+      .filter((consumption) => this.matchesConsumption(consumption, filters));
+
+    consumptions = this.sortConsumptions(consumptions, options?.orderBy);
+
+    const offset = Math.max(0, options?.offset || 0);
+    const limit = options?.limit;
+
+    return {
+      items: typeof limit === 'number'
+        ? consumptions.slice(offset, offset + limit)
+        : consumptions.slice(offset),
+      total: consumptions.length,
+    };
   }
 
   async getOrderDraft<TItem = unknown>(): Promise<StoredOrderDraft<TItem> | null> {
@@ -319,7 +495,7 @@ export class StorageService {
       customers,
       keyOpenId,
       localKeyOpenId,
-      tableTicket: tableTicket!,
+      tableTicket,
       items,
       sentItemIndexes: [],
       attempts: 0,
@@ -333,6 +509,11 @@ export class StorageService {
         await db.tableTickets.put(this.toTableTicketCacheRecord(tableTicket, now));
       }
     });
+
+    if (tableTicket) {
+      this.notifyCacheUpdated(`table-ticket:${tableTicket.id}`);
+      this.notifyCacheUpdated(this.tableTicketsCacheKey(tableTicket.type));
+    }
 
     return order;
   }
@@ -357,12 +538,22 @@ export class StorageService {
     };
 
     await db.orderQueue.put(updated);
+    if (updated.tableTicketId) {
+      this.notifyCacheUpdated(`table-ticket:${updated.tableTicketId}`);
+      this.notifyCacheUpdated(this.consumptionsCacheKey(updated.keyOpenId || updated.localKeyOpenId));
+    }
     return updated;
   }
 
   async removeQueuedOrder(id: string) {
     const db = await this.database();
+    const current = await db.orderQueue.get(id);
     await db.orderQueue.delete(id);
+
+    if (current?.tableTicketId) {
+      this.notifyCacheUpdated(`table-ticket:${current.tableTicketId}`);
+      this.notifyCacheUpdated(this.consumptionsCacheKey(current.keyOpenId || current.localKeyOpenId));
+    }
   }
 
   async getQueuedConsumptions(filters?: Record<string, unknown>): Promise<Consumption[]> {
@@ -415,6 +606,32 @@ export class StorageService {
     };
   }
 
+  private toComplementCacheRecord(complement: Complement, updatedAt: string): ComplementCacheRecord {
+    const data = this.withEntityId(complement);
+    const id = this.getEntityId(data);
+
+    return {
+      id,
+      companyId: (data as Complement & { companyId?: string }).companyId,
+      name: data.name || '',
+      updatedAt,
+      data,
+    };
+  }
+
+  private toVariationCacheRecord(variation: Variation, updatedAt: string): VariationCacheRecord {
+    const data = this.withEntityId(variation);
+    const id = this.getEntityId(data);
+
+    return {
+      id,
+      companyId: data.companyId,
+      name: data.name || '',
+      updatedAt,
+      data,
+    };
+  }
+
   private toTableTicketCacheRecord(tableTicket: TableTicket, updatedAt: string): TableTicketCacheRecord {
     return {
       id: tableTicket.id,
@@ -426,6 +643,62 @@ export class StorageService {
       updatedAt,
       data: tableTicket,
     };
+  }
+
+  private toConsumptionCacheRecord(consumption: Consumption, updatedAt: string): ConsumptionCacheRecord {
+    const id = consumption.id || this.createId();
+
+    return {
+      id,
+      companyId: consumption.companyId,
+      keyOpen: consumption.keyOpen,
+      status: consumption.status,
+      dateTime: consumption.dateTime,
+      updatedAt,
+      data: {
+        ...consumption,
+        id,
+      },
+    };
+  }
+
+  private async withCacheState(db: PdvTouchDatabase, record: TableTicketCacheRecord): Promise<TableTicket> {
+    const tableTicket = {
+      ...record.data,
+      cacheUpdatedAt: record.updatedAt,
+    } as TableTicket;
+
+    const pendingOrders = (await db.orderQueue.where('tableTicketId').equals(record.id).toArray())
+      .filter((order) => order.status !== 'sent');
+
+    const pendingItems = pendingOrders.flatMap((order) => {
+      const sentItemIndexes = new Set(order.sentItemIndexes || []);
+      return order.items.filter((_, index) => !sentItemIndexes.has(index));
+    });
+
+    if (pendingItems.length === 0) {
+      return tableTicket;
+    }
+
+    const pendingTotal = pendingItems.reduce((acc, item) => acc + Number(item.unityPrice || 0) * Number(item.quantity || 0), 0);
+    const localTableTicket = pendingOrders.find((order) => order.tableTicket)?.tableTicket;
+    const keyOpen = tableTicket.keyOpen || localTableTicket?.keyOpen;
+    const keyOpenId = tableTicket.keyOpenId || localTableTicket?.keyOpenId || localTableTicket?.keyOpen?.id;
+
+    return {
+      ...tableTicket,
+      status: TableStatus.OCCUPIED,
+      keyOpenId,
+      keyOpen,
+      consumptionsCount: Number(tableTicket.consumptionsCount || 0) + pendingItems.length,
+      total: this.roundMoney(Number(tableTicket.total || 0) + pendingTotal),
+      totalPending: this.roundMoney(Number(tableTicket.totalPending || 0) + pendingTotal),
+      totalProducts: this.roundMoney(Number(tableTicket.totalProducts || 0) + pendingTotal),
+      totalProductsPending: this.roundMoney(Number((tableTicket as any).totalProductsPending || 0) + pendingTotal),
+      hasPendingLocal: true,
+      totalEstimated: true,
+      cacheUpdatedAt: record.updatedAt,
+    } as TableTicket;
   }
 
   private async keepPendingTableTicket(db: PdvTouchDatabase, tableTicket: TableTicket): Promise<TableTicket> {
@@ -486,6 +759,15 @@ export class StorageService {
     return this.matchesSearch(search, [category.name]);
   }
 
+  private matchesVariation(variation: Variation, filters?: Record<string, unknown>): boolean {
+    if (!this.matchesExact(variation.companyId, filters?.['companyId'])) return false;
+
+    const search = String(filters?.['search'] || '').trim();
+    if (!search) return true;
+
+    return this.matchesSearch(search, [variation.name]);
+  }
+
   private matchesTableTicket(tableTicket: TableTicket, filters?: Record<string, unknown>): boolean {
     if (!this.matchesExact(tableTicket.type, filters?.['type'])) return false;
     if (!this.matchesExact(tableTicket.status, filters?.['status'])) return false;
@@ -494,6 +776,22 @@ export class StorageService {
     if (search && !this.matchesSearch(search, [
       tableTicket.code?.toString(),
       tableTicket.keyOpen?.alias,
+    ])) {
+      return false;
+    }
+
+    return true;
+  }
+
+  private matchesConsumption(consumption: Consumption, filters?: Record<string, unknown>): boolean {
+    if (!this.matchesExact(consumption.keyOpen, filters?.['keyOpen'])) return false;
+    if (!this.matchesExact(consumption.companyId, filters?.['companyId'])) return false;
+    if (!this.matchesExact(consumption.status, filters?.['status'])) return false;
+
+    const search = String(filters?.['search'] || '').trim();
+    if (search && !this.matchesSearch(search, [
+      consumption.product,
+      consumption.obs,
     ])) {
       return false;
     }
@@ -532,6 +830,23 @@ export class StorageService {
     return sorted;
   }
 
+  private sortConsumptions(consumptions: Consumption[], orderBy?: string): Consumption[] {
+    const sorted = [...consumptions];
+
+    if (orderBy === 'dateTime') {
+      sorted.sort((left, right) => this.getTime(right.dateTime) - this.getTime(left.dateTime));
+      return sorted;
+    }
+
+    sorted.sort((left, right) => {
+      const orderGroupDiff = Number(right.orderGroup || 0) - Number(left.orderGroup || 0);
+      if (orderGroupDiff !== 0) return orderGroupDiff;
+      return this.getTime(right.dateTime) - this.getTime(left.dateTime);
+    });
+
+    return sorted;
+  }
+
   private getProductCategoryIds(product: Product): string[] {
     return (product.categories || [])
       .flatMap((category) => [
@@ -545,6 +860,31 @@ export class StorageService {
 
   private getEntityId(entity: { id?: string; _id?: string; pdvId?: string }): string {
     return entity.id || entity._id || entity.pdvId || this.createId();
+  }
+
+  private withEntityId<T extends { id?: string; _id?: string }>(entity: T): T {
+    const id = entity.id || entity._id;
+    if (!id) return entity;
+
+    return {
+      ...entity,
+      id,
+      _id: id,
+    };
+  }
+
+  private notifyCacheUpdated(key?: string) {
+    if (!key) return;
+    this.cacheUpdatedSubject.next(key);
+  }
+
+  private getTime(value?: string): number {
+    const time = value ? new Date(value).getTime() : 0;
+    return Number.isFinite(time) ? time : 0;
+  }
+
+  private roundMoney(value: number): number {
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
   }
 
   private createId(): string {

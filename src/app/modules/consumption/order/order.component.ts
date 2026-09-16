@@ -16,6 +16,7 @@ import { TableTicketService } from '../../../services/tableticket.service';
 import { OrderProductCatalogComponent } from './components/order-product-catalog/order-product-catalog.component';
 import { OrderTicketHeaderComponent } from './components/order-ticket-header/order-ticket-header.component';
 import { OrderDraftService } from '../../../services/order/order-draft.service';
+import { StorageService } from '../../../services/storage.service';
 
 @Component({
   selector: 'app-order.component',
@@ -49,6 +50,7 @@ export class OrderComponent {
     private readonly tableTicketService: TableTicketService,
     private readonly productService: ProductService,
     private readonly categoryService: CategoryService,
+    private readonly storageService: StorageService,
   ) {
     this.selectedCategory.valueChanges.pipe(
       debounceTime(300),
@@ -70,9 +72,25 @@ export class OrderComponent {
     this.loadTable();
     this.loadCategories()
     this.loadProducts()
+
+    this.storageService.cacheUpdated$.pipe(
+      takeUntilDestroyed()
+    ).subscribe((key) => {
+      if (key === this.storageService.productsCacheKey()) {
+        this.loadProducts(false);
+      }
+
+      if (key === this.storageService.categoriesCacheKey()) {
+        this.loadCategories(false);
+      }
+
+      if (key === `table-ticket:${this.route.snapshot.paramMap.get('id')}` || key.startsWith('table-tickets')) {
+        this.loadTable(false);
+      }
+    });
   }
 
-  private loadTable() {
+  private loadTable(showLoading = true) {
     const tableTicketId = this.route.snapshot.paramMap.get('id');
 
     if (!tableTicketId) {
@@ -81,20 +99,20 @@ export class OrderComponent {
       return;
     }
 
-    this.loadingOverlayService.show('Carregando atendimento');
+    if (showLoading) this.loadingOverlayService.show('Carregando atendimento');
     this.tableTicketService.get(tableTicketId).subscribe({
       next: (tableTicket) => {
         this.tableTicket.set(tableTicket);
         this.orderDraft.startOrder(tableTicket);
-        this.loadingOverlayService.hide();
+        if (showLoading) this.loadingOverlayService.hide();
       },
       error: (err) => {
-        this.loadingOverlayService.error(err?.message || 'Nao foi possivel carregar o atendimento');
+        if (showLoading) this.loadingOverlayService.error(err?.message || 'Nao foi possivel carregar o atendimento');
       },
     });
   }
 
-  loadProducts() {
+  loadProducts(showLoading = true) {
     const categoryId = this.selectedCategory.value;
     const productFilters = {
       search: (this.search.value || '').toLowerCase(),
@@ -113,7 +131,7 @@ export class OrderComponent {
       }
     };
 
-    this.loadingOverlayService.show('Carregando produtos');
+    if (showLoading) this.loadingOverlayService.show('Carregando produtos');
 
     const request$ = categoryId
       ? this.productService.getByCategory(categoryId, productFilters)
@@ -122,23 +140,23 @@ export class OrderComponent {
     request$.subscribe({
       next: (products) => {
         this.products.set(products);
-        this.loadingOverlayService.hide();
+        if (showLoading) this.loadingOverlayService.hide();
       },
       error: (err) => {
-        this.loadingOverlayService.error(err?.message || 'Nao foi possivel carregar os produtos');
+        if (showLoading) this.loadingOverlayService.error(err?.message || 'Nao foi possivel carregar os produtos');
       }
     });
   }
 
-  loadCategories() {
-    this.loadingOverlayService.show('Carregando categorias');
+  loadCategories(showLoading = true) {
+    if (showLoading) this.loadingOverlayService.show('Carregando categorias');
     this.categoryService.getAll().subscribe({
       next: (categories) => {
         this.categories.set(categories.items);
-        this.loadingOverlayService.hide();
+        if (showLoading) this.loadingOverlayService.hide();
       },
       error: (err) => {
-        this.loadingOverlayService.error(err?.message || 'Nao foi possivel carregar as categorias');
+        if (showLoading) this.loadingOverlayService.error(err?.message || 'Nao foi possivel carregar as categorias');
       }
     })
   }

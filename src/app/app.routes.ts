@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './modules/login/login.component';
 import { AppShell } from './components/shell/shell';
-import { authGuard } from './guards/auth.guard';
+import { authGuard, loginGuard } from './guards/auth.guard';
 import { TablesComponent } from './modules/table-ticket/tables/tables.component';
 import { TicketsComponent } from './modules/table-ticket/tickets/tickets.component';
 import { SummaryComponent } from './modules/table-ticket/summary/summary.component';
@@ -12,6 +12,7 @@ import { OrderComponent } from './modules/consumption/order/order.component';
 export const routes: Routes = [
     {
         path: 'login',
+        canActivate: [loginGuard],
         component: LoginComponent
     },
     {

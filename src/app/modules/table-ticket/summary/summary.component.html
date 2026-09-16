@@ -251,6 +251,12 @@
                                     <p class="mt-0.5 text-[10px] text-blue-400">
                                         Consumo da {{ tableTicket()?.type === 'M' ? 'mesa' : 'comanda' }}
                                     </p>
+
+                                    @if (totalStatusLabel()) {
+                                    <p class="mt-1 text-[10px] font-semibold text-amber-600">
+                                        {{ totalStatusLabel() }}
+                                    </p>
+                                    }
                                 </div>
 
                                 <span class="text-xl font-black text-blue-700">
@@ -289,64 +295,43 @@
 
                         <!-- Ações -->
                         <div class="grid grid-cols-2 gap-2 pt-1">
+                            <!-- Transferir tudo -->
+                            <button av-button iconProvider="material" icon="swap_horiz"
+                                (click)="options('transfer_all')" class="!min-h-12 !justify-start !rounded-xl">
 
-                            <button class="flex items-center justify-center gap-1.5
-                                       rounded-xl border border-slate-200
-                                       bg-white px-3 py-2.5
-                                       text-xs font-semibold text-slate-600
-                                       shadow-sm
-                                       active:scale-[0.98]">
+                                <span class="flex flex-col items-start">
 
-                                <span class="material-symbols-outlined text-[17px]!">
-                                    call_split
+                                    <span class="font-semibold">
+                                        Transferir tudo
+                                    </span>
+
+                                    <span class="text-[10px] opacity-70 font-normal">
+                                        Transferir todos os consumos
+                                    </span>
+
                                 </span>
-
-                                Desmembrar
 
                             </button>
 
 
-                            <button class="flex items-center justify-center gap-1.5
-                                       rounded-xl border border-slate-200
-                                       bg-white px-3 py-2.5
-                                       text-xs font-semibold text-slate-600
-                                       shadow-sm
-                                       active:scale-[0.98]">
+                            <!-- Faturar -->
+                            <button [disabled]="true" av-button iconProvider="material" icon="receipt_long" variant="emerald"
+                                (click)="options('invoice_all')" class="!min-h-12 !justify-start !rounded-xl">
 
-                                <span class="material-symbols-outlined text-[17px]!">
-                                    swap_horiz
+                                <span class="flex flex-col items-start">
+
+                                    <span class="font-semibold">
+                                        Faturar
+                                    </span>
+
+                                    <span class="text-[10px] opacity-70 font-normal">
+                                        Faturar todos os consumos
+                                    </span>
+
                                 </span>
 
-                                Transferir
-
                             </button>
-
                         </div>
-
-
-                        <!-- Faturar -->
-                        @if ((tableTicket()?.totalPending || 0) > 0) {
-
-                        <button class="flex w-full items-center justify-between
-                                       rounded-xl bg-emerald-500
-                                       px-4 py-3
-                                       text-white
-                                       shadow-sm shadow-emerald-500/20
-                                       active:scale-[0.99]
-                                       transition-transform">
-
-                            <span class="text-sm font-bold">
-                                Faturar
-                            </span>
-
-                            <span class="text-sm font-black">
-                                {{ tableTicket()?.totalPending | currency:'BRL' }}
-                            </span>
-
-                        </button>
-
-                        }
-
                     </div>
 
                 </div>

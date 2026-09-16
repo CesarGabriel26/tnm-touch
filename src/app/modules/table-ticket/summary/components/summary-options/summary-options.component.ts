@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { AvButton } from "../../../angular-visuals/components/buttons";
 import { DialogService } from '@/app/services/dialog.service';
+import { AvButton } from '@/app/components/angular-visuals/components/buttons';
 
 @Component({
   selector: 'app-summary-options.component',
@@ -9,9 +9,6 @@ import { DialogService } from '@/app/services/dialog.service';
   styleUrl: './summary-options.component.css',
 })
 export class SummaryOptionsComponent {
-
-  @Input() hasSelectedItems!: boolean
-
   constructor(
     private dialogService: DialogService
   ) { }

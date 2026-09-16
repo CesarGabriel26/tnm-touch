@@ -107,6 +107,10 @@ export class OrderQueueSyncService {
         pendingItems.map(({ item, index }) => this.toConsumptionPayload(item, remoteOrder.keyOpenId, index))
       ));
 
+      await this.storageService.cacheConsumptions(
+        createdConsumptions,
+        this.storageService.consumptionsCacheKey(remoteOrder.keyOpenId)
+      );
       await this.enqueuePrintQueue(createdConsumptions, currentOrder.companyId);
 
       for (const { index } of pendingItems) {
@@ -119,6 +123,7 @@ export class OrderQueueSyncService {
     }
 
     await this.storageService.removeQueuedOrder(currentOrder.id);
+    await this.refreshCachedTableTicket(currentOrder.tableTicketId);
 
     if (pendingItems.length > 0) {
       this.consumptionsService.updated.emit();
@@ -141,12 +146,19 @@ export class OrderQueueSyncService {
 
   private async resolveRemoteKeyOpen(order: QueuedOrderRecord): Promise<{ order: QueuedOrderRecord; keyOpenId: string }> {
     let keyOpenId = this.getRemoteKeyOpenId(order.keyOpenId)
-      || this.getRemoteKeyOpenId(order.tableTicket.keyOpenId)
-      || this.getRemoteKeyOpenId(order.tableTicket.keyOpen?.id);
+      || this.getRemoteKeyOpenId(order.tableTicket?.keyOpenId)
+      || this.getRemoteKeyOpenId(order.tableTicket?.keyOpen?.id);
 
     let currentOrder = order;
 
     if (!keyOpenId) {
+      if (!order.tableTicketId) {
+        const createdKeyOpen = await this.createRemoteKeyOpen(order);
+        keyOpenId = createdKeyOpen.id;
+        currentOrder = await this.persistResolvedAvulsoKeyOpen(order, keyOpenId);
+        return { order: currentOrder, keyOpenId };
+      }
+
       const remoteTableTicket = await this.getRemoteTableTicket(order.tableTicketId);
       const remoteKeyOpen = remoteTableTicket.keyOpen;
       const remoteKeyOpenId = this.getRemoteKeyOpenId(remoteTableTicket.keyOpenId)
@@ -162,7 +174,7 @@ export class OrderQueueSyncService {
       }
     }
 
-    if (currentOrder.needsOpening) {
+    if (currentOrder.needsOpening && currentOrder.tableTicket) {
       const occupiedTableTicket = await this.setRemoteTableOccupied(currentOrder.tableTicket, keyOpenId);
       currentOrder = await this.persistResolvedKeyOpen(currentOrder, occupiedTableTicket, keyOpenId, false);
     }
@@ -201,6 +213,24 @@ export class OrderQueueSyncService {
     };
   }
 
+  private async persistResolvedAvulsoKeyOpen(order: QueuedOrderRecord, keyOpenId: string): Promise<QueuedOrderRecord> {
+    const items = order.items.map((item) => ({
+      ...item,
+      keyOpen: keyOpenId,
+    }));
+
+    return await this.storageService.updateQueuedOrder(order.id, {
+      keyOpenId,
+      localKeyOpenId: undefined,
+      items,
+    }) ?? {
+      ...order,
+      keyOpenId,
+      localKeyOpenId: undefined,
+      items,
+    };
+  }
+
   private async getRemoteTableTicket(tableTicketId: string): Promise<TableTicket> {
     return firstValueFrom(this.http.get<TableTicket>(`${configs.apiUrl}/table-ticket/${tableTicketId}`));
   }
@@ -208,10 +238,21 @@ export class OrderQueueSyncService {
   private async createRemoteKeyOpen(order: QueuedOrderRecord): Promise<KeyOpen> {
     return firstValueFrom(this.http.post<KeyOpen>(`${configs.apiUrl}/key-open`, {
       companyId: order.companyId,
-      tableTicketId: order.tableTicketId,
+      ...(order.tableTicketId ? { tableTicketId: order.tableTicketId } : {}),
       customers: order.customers,
       openedAt: new Date().toISOString(),
     }));
+  }
+
+  private async refreshCachedTableTicket(tableTicketId?: string) {
+    if (!tableTicketId) return;
+
+    try {
+      const tableTicket = await this.getRemoteTableTicket(tableTicketId);
+      await this.storageService.cacheTableTicket(tableTicket);
+    } catch (error) {
+      console.error('Erro ao atualizar cache da mesa/comanda apos sincronizar pedido:', error);
+    }
   }
 
   private async setRemoteTableOccupied(tableTicket: TableTicket, keyOpenId: string): Promise<TableTicket> {

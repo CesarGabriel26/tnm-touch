@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Product } from '../models/product/product.model';
 import { buildFilters } from '../utils/filter.urils';
-import { catchError, from, Observable, of, switchMap, tap } from 'rxjs';
+import { catchError, from, Observable, of, tap } from 'rxjs';
 import configs from '../config';
 import { StorageService } from './storage.service';
 
@@ -22,28 +22,25 @@ export class ProductService {
   getAll(filters?: any, options?: CacheReadOptions): Observable<Product[]> {
     const params = buildFilters(new HttpParams(), filters || {});
 
-    return from(Promise.all([
-      this.storageService.isCacheFresh(this.storageService.productsCacheKey()),
-      this.storageService.getCachedProducts(filters || {}),
-    ])).pipe(
-      switchMap(([isFresh, cachedProducts]) => {
-        if (!options?.forceRefresh && isFresh && cachedProducts.length > 0) {
-          return of(cachedProducts);
-        }
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedProducts(filters || {}));
+    }
 
-        return this.http.get<Product[]>(`${configs.apiUrl}/product`, { params }).pipe(
-          tap((products) => void this.storageService.cacheProducts(products)),
-          catchError((error) => {
-            console.error('Erro ao buscar produtos:', error);
-            return of(cachedProducts);
-          })
-        );
+    return this.http.get<Product[]>(`${configs.apiUrl}/product`, { params }).pipe(
+      tap((products) => void this.storageService.cacheProducts(products)),
+      catchError((error) => {
+        console.error('Erro ao buscar produtos:', error);
+        return from(this.storageService.getCachedProducts(filters || {}));
       })
     );
   }
 
-  get(id: string): Observable<Product | null> {
+  get(id: string, options?: CacheReadOptions): Observable<Product | null> {
     if (!id) return of(null);
+
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedProduct(id));
+    }
 
     return this.http.get<Product>(`${configs.apiUrl}/product/${id}`).pipe(
       tap((product) => void this.storageService.cacheProduct(product)),
@@ -58,22 +55,15 @@ export class ProductService {
     if (!categoryId) return of([]);
     const params = buildFilters(new HttpParams(), filters || {});
 
-    return from(Promise.all([
-      this.storageService.isCacheFresh(this.storageService.productsCacheKey()),
-      this.storageService.getCachedProducts(filters || {}, categoryId),
-    ])).pipe(
-      switchMap(([isFresh, cachedProducts]) => {
-        if (!options?.forceRefresh && isFresh && cachedProducts.length > 0) {
-          return of(cachedProducts);
-        }
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedProducts(filters || {}, categoryId));
+    }
 
-        return this.http.get<Product[]>(`${configs.apiUrl}/product/by-category/${categoryId}`, { params }).pipe(
-          tap((products) => void this.storageService.cacheProducts(products)),
-          catchError((error) => {
-            console.error(`Erro ao buscar produtos da categoria ${categoryId}:`, error);
-            return of(cachedProducts);
-          })
-        );
+    return this.http.get<Product[]>(`${configs.apiUrl}/product/by-category/${categoryId}`, { params }).pipe(
+      tap((products) => void this.storageService.cacheProducts(products)),
+      catchError((error) => {
+        console.error(`Erro ao buscar produtos da categoria ${categoryId}:`, error);
+        return from(this.storageService.getCachedProducts(filters || {}, categoryId));
       })
     );
   }

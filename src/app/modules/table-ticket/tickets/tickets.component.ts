@@ -10,6 +10,7 @@ import { AvGridComponent } from "../../../components/angular-visuals/components/
 import { RouterLink } from '@angular/router';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
 import { AvInput } from '../../../components/angular-visuals/components/forms';
+import { StorageService } from '../../../services/storage.service';
 
 @Component({
   selector: 'app-tickets.component',
@@ -32,7 +33,8 @@ export class TicketsComponent {
 
   constructor(
     private tableTicketService: TableTicketService,
-    private readonly loadingOverlayService: LoadingOverlayService
+    private readonly loadingOverlayService: LoadingOverlayService,
+    private readonly storageService: StorageService
   ) {
     this.search.valueChanges.pipe(
       debounceTime(300),
@@ -51,17 +53,25 @@ export class TicketsComponent {
     })
 
     this.getTicketsList()
+
+    this.storageService.cacheUpdated$.pipe(
+      takeUntilDestroyed()
+    ).subscribe((key) => {
+      if (key.startsWith('table-ticket') || key === this.storageService.tableTicketsCacheKey('C')) {
+        this.getTicketsList(false);
+      }
+    })
   }
 
-  getTicketsList() {
-    this.loadingOverlayService.show('Carregando comandas...');
+  getTicketsList(showLoading = true) {
+    if (showLoading) this.loadingOverlayService.show('Carregando comandas...');
     this.tableTicketService.list(this.page(), 50, {
       type: 'C',
       search: this.search.value || '',
       status: this.status.value || ''
     }).subscribe(async (data: any) => {
       this.tickets.set(data.items)
-      this.loadingOverlayService.hide();
+      if (showLoading) this.loadingOverlayService.hide();
     })
   }
 

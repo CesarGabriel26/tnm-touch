@@ -11,6 +11,7 @@ import { RouterLink } from '@angular/router';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
 import { AvInput } from '../../../components/angular-visuals/components/forms';
 import { AvBadgeComponent } from '../../../components/angular-visuals/components/av-badge/av-badge.component';
+import { StorageService } from '../../../services/storage.service';
 
 @Component({
   selector: 'app-tables.component',
@@ -27,7 +28,8 @@ export class TablesComponent {
 
   constructor(
     private readonly tableTicketService: TableTicketService,
-    private readonly loadingOverlayService: LoadingOverlayService
+    private readonly loadingOverlayService: LoadingOverlayService,
+    private readonly storageService: StorageService
   ) {
     this.search.valueChanges.pipe(
       debounceTime(300),
@@ -37,14 +39,22 @@ export class TablesComponent {
       this.loadTables()
     })
     this.loadTables()
+
+    this.storageService.cacheUpdated$.pipe(
+      takeUntilDestroyed()
+    ).subscribe((key) => {
+      if (key.startsWith('table-ticket') || key === this.storageService.tableTicketsCacheKey('M')) {
+        this.loadTables(false);
+      }
+    })
   }
 
-  loadTables() {
-    this.loadingOverlayService.show('Carregando mesas...');
+  loadTables(showLoading = true) {
+    if (showLoading) this.loadingOverlayService.show('Carregando mesas...');
     this.tableTicketService
       .list(1, 50, { type: 'M', search: this.search.value || '' }).subscribe(async (data: any) => {
         this.tables.set(data.items);
-        this.loadingOverlayService.hide();
+        if (showLoading) this.loadingOverlayService.hide();
       })
   }
 

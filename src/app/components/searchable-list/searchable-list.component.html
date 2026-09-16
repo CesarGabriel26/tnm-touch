@@ -1,0 +1,63 @@
+@if (list().length > 0) {
+<div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-950/40 backdrop-blur-[2px] transition-all animate-in fade-in"
+  (click)="close.emit()">
+  <div class="flex flex-col gap-4 w-full max-w-[500px] h-[80vh] bg-white rounded-2xl p-5 border border-slate-200 shadow-2xl overflow-hidden animate-in zoom-in-95"
+    (click)="$event.stopPropagation()">
+    
+    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+      <h2 class="font-black text-base text-slate-800">
+        Busque o próximo sabor
+      </h2>
+      <button type="button" class="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+        (click)="close.emit()">
+        <span av-icon name="close" type="material" size="sm"></span>
+      </button>
+    </div>
+
+    <form class="w-full h-11 flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden focus-within:border-orange-500 focus-within:ring-2 focus-within:ring-orange-100 transition-all" (submit)="$event.preventDefault()">
+      <div class="w-10 h-full flex items-center justify-center text-slate-400 shrink-0">
+        <span av-icon name="search" type="material" size="sm"></span>
+      </div>
+      
+      <input 
+        type="text" 
+        [(ngModel)]="searchTerm" 
+        name="search" 
+        placeholder="Buscar sabor..." 
+        class="flex-1 h-full pr-4 bg-transparent text-sm text-slate-800 placeholder:text-slate-400 outline-none"
+      />
+    </form>
+
+    <ul class="flex-1 flex flex-col gap-2 min-h-0 overflow-y-auto pr-1">
+      @for (item of filteredList; track item.id) {
+        <li 
+          class="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl cursor-pointer hover:border-orange-500 hover:bg-orange-50/20 shadow-xs transition-all group"
+          (click)="selected.emit({ id: item.id, variation: item.variation })"
+        >
+          <div class="flex flex-col gap-0.5 min-w-0 pr-3">
+            <span class="font-bold text-sm text-slate-800 group-hover:text-orange-600 transition-colors truncate">
+              {{ item.name }}
+            </span>
+            <span class="text-xs font-black text-orange-600">
+              {{ item.salePrice | currency: 'BRL' }}
+            </span>
+          </div>
+
+          <img 
+            [src]="item.photo || 'assets/img/noimage.png'" 
+            [alt]="item.name"
+            class="w-12 h-12 object-cover rounded-lg border border-slate-100 shrink-0" 
+          />
+        </li>
+      }
+
+      @if (filteredList.length === 0) {
+        <div class="flex flex-col items-center justify-center gap-2 py-8 text-slate-400">
+          <span av-icon name="search_off" type="material" size="lg"></span>
+          <span class="text-xs font-semibold">Nenhum sabor encontrado</span>
+        </div>
+      }
+    </ul>
+  </div>
+</div>
+}

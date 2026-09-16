@@ -18,8 +18,9 @@ import { AvCheckbox } from "../../../components/angular-visuals/components/forms
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { AvBadgeComponent } from "../../../components/angular-visuals/components/av-badge/av-badge.component";
 import { DialogService } from '../../../services/dialog.service';
-import { SummaryOptionsComponent } from '../../../components/utils/dialog-models/summary-options/summary-options.component';
 import { TableTicketSearchComponent } from './components/table-ticket-search/table-ticket-search.component';
+import { SummaryOptionsComponent } from './components/summary-options/summary-options.component';
+import { StorageService } from '../../../services/storage.service';
 
 interface tableConsumption extends Consumption {
   selected: boolean;
@@ -51,6 +52,7 @@ export class SummaryComponent implements OnInit {
     private readonly tableTicketService: TableTicketService,
     private readonly consumptionsService: ConsumptionsService,
     private readonly loadingOverlayService: LoadingOverlayService,
+    private readonly storageService: StorageService,
   ) {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) {
@@ -63,45 +65,78 @@ export class SummaryComponent implements OnInit {
     this.consumptionsService.updated.pipe(
       takeUntilDestroyed()
     ).subscribe(() => this.loadTable());
+
+    this.storageService.cacheUpdated$.pipe(
+      takeUntilDestroyed()
+    ).subscribe((key) => {
+      const tableTicket = this.tableTicket();
+      const keyOpenId = tableTicket?.keyOpenId || tableTicket?.keyOpen?.id || '';
+
+      if (key === `table-ticket:${this.id()}` || key.startsWith('table-tickets')) {
+        this.loadTable(false);
+      }
+
+      if (keyOpenId && key === this.storageService.consumptionsCacheKey(keyOpenId)) {
+        this.loadConsumptions(false);
+      }
+    });
   }
 
   ngOnInit(): void {
     this.loadTable();
   }
 
-  loadTable() {
-    this.loadingOverlayService.show('carregando...')
+  loadTable(showLoading = true, forceRefresh = false) {
+    if (showLoading) this.loadingOverlayService.show('carregando...')
 
-    this.tableTicketService.get(this.id()).subscribe((data) => {
+    this.tableTicketService.get(this.id(), { forceRefresh }).subscribe((data) => {
       this.tableTicket.set(data)
-      this.loadingOverlayService.hide();
+      if (showLoading) this.loadingOverlayService.hide();
 
       if (data.keyOpenId) {
-        this.loadConsumptions();
-        this.loadKeyOpen()
+        this.loadConsumptions(showLoading, forceRefresh);
+        this.loadKeyOpen(showLoading, forceRefresh)
+      } else {
+        this.consumptions.set([]);
+        this.keyOpen.set(null);
       }
     })
   }
 
-  loadKeyOpen() {
-    this.loadingOverlayService.show('carregando...')
+  loadKeyOpen(showLoading = true, forceRefresh = false) {
+    if (showLoading) this.loadingOverlayService.show('carregando...')
 
-    this.keyOpenService.get(this.tableTicket()?.keyOpenId!).subscribe((data) => {
+    this.keyOpenService.get(this.tableTicket()?.keyOpenId!, { forceRefresh }).subscribe((data) => {
       this.keyOpen.set(data)
-      this.loadingOverlayService.hide()
+      if (showLoading) this.loadingOverlayService.hide()
     })
   }
 
-  loadConsumptions() {
+  loadConsumptions(showLoading = true, forceRefresh = false) {
     if (!this.tableTicket()?.keyOpenId) return
-    this.loadingOverlayService.show('carregando consumos...')
+    if (showLoading) this.loadingOverlayService.show('carregando consumos...')
 
     this.consumptionsService.list(0, 999999, {
       keyOpen: this.tableTicket()?.keyOpenId
-    }).subscribe((data) => {
+    }, 'orderGroup', { forceRefresh }).subscribe((data) => {
       this.consumptions.set(data.items.map((c) => ({ ...c, selected: false })))
-      this.loadingOverlayService.hide()
+      if (showLoading) this.loadingOverlayService.hide()
     })
+  }
+
+  totalStatusLabel(): string {
+    const tableTicket = this.tableTicket();
+    if (!tableTicket) return '';
+
+    if (tableTicket.hasPendingLocal) {
+      return 'Inclui pedido pendente de envio';
+    }
+
+    if (this.isTableTicketCacheStale(tableTicket)) {
+      return 'Valor do cache pode estar desatualizado';
+    }
+
+    return '';
   }
 
   select(selected: boolean, target?: string | tableConsumption) {
@@ -119,12 +154,16 @@ export class SummaryComponent implements OnInit {
     }
   }
 
-  async options() {
-    const op = await this.dialogService.showComponent(SummaryOptionsComponent, {
-      hasSelectedItems: this.selectedItensCount() > 0
-    });
+  async options(op?: string) {
+    if (!op && this.selectedItensCount() > 0) {
+      op = await this.dialogService.showComponent(SummaryOptionsComponent, {
+        hasSelectedItems: this.selectedItensCount() > 0
+      });
+    }
 
-    console.log(op);
+    if (!op) {
+      return
+    }
 
     switch (op) {
       case ('split'): {
@@ -153,7 +192,7 @@ export class SummaryComponent implements OnInit {
         }
 
         this.consumptionsService.split(selected, quantity).subscribe({
-          next: () => this.loadTable()
+          next: () => this.loadTable(true, true)
         })
         break;
       }
@@ -167,6 +206,12 @@ export class SummaryComponent implements OnInit {
         this.transfer(selected)
         break;
       }
+      case ('invoice_selected'): {
+        break;
+      }
+      case ('invoice_all'): {
+        break;
+      }
     }
 
   }
@@ -178,11 +223,11 @@ export class SummaryComponent implements OnInit {
 
     const destination = await this.dialogService.showComponent(TableTicketSearchComponent)
     console.log(destination);
-    
+
     if (!destination) return;
 
     this.consumptionsService.transfer(items, destination).subscribe({
-      next: () => this.loadTable()
+      next: () => this.loadTable(true, true)
     });
   }
 
@@ -192,5 +237,14 @@ export class SummaryComponent implements OnInit {
 
   goToOrder() {
     this.router.navigate(['/order', this.id()]);
+  }
+
+  private isTableTicketCacheStale(tableTicket: TableTicket): boolean {
+    if (!tableTicket.cacheUpdatedAt) return true;
+
+    const cacheUpdatedAt = new Date(tableTicket.cacheUpdatedAt).getTime();
+    if (!Number.isFinite(cacheUpdatedAt)) return true;
+
+    return Date.now() - cacheUpdatedAt > this.storageService.cacheRefreshIntervalMs;
   }
 }

@@ -6,6 +6,10 @@ import { catchError, from, Observable, of } from 'rxjs';
 import { KeyOpen } from '../models/keyOpen';
 import { StorageService } from './storage.service';
 
+interface CacheReadOptions {
+  forceRefresh?: boolean;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -26,7 +30,11 @@ export class KeyOpenService {
     return this.http.get(`${configs.apiUrl}/key-open`, { params: httpParams });
   }
 
-  get(id: string): Observable<KeyOpen | null> {
+  get(id: string, options?: CacheReadOptions): Observable<KeyOpen | null> {
+    if (!options?.forceRefresh) {
+      return from(this.storageService.getCachedKeyOpen(id));
+    }
+
     return this.http.get<KeyOpen>(`${configs.apiUrl}/key-open/${id}`).pipe(
       catchError((error) => {
         console.error(`Erro ao buscar abertura ${id}:`, error);

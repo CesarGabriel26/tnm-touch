@@ -2,6 +2,7 @@ import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { LoadingOverlayComponent } from "./components/loading-overlay/loading-overlay.component";
 import { DialogComponent } from "./components/utils/dialog/dialog.component";
+import { LocalNetworkAccessService } from './services/local-network-access.service';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +12,6 @@ import { DialogComponent } from "./components/utils/dialog/dialog.component";
 })
 export class App {
   protected readonly title = signal('pdv-touch');
+
+  constructor(readonly localNetworkAccess: LocalNetworkAccessService) { }
 }

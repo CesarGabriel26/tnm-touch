@@ -1,5 +1,4 @@
 import { Component, signal } from '@angular/core';
-import { AvGridComponent } from '../../../components/angular-visuals/components/av-grid/grid.component';
 import { CommonModule } from '@angular/common';
 import { TABLE_STATUS_LABEL, TableTicket } from '../../../models/table-ticket';
 import { getTimeBetween } from '../../../utils/time.uitls';
@@ -9,13 +8,12 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { RouterLink } from '@angular/router';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
-import { AvInput } from '../../../components/angular-visuals/components/forms';
-import { AvBadgeComponent } from '../../../components/angular-visuals/components/av-badge/av-badge.component';
 import { StorageService } from '../../../services/storage.service';
+import { AvGrid, AvInput } from 'angular-visuals';
 
 @Component({
   selector: 'app-tables.component',
-  imports: [AvGridComponent, CommonModule, AvBadgeComponent, AvInput, FormsModule, ReactiveFormsModule, RouterLink],
+  imports: [AvGrid, CommonModule, AvInput, FormsModule, ReactiveFormsModule, RouterLink],
   templateUrl: './tables.component.html',
   styleUrl: './tables.component.css',
 })

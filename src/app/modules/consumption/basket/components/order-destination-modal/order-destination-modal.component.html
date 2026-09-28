@@ -10,8 +10,20 @@
   </div>
 
   <div class="flex flex-col gap-3">
-    <av-toggle-group [options]="destinationTypeOptions" [formControl]="type" variant="orange"
-      inactiveVariant="orange-outlined" rounded="full" ariaLabel="Tipo de destino"></av-toggle-group>
+    <av-button-group [value]="type.value" (selectionChange)="onTypeChange($event)" variant="orange" ariaLabel="Tipo de destino">
+      <button av-button avButtonGroupItem="M">
+        <span av-icon name="table_restaurant" type="material" size="sm"></span>
+        Mesa
+      </button>
+      <button av-button avButtonGroupItem="C">
+        <span av-icon name="confirmation_number" type="material" size="sm"></span>
+        Comanda
+      </button>
+      <button av-button avButtonGroupItem="A">
+        <span av-icon name="storefront" type="material" size="sm"></span>
+        Avulso
+      </button>
+    </av-button-group>
 
     @if (type.value === 'A') {
     <div class="bg-orange-50 border border-orange-200 rounded-xl p-3.5 flex items-start gap-3">

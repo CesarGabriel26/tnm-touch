@@ -3,8 +3,7 @@ import { Component, EventEmitter, OnChanges, Output, SimpleChanges, computed, in
 import { FormsModule } from '@angular/forms';
 import currency from 'currency.js';
 import { forkJoin } from 'rxjs';
-import { AvButton } from '../../../../../components/angular-visuals/components/buttons';
-import { AvIcon } from '../../../../../components/angular-visuals/components/icons';
+import { AvButton, AvIcon } from 'angular-visuals';
 import { SearchableListComponent, ListItem } from '../../../../../components/searchable-list/searchable-list.component';
 import { Complement } from '../../../../../models/product/complement.model';
 import { Product, PRODUCT_TYPES } from '../../../../../models/product/product.model';

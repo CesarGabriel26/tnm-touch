@@ -8,10 +8,9 @@ import {
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { AvInput } from '../../components/angular-visuals/components/forms';
-import { AvButton } from '../../components/angular-visuals/components/buttons';
 import { CompanyService } from '../../services/company.service';
 import { LocalStorageService } from '../../services/localStorage.service';
+import { AvButton, AvInput } from 'angular-visuals';
 
 @Component({
   selector: 'app-login',

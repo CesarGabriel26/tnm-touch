@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { DialogService } from '@/app/services/dialog.service';
-import { AvButton } from '@/app/components/angular-visuals/components/buttons';
+import { AvButton } from 'angular-visuals';
 
 @Component({
   selector: 'app-summary-options.component',

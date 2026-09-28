@@ -6,21 +6,15 @@ import { TableTicketService } from '../../../services/tableticket.service';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
 import { ConsumptionsService } from '../../../services/consumption.service';
 import { Consumption } from '../../../models/consumption';
-import { AvTableComponent } from '../../../components/angular-visuals/components/av-table/av-table.component';
-import { AvSortableColumnDirective } from '../../../components/angular-visuals/directives/av-sortable-column.directive';
-import { AvIcon, AvSortIcon } from '../../../components/angular-visuals/components/icons';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { KeyOpen } from '../../../models/keyOpen';
 import { KeyOpenService } from '../../../services/keyopen.service';
-import { AvTabs, AvTab } from '../../../components/angular-visuals/components/tabs';
-import { AvButton } from "../../../components/angular-visuals/components/buttons";
-import { AvCheckbox } from "../../../components/angular-visuals/components/forms";
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AvBadgeComponent } from "../../../components/angular-visuals/components/av-badge/av-badge.component";
 import { DialogService } from '../../../services/dialog.service';
 import { TableTicketSearchComponent } from './components/table-ticket-search/table-ticket-search.component';
 import { SummaryOptionsComponent } from './components/summary-options/summary-options.component';
 import { StorageService } from '../../../services/storage.service';
+import { AvBadge, AvButton, AvCheckbox, AvHeading, AvIcon, AvSortableColumn, AvTab, AvTable, AvTabs } from 'angular-visuals';
 
 interface tableConsumption extends Consumption {
   selected: boolean;
@@ -29,7 +23,7 @@ interface tableConsumption extends Consumption {
 
 @Component({
   selector: 'app-summary.component',
-  imports: [CommonModule, AvTableComponent, AvBadgeComponent, AvSortableColumnDirective, AvSortIcon, AvIcon, CurrencyPipe, DatePipe, AvTabs, AvTab, AvButton, AvCheckbox, FormsModule, ReactiveFormsModule, AvBadgeComponent],
+  imports: [CommonModule, AvTable, AvBadge, AvSortableColumn, AvIcon, CurrencyPipe, DatePipe, AvTabs, AvTab, AvButton, AvCheckbox, FormsModule, ReactiveFormsModule, AvBadge, AvHeading],
   templateUrl: './summary.component.html',
   styleUrl: './summary.component.css',
 })

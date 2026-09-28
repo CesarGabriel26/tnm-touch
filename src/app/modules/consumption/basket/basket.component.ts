@@ -1,8 +1,7 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { AvButton } from '../../../components/angular-visuals/components/buttons';
-import { AvIcon } from '../../../components/angular-visuals/components/icons';
+import { AvButton, AvIcon } from 'angular-visuals';
 import { TableTicket } from '../../../models/table-ticket';
 import { DialogService } from '../../../services/dialog.service';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';

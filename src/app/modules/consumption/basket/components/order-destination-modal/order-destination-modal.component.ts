@@ -4,9 +4,7 @@ import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { TableTicket } from '@/app/models/table-ticket';
-import { AvSelect } from '@/app/components/angular-visuals/components/forms';
-import { AvButton, AvToggleGroup } from '@/app/components/angular-visuals/components/buttons';
-import { AvIcon } from '@/app/components/angular-visuals/components/icons';
+import { AvButton, AvButtonGroup, AvButtonGroupItem, AvButtonGroupValue, AvIcon, AvSelect } from 'angular-visuals';
 import { DialogService } from '@/app/services/dialog.service';
 import { TableTicketService } from '@/app/services/tableticket.service';
 
@@ -19,7 +17,7 @@ export interface OrderDestinationResult {
 @Component({
   selector: 'app-order-destination-modal',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, AvSelect, AvToggleGroup, AvButton, AvIcon],
+  imports: [CommonModule, ReactiveFormsModule, AvSelect, AvButtonGroup, AvButtonGroupItem, AvButton, AvIcon],
   templateUrl: './order-destination-modal.component.html',
   styleUrl: './order-destination-modal.component.css',
 })
@@ -69,6 +67,12 @@ export class OrderDestinationModalComponent {
           this.loadTablesTickets();
         }
       });
+  }
+
+  onTypeChange(val: AvButtonGroupValue) {
+    if (val === 'M' || val === 'C' || val === 'A') {
+      this.type.setValue(val);
+    }
   }
 
   onSearch = (term: string) => {

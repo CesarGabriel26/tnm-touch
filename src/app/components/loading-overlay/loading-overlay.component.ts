@@ -1,8 +1,7 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { LoadingOverlayService } from '../../services/loading-overlay.service';
-import { AvIcon } from '../angular-visuals/components/icons';
 import { CommonModule } from '@angular/common';
-import { AvButton } from "../angular-visuals/components/buttons";
+import { AvButton, AvIcon } from 'angular-visuals';
 
 @Component({
   selector: 'loading-overlay',

@@ -6,15 +6,14 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TableTicketService } from '../../../services/tableticket.service';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { AvGridComponent } from "../../../components/angular-visuals/components/av-grid/grid.component";
 import { RouterLink } from '@angular/router';
 import { LoadingOverlayService } from '../../../services/loading-overlay.service';
-import { AvInput } from '../../../components/angular-visuals/components/forms';
 import { StorageService } from '../../../services/storage.service';
+import { AvGrid, AvInput } from 'angular-visuals';
 
 @Component({
   selector: 'app-tickets.component',
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, AvInput, AvGridComponent, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, AvInput, AvGrid, RouterLink],
   templateUrl: './tickets.component.html',
   styleUrl: './tickets.component.css',
 })

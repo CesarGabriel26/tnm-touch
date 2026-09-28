@@ -2,8 +2,9 @@
 
     <!-- Header -->
     <header class="sticky top-0 z-20 shrink-0
-               border-b border-slate-200/80
-               bg-white/95
+               border-b 
+               border-(--av-color-border)
+               bg-(--av-color-surface)
                px-3 py-2
                backdrop-blur-xl">
 
@@ -14,7 +15,7 @@
 
                 <div class="flex items-center gap-2 min-w-0">
 
-                    <span class="truncate text-base font-bold text-slate-800">
+                    <span class="truncate text-base font-bold">
                         {{ tableTicket()
                         ? tableTicket()!.type === 'M'
                         ? 'Mesa'
@@ -137,20 +138,6 @@
 
             </div>
 
-
-            <!-- Menu -->
-            <button av-button (click)="options()" class="!h-9 !w-9 !rounded-xl
-                       !border-0
-                       bg-slate-100
-                       shadow-none
-                       active:scale-95
-                       transition-transform">
-
-                <span av-icon name="more_vert" type="material" size="lg">
-                </span>
-
-            </button>
-
         </div>
 
     </header>
@@ -176,112 +163,69 @@
                         <div class="grid grid-cols-2 gap-2">
 
                             <!-- Produtos -->
-                            <div class="rounded-xl border border-slate-200
-                                       bg-white p-3 shadow-sm">
-
-                                <span class="text-[10px] font-medium text-slate-400">
-                                    Produtos
-                                </span>
-
-                                <div class="mt-1 text-sm font-bold text-slate-800">
+                            <div
+                                class="rounded-xl border border-(--av-color-border) bg-(--av-color-surface) p-3 shadow-sm">
+                                <av-heading level="2" muted="Produtos">
                                     {{ tableTicket()?.totalProducts | currency:'BRL' }}
-                                </div>
-
+                                </av-heading>
                             </div>
 
 
                             <!-- Serviço -->
-                            <div class="rounded-xl border border-slate-200
-                                       bg-white p-3 shadow-sm">
-
-                                <span class="text-[10px] font-medium text-slate-400">
-                                    Serviço
-                                </span>
-
-                                <div class="mt-1 text-sm font-bold text-slate-800">
+                            <div
+                                class="rounded-xl border border-(--av-color-border) bg-(--av-color-surface) p-3 shadow-sm">
+                                <av-heading level="2" muted="Serviço">
                                     {{ tableTicket()?.totalService | currency:'BRL' }}
-                                </div>
-
+                                </av-heading>
                             </div>
 
 
                             <!-- Couvert -->
-                            <div class="rounded-xl border border-slate-200
-                                       bg-white p-3 shadow-sm">
-
-                                <span class="text-[10px] font-medium text-slate-400">
-                                    Couvert
-                                </span>
-
-                                <div class="mt-1 text-sm font-bold text-emerald-600">
-                                    {{ tableTicket()?.totalCouvert | currency:'BRL' }}
-                                </div>
-
+                            <div
+                                class="rounded-xl border border-(--av-color-border) bg-(--av-color-surface) p-3 shadow-sm">
+                                <av-heading level="2" muted="Couvert">
+                                    <span class="text-emerald-500"> {{ tableTicket()?.totalCouvert | currency:'BRL'
+                                        }}</span>
+                                </av-heading>
                             </div>
 
 
                             <!-- Créditos -->
-                            <div class="rounded-xl border border-slate-200
-                                       bg-white p-3 shadow-sm">
-
-                                <span class="text-[10px] font-medium text-slate-400">
-                                    Créditos
-                                </span>
-
-                                <div class="mt-1 text-sm font-bold text-emerald-600">
-                                    {{ 0 | currency:'BRL' }}
-                                </div>
-
+                            <div
+                                class="rounded-xl border border-(--av-color-border) bg-(--av-color-surface) p-3 shadow-sm">
+                                <av-heading level="2" muted="Créditos">
+                                    <span class="text-emerald-500">{{ 0 | currency:'BRL' }}</span>
+                                </av-heading>
                             </div>
 
                         </div>
 
 
                         <!-- Total -->
-                        <div class="rounded-2xl border border-blue-200
-                                   bg-blue-50/80 p-4">
+                        <div class="rounded-2xl border border-(--av-color-border) bg-(--av-color-surface) p-4">
 
                             <div class="flex items-center justify-between">
-
-                                <div>
-                                    <p class="text-[11px] font-semibold text-blue-600">
-                                        TOTAL
-                                    </p>
-
-                                    <p class="mt-0.5 text-[10px] text-blue-400">
-                                        Consumo da {{ tableTicket()?.type === 'M' ? 'mesa' : 'comanda' }}
-                                    </p>
-                                </div>
-
+                                <av-heading level="4"
+                                    [muted]="`Consumo da ${ tableTicket()?.type === 'M' ? 'mesa' : 'comanda' }`">
+                                    <span class="text-blue-500">TOTAL</span>
+                                </av-heading>
                                 <span class="text-xl font-black text-blue-700">
                                     {{ tableTicket()?.total | currency:'BRL' }}
                                 </span>
-
                             </div>
 
                         </div>
 
 
                         <!-- À pagar -->
-                        <div class="rounded-2xl border border-red-200
-                                   bg-red-50/80 p-4">
-
+                        <div class="rounded-2xl border border-(--av-color-border) bg-(--av-color-surface) p-4">
                             <div class="flex items-center justify-between">
-
-                                <div>
-                                    <p class="text-[11px] font-semibold text-red-600">
-                                        À PAGAR
-                                    </p>
-
-                                    <p class="mt-0.5 text-[10px] text-red-400">
-                                        Valor pendente
-                                    </p>
-                                </div>
-
+                                <av-heading level="4" muted="Valor pendente">
+                                    <span class="text-red-500">À PAGAR</span>
+                                </av-heading>
                                 <span class="text-xl font-black text-red-600">
                                     {{ tableTicket()?.totalPending | currency:'BRL' }}
                                 </span>
-
                             </div>
 
                         </div>
@@ -290,41 +234,49 @@
                         <!-- Ações -->
                         <div class="grid grid-cols-2 gap-2 pt-1">
                             <!-- Transferir tudo -->
-                            <button av-button iconProvider="material" icon="swap_horiz"
-                                (click)="options('transfer_all')" class="!min-h-12 !justify-start !rounded-xl">
-
-                                <span class="flex flex-col items-start">
-
-                                    <span class="font-semibold">
-                                        Transferir tudo
+                            <button av-button (click)="options('transfer_all')" class="w-full!">
+                                <div class="flex gap-3 items-center">
+                                    <span class="material-symbols-outlined">
+                                        swap_horiz
                                     </span>
 
-                                    <span class="text-[10px] opacity-70 font-normal">
-                                        Transferir todos os consumos
-                                    </span>
+                                    <span class="flex flex-col items-start">
 
-                                </span>
+                                        <span class="font-semibold">
+                                            Transferir tudo
+                                        </span>
+
+                                        <span class="text-[10px] opacity-70 font-normal">
+                                            Transferir todos os consumos
+                                        </span>
+
+                                    </span>
+                                </div>
 
                             </button>
 
 
                             <!-- Faturar -->
-                            <button [disabled]="true" av-button iconProvider="material" icon="receipt_long"
-                                variant="emerald" (click)="options('invoice_all')"
-                                class="!min-h-12 !justify-start !rounded-xl">
-
-                                <span class="flex flex-col items-start">
-
-                                    <span class="font-semibold">
-                                        Faturar
+                            <button av-button [disabled]="true" variant="emerald" (click)="options('invoice_all')"
+                                class="w-full! disabled:opacity-70 disabled:pointer-events-none">
+                                <div class="flex gap-3 items-center">
+                                    <span class="material-symbols-outlined">
+                                        receipt_long
                                     </span>
 
-                                    <span class="text-[10px] opacity-70 font-normal">
-                                        Faturar todos os consumos
+
+                                    <span class="flex flex-col items-start">
+
+                                        <span class="font-semibold">
+                                            Faturar
+                                        </span>
+
+                                        <span class="text-[10px] opacity-70 font-normal">
+                                            Faturar todos os consumos
+                                        </span>
+
                                     </span>
-
-                                </span>
-
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -340,11 +292,10 @@
 
             <av-tab title="Consumos">
 
-                <div class="flex h-full min-h-0 flex-col bg-slate-100">
+                <div class="flex h-full min-h-0 flex-col">
 
                     <!-- Barra de seleção -->
-                    <div class="shrink-0 border-b border-slate-200
-                               bg-white px-3 py-2">
+                    <div class="shrink-0 border-b border-(--av-color-border) px-3 py-2">
 
                         <div class="flex items-center justify-between gap-2">
 
@@ -354,6 +305,16 @@
                                 selecionado{{ selectedItensCount() > 1 ? 's' : '' }}
                             </span>
 
+
+                            <button [disabled]="selectedItensCount() <= 0" av-button (click)="options()" class="p-1! aspect-square
+                                shadow-none
+                                active:scale-95
+                                transition-transform disabled:opacity-70 disabled:pointer-events-none">
+
+                                <span av-icon name="more_vert" type="material" size="lg">
+                                </span>
+
+                            </button>
                         </div>
 
                     </div>
@@ -373,19 +334,11 @@
                                     </th>
 
                                     <th class="p-2 text-[12px] font-bold" avSortableColumn="date_time">
-
                                         Data/Hora
-
-                                        <av-sort-icon field="date_time" />
-
                                     </th>
 
                                     <th class="p-2 text-[12px] font-bold" avSortableColumn="product">
-
                                         Produto / Obs
-
-                                        <av-sort-icon field="product" />
-
                                     </th>
 
                                     <th class="p-2 text-right text-[12px] font-bold">
@@ -399,8 +352,8 @@
 
                             <ng-template #body let-consumption>
 
-                                <tr class="border-b border-slate-100 bg-white" [ngClass]="{
-                                        'bg-red-50!': consumption.local
+                                <tr class="border-b" [ngClass]="{
+                                        'bg-(--av-color-danger-soft)!': consumption.local
                                     }">
 
                                     <!-- Checkbox -->
@@ -413,16 +366,16 @@
 
                                     <!-- Data -->
                                     <td class="p-2 align-top whitespace-nowrap">
-                                        <span class="text-[10px] text-slate-500">
+                                        <span class="text-[10px] ">
                                             {{ consumption.dateTime | date:'dd/MM HH:mm' }}
                                         </span>
                                     </td>
 
                                     <!-- Produto e Adicionais -->
                                     <td class="p-2 align-top min-w-0">
-                                        <div class="text-xs font-bold text-slate-800 break-words">
+                                        <div class="text-xs font-bold break-words">
                                             {{ consumption.product }}
-                                            <span class="text-[10px] font-normal text-slate-400 whitespace-nowrap">
+                                            <span class="text-[10px] font-normal whitespace-nowrap">
                                                 ({{ consumption.quantity }}un.)
                                             </span>
                                         </div>
@@ -437,7 +390,7 @@
                                         @if (consumption.obs || (consumption.snapshot?.complements &&
                                         consumption.snapshot.complements.length > 0)) {
                                         <div
-                                            class="mt-1 text-[11px] text-slate-500 italic p-1.5 rounded border border-orange-300 border-dashed bg-orange-50/40 break-words">
+                                            class="mt-1 text-[11px] italic p-1.5 rounded border border-orange-300 border-dashed break-words">
                                             @if (consumption.obs) {
                                             <span class="font-medium text-amber-700 not-italic block">Obs: {{
                                                 consumption.obs }}</span>
@@ -445,7 +398,7 @@
 
                                             @if (consumption.snapshot?.complements &&
                                             consumption.snapshot.complements.length > 0) {
-                                            <div class="mt-0.5 text-[10px] text-slate-600">
+                                            <div class="mt-0.5 text-[10px]">
                                                 @for (addition of consumption.snapshot.complements; track $index) {
                                                 @for (additionData of addition.data; track $index) {
                                                 <span>{{ additionData.name }}{{ $index < addition.data.length - 1
@@ -462,10 +415,10 @@
 
                                     <!-- Total -->
                                     <td class="p-2 text-right align-top whitespace-nowrap">
-                                        <div class="text-[10px] text-slate-400">
+                                        <div class="text-[10px] ">
                                             {{ consumption.quantity }}x {{ consumption.unityPrice | currency:'BRL' }}
                                         </div>
-                                        <div class="text-xs font-bold text-slate-800">
+                                        <div class="text-xs font-bold ">
                                             {{ consumption.unityPrice * consumption.quantity | currency:'BRL' }}
                                         </div>
                                     </td>

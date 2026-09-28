@@ -2,6 +2,7 @@
 
 @import 'tailwindcss';
 @import 'material-symbols';
+@import 'angular-visuals/styles/angular-visuals.css';
 
 @custom-variant dark (&:where(.dark, .dark *));
 

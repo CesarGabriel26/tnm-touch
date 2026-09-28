@@ -1,4 +1,5 @@
-<div class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-[2px] transition-opacity duration-300 flex items-end sm:items-center justify-center p-0 sm:p-4"
+<div
+  class="fixed inset-0 z-50 backdrop-blur-[2px] transition-opacity duration-300 flex items-end sm:items-center justify-center p-0 sm:p-4"
   [ngClass]="{
     'opacity-100 pointer-events-auto': visible(),
     'opacity-0 pointer-events-none': !visible()
@@ -7,7 +8,8 @@
   <app-searchable-list [list]="SearchList" (close)="closeSearchList()" (selected)="SearchListItemSelected($event)" />
 
   @if (activeProduct; as prod) {
-  <div class="w-full sm:max-w-[700px] h-[92vh] sm:h-[85vh] max-h-[850px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 relative transition-transform duration-300"
+  <div
+    class="w-full sm:max-w-[700px] h-[92vh] sm:h-[85vh] max-h-[850px] bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-200 relative transition-transform duration-300"
     [ngClass]="{
       'translate-y-0': visible(),
       'translate-y-full sm:translate-y-0 sm:scale-95': !visible()
@@ -25,11 +27,13 @@
       </div>
 
       <div class="flex items-center gap-3 shrink-0">
-        <div class="bg-orange-50 text-orange-600 border border-orange-200 px-3.5 py-1.5 rounded-full text-base font-black">
+        <div
+          class="bg-orange-50 text-orange-600 border border-orange-200 px-3.5 py-1.5 rounded-full text-base font-black">
           <span>{{ calcTotalPrice() | currency: 'BRL' }}</span>
         </div>
 
-        <button type="button" class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+        <button type="button"
+          class="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
           (click)="closeProduct()">
           <span av-icon name="close" type="material" size="md"></span>
         </button>
@@ -37,25 +41,26 @@
     </div>
 
     <!-- Stepper Navigation Bar -->
-    <div class="px-3 py-2.5 flex items-center justify-start gap-2 border-b border-slate-200 bg-slate-50 overflow-x-auto scrollbar-none">
+    <div
+      class="px-3 py-2.5 flex items-center justify-start gap-2 border-b border-slate-200 bg-slate-50 overflow-x-auto scrollbar-none">
       @for (step of availableSteps(); track step.id; let i = $index) {
-      <button type="button" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer"
+      <button type="button"
+        class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shrink-0 cursor-pointer"
         [ngClass]="{
           'bg-orange-500 text-white shadow-xs': currentStep() === i,
           'bg-slate-200 text-slate-700 hover:bg-slate-300': currentStep() > i,
           'bg-white text-slate-500 border border-slate-200 hover:bg-slate-100': currentStep() < i
         }" (click)="setStep(i)">
-        
-        <span class="w-5 h-5 flex items-center justify-center rounded-full text-[0.7rem] font-black"
-          [ngClass]="{
+
+        <span class="w-5 h-5 flex items-center justify-center rounded-full text-[0.7rem] font-black" [ngClass]="{
             'bg-white text-orange-600': currentStep() === i,
             'bg-slate-400 text-white': currentStep() > i,
             'bg-slate-100 text-slate-500': currentStep() < i
           }">
           @if (currentStep() > i) {
-            <span av-icon name="check" type="material" size="xs"></span>
+          <span av-icon name="check" type="material" size="xs"></span>
           } @else {
-            {{ i + 1 }}
+          {{ i + 1 }}
           }
         </span>
 
@@ -78,17 +83,17 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
           @for (v of variations(); track v.variationItemId) {
-          <div class="p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 bg-white"
+          <div
+            class="p-3.5 rounded-xl border transition-all cursor-pointer flex items-center justify-between gap-3 bg-white"
             [ngClass]="variationItemId() === v.variationItemId
               ? 'border-orange-500 bg-orange-50/40 ring-2 ring-orange-100'
-              : 'border-slate-200 hover:border-slate-300'"
-            (click)="variationChange(v.variationItemId)">
-            
+              : 'border-slate-200 hover:border-slate-300'" (click)="variationChange(v.variationItemId)">
+
             <div class="flex items-center gap-3">
               <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0"
                 [ngClass]="variationItemId() === v.variationItemId ? 'border-orange-500 bg-orange-500' : 'border-slate-300'">
                 @if (variationItemId() === v.variationItemId) {
-                  <div class="w-2 h-2 rounded-full bg-white"></div>
+                <div class="w-2 h-2 rounded-full bg-white"></div>
                 }
               </div>
 
@@ -116,7 +121,8 @@
           @for (item of filteredFlavors(); track $index) {
           <div class="flex items-center justify-between p-3.5 bg-white border border-slate-200 rounded-xl shadow-xs">
             <div class="flex items-center gap-3">
-              <div class="w-7 h-7 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shrink-0">
+              <div
+                class="w-7 h-7 rounded-full bg-orange-500 text-white font-black text-xs flex items-center justify-center shrink-0">
                 {{ $index + 1 }}
               </div>
 
@@ -127,7 +133,8 @@
             </div>
 
             @if ($index > 0) {
-            <button type="button" class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center shrink-0"
+            <button type="button"
+              class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center shrink-0"
               (click)="removeItem($index)" title="Remover sabor">
               <span av-icon name="delete" type="material" size="sm"></span>
             </button>
@@ -135,13 +142,13 @@
           </div>
           }
 
-          @if (filteredFlavors().length < hasDivision()) {
-          <button type="button" class="w-full flex items-center justify-center gap-2 p-3.5 border-2 border-dashed border-orange-400 text-orange-600 hover:bg-orange-50/50 rounded-xl font-bold text-sm transition-all cursor-pointer"
+          @if (filteredFlavors().length < hasDivision()) { <button type="button"
+            class="w-full flex items-center justify-center gap-2 p-3.5 border-2 border-dashed border-orange-400 text-orange-600 hover:bg-orange-50/50 rounded-xl font-bold text-sm transition-all cursor-pointer"
             (click)="selectSaborClicked()">
             <span av-icon name="add_circle" type="material" size="md"></span>
             <span>Adicionar {{ filteredFlavors().length + 1 }}º sabor</span>
-          </button>
-          }
+            </button>
+            }
         </div>
       </div>
       }
@@ -156,17 +163,17 @@
 
         <div class="flex flex-col gap-2">
           @for (b of borders(); track (b.id || b._id)) {
-          <div class="flex items-center justify-between p-3.5 bg-white border rounded-xl cursor-pointer transition-all shadow-xs"
+          <div
+            class="flex items-center justify-between p-3.5 bg-white border rounded-xl cursor-pointer transition-all shadow-xs"
             [ngClass]="selectedBorderId() === (b.id || b._id)
               ? 'border-orange-500 bg-orange-50/30 ring-2 ring-orange-100'
-              : 'border-slate-200 hover:border-slate-300'"
-            (click)="selectBorder(b.id || b._id)">
-            
+              : 'border-slate-200 hover:border-slate-300'" (click)="selectBorder(b.id || b._id)">
+
             <div class="flex items-center gap-3">
               <div class="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all shrink-0"
                 [ngClass]="selectedBorderId() === (b.id || b._id) ? 'border-orange-500 bg-orange-500' : 'border-slate-300'">
                 @if (selectedBorderId() === (b.id || b._id)) {
-                  <div class="w-2 h-2 rounded-full bg-white"></div>
+                <div class="w-2 h-2 rounded-full bg-white"></div>
                 }
               </div>
 
@@ -192,7 +199,8 @@
 
         <div class="flex flex-col gap-2.5">
           @for (add of getAdditionalForVariation(); track add._id) {
-          <div class="p-3 bg-white border border-slate-200 rounded-xl shadow-xs flex items-center justify-between gap-3">
+          <div
+            class="p-3 bg-white border border-slate-200 rounded-xl shadow-xs flex items-center justify-between gap-3">
             <div class="flex items-center gap-3 min-w-0">
               <img [src]="add.pictureUrl" [alt]="add.name"
                 class="w-12 h-12 rounded-lg object-cover bg-slate-100 shrink-0 border border-slate-100" />
@@ -230,34 +238,37 @@
         </div>
 
         @for (comp of comboItems(); track comp._id) {
-        <div class="bg-white rounded-xl border transition-all overflow-hidden shadow-xs"
-          [ngClass]="{
+        <div class="bg-white rounded-xl border transition-all overflow-hidden shadow-xs" [ngClass]="{
             'border-orange-500 ring-1 ring-orange-200': comp.isRequired && !selectedComplements()[comp._id]?.length,
             'border-slate-200': !(comp.isRequired && !selectedComplements()[comp._id]?.length)
           }">
-          
+
           <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <h5 class="text-xs font-black uppercase text-slate-800">{{ comp.name }}</h5>
               @if (comp.isRequired) {
-                <span class="text-[0.65rem] font-bold bg-orange-500 text-white px-2 py-0.5 rounded-md uppercase">Obrigatório</span>
+              <span
+                class="text-[0.65rem] font-bold bg-orange-500 text-white px-2 py-0.5 rounded-md uppercase">Obrigatório</span>
               }
             </div>
 
-            <span class="text-[0.7rem] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
+            <span
+              class="text-[0.7rem] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
               Máx {{ comp.maxSelection }}
             </span>
           </div>
 
           <div class="divide-y divide-slate-100">
             @for (opt of comp.options; track (opt.id || opt._id)) {
-            <label class="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 transition-colors select-none">
+            <label
+              class="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 transition-colors select-none">
               <div class="flex flex-col pr-3">
                 <span class="text-xs font-bold text-slate-800">
                   {{ opt.name }}{{ opt.variationName ? ' (' + opt.variationName + ')' : '' }}
                 </span>
                 @if (opt.price > 0) {
-                  <span class="text-[0.75rem] font-black text-orange-600 mt-0.5">+ {{ opt.price | currency: 'BRL' }}</span>
+                <span class="text-[0.75rem] font-black text-orange-600 mt-0.5">+ {{ opt.price | currency: 'BRL'
+                  }}</span>
                 }
               </div>
 
@@ -282,34 +293,37 @@
         </div>
 
         @for (comp of complements(); track comp._id) {
-        <div class="bg-white rounded-xl border transition-all overflow-hidden shadow-xs"
-          [ngClass]="{
+        <div class="bg-white rounded-xl border transition-all overflow-hidden shadow-xs" [ngClass]="{
             'border-red-400 ring-1 ring-red-100': comp.isRequired && !selectedComplements()[comp._id]?.length,
             'border-slate-200': !(comp.isRequired && !selectedComplements()[comp._id]?.length)
           }">
-          
+
           <div class="p-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div class="flex items-center gap-2">
               <h5 class="text-xs font-black uppercase text-slate-800">{{ comp.name }}</h5>
               @if (comp.isRequired) {
-                <span class="text-[0.65rem] font-bold bg-red-500 text-white px-2 py-0.5 rounded-md uppercase">Obrigatório</span>
+              <span
+                class="text-[0.65rem] font-bold bg-red-500 text-white px-2 py-0.5 rounded-md uppercase">Obrigatório</span>
               }
             </div>
 
-            <span class="text-[0.7rem] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
+            <span
+              class="text-[0.7rem] font-bold text-slate-500 bg-white border border-slate-200 px-2 py-0.5 rounded-full">
               Mín {{ comp.isRequired ? '1' : '0' }} / Máx {{ comp.maxSelection }}
             </span>
           </div>
 
           <div class="divide-y divide-slate-100">
             @for (opt of comp.options; track (opt.id || opt._id)) {
-            <label class="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 transition-colors select-none">
+            <label
+              class="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 transition-colors select-none">
               <div class="flex flex-col pr-3">
                 <span class="text-xs font-bold text-slate-800">
                   {{ opt.name }}{{ opt.variationName ? ' (' + opt.variationName + ')' : '' }}
                 </span>
                 @if (opt.price > 0) {
-                  <span class="text-[0.75rem] font-black text-orange-600 mt-0.5">+ {{ opt.price | currency: 'BRL' }}</span>
+                <span class="text-[0.75rem] font-black text-orange-600 mt-0.5">+ {{ opt.price | currency: 'BRL'
+                  }}</span>
                 }
               </div>
 
@@ -335,8 +349,8 @@
 
         <textarea rows="4"
           class="w-full resize-none rounded-xl border border-slate-200 p-3.5 text-sm bg-white outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-100 transition-all placeholder:text-slate-400"
-          placeholder="Ex: sem cebola, molho à parte, bem passado..."
-          [ngModel]="orderItem().obs" (ngModelChange)="orderItem().obs = $event"></textarea>
+          placeholder="Ex: sem cebola, molho à parte, bem passado..." [ngModel]="orderItem().obs"
+          (ngModelChange)="orderItem().obs = $event"></textarea>
       </div>
       }
       }
@@ -357,15 +371,17 @@
 
       <div class="flex items-center gap-2 flex-1 justify-end min-w-0">
         @if (currentStep() > 0) {
-        <button type="button" class="flex items-center justify-center px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100 transition"
+        <button type="button"
+          class="flex items-center justify-center px-3.5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-100 transition"
           (click)="prevStep()">
           <span av-icon name="chevron_left" type="material" size="sm"></span>
           <span class="hidden sm:inline ml-1">Anterior</span>
         </button>
         }
 
-        <button av-button type="button" [variant]="currentStep() >= availableSteps().length - 1 ? 'emerald' : 'orange'" rounded="full"
-          class="min-h-11 flex-1 max-w-[280px]" [disabled]="!isComplementsValid()" (click)="nextClicked()">
+        <button av-button type="button" [variant]="currentStep() >= availableSteps().length - 1 ? 'emerald' : 'orange'"
+          rounded="full" class="min-h-11 flex-1 max-w-[280px]" [disabled]="!isComplementsValid()"
+          (click)="nextClicked()">
           <span class="font-bold text-sm">
             {{ currentStep() >= availableSteps().length - 1 ? 'Salvar' : 'Próximo Passo' }}
           </span>

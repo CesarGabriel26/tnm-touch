@@ -1,11 +1,11 @@
-<div class="flex h-full w-full flex-col bg-slate-100">
+<div class="flex h-full w-full flex-col ">
 
     <!-- Tabs -->
     <div class="shrink-0 px-3 pt-2">
 
         <div class="grid h-11 w-full
                    rounded-xl
-                   bg-slate-200/70
+                   bg-(--av-color-surface-muted)
                    p-1
                    shadow-inner" [style]="{
                 gridTemplateColumns: 'repeat(' + APP_FEATURES.length + ', 1fr)'
@@ -20,13 +20,6 @@
                            text-slate-500
                            transition-all duration-200
                            active:scale-[0.98]">
-
-                @if (item.icon) {
-
-                <span av-icon [name]="item.icon" type="material" size="md">
-                </span>
-
-                }
 
                 <span>
                     {{ item.label }}

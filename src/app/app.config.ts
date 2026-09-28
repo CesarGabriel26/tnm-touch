@@ -6,6 +6,7 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './interceptors/auth.interceptor';
 import { LocalNetworkAccessService } from './services/local-network-access.service';
+import { provideAngularVisuals } from 'angular-visuals';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -15,6 +16,12 @@ export const appConfig: ApplicationConfig = {
     provideServiceWorker('ngsw-worker.js', {
       enabled: true,
       registrationStrategy: 'registerImmediately',
+    }),
+    provideAngularVisuals({
+      theme: {
+        mode: 'light',
+        defaultVariant: 'orange'
+      }
     }),
     provideHttpClient(
       withInterceptors([authInterceptor])

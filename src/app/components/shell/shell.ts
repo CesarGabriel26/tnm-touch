@@ -1,12 +1,10 @@
-import { Component, ElementRef, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnDestroy, OnInit, signal, ViewChild } from '@angular/core';
 import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { CommonModule, Location } from '@angular/common';
-import { filter, firstValueFrom, Subscription } from 'rxjs';
-import { AvIcon } from '../angular-visuals/components/icons';
-import { AvButton } from '../angular-visuals/components/buttons';
+import { debounceTime, distinctUntilChanged, filter, firstValueFrom, Subscription } from 'rxjs';
+import { AvBadge, AvButton, AvHeading, AvIcon, AvNavLink, AvSidenav, AvAvatar, AvSelect, ThemeService } from 'angular-visuals';
 import { OrderDraftService } from '../../services/order/order-draft.service';
 import { OfflineCacheRefreshService } from '../../services/offline-cache-refresh.service';
-import { AvBadgeComponent } from "../angular-visuals/components/av-badge/av-badge.component";
 import { OrderQueueSyncService } from '../../services/order/order-queue-sync.service';
 import { User } from '../../models/user';
 import { WebsocketClientService } from '../../services/websocketClient.service';
@@ -15,10 +13,12 @@ import configs from '../../config';
 import { TableTicketService } from '../../services/tableticket.service';
 import { ConsumptionsService } from '../../services/consumption.service';
 import { StorageService } from '../../services/storage.service';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, AvIcon, AvButton, CommonModule, RouterLink, AvBadgeComponent],
+  imports: [RouterOutlet, RouterLink, AvIcon, AvButton, CommonModule, RouterLink, AvBadge, AvSidenav, AvHeading, AvAvatar, AvSelect, FormsModule, ReactiveFormsModule],
   standalone: true,
   templateUrl: './shell.html',
   styleUrl: './shell.css',
@@ -36,6 +36,9 @@ export class AppShell implements OnDestroy, OnInit {
   company = signal<any>({} as any);
 
   @ViewChild('basket', { read: ElementRef }) basket?: ElementRef<HTMLButtonElement>;
+
+  themeService = inject(ThemeService)
+  theme = new FormControl<string>(this.themeService.mode() || 'system')
 
   constructor(
     private readonly router: Router,
@@ -73,6 +76,15 @@ export class AppShell implements OnDestroy, OnInit {
 
     this.user.set(session.user);
     this.company.set(session.company);
+
+    this.theme.valueChanges.pipe(
+      debounceTime(100),
+      distinctUntilChanged(),
+      takeUntilDestroyed()
+    ).subscribe((t) => {
+      this.themeService.setMode((t || 'system') as any);
+      localStorage.setItem('@theme', t || 'system')
+    })
   }
 
   ngOnInit(): void {
@@ -143,6 +155,8 @@ export class AppShell implements OnDestroy, OnInit {
   leave() {
     this.notifyTouchDisconnect();
     localStorage.removeItem('@token')
+    localStorage.removeItem('@theme')
+    this.themeService.setMode('light')
     const companyId = localStorage.getItem('@companyId')
     localStorage.removeItem('@companyId')
     localStorage.removeItem('@session')

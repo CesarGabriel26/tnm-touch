@@ -1,5 +1,6 @@
-import { computed, Injectable, signal } from '@angular/core';
+import { computed, Injectable, isDevMode, signal } from '@angular/core';
 import configs, { getLocalNetworkTargetAddressSpace } from '../config';
+import { environment } from '@/environments/environment';
 
 export type LocalNetworkAccessState =
   | 'idle'
@@ -15,7 +16,7 @@ type LocalNetworkPermissionName =
   | 'local-network-access';
 
 interface LocalNetworkRequestInit extends RequestInit {
-  targetAddressSpace: 'local' | 'loopback';
+  targetAddressSpace?: 'local' | 'loopback';
 }
 
 @Injectable({
@@ -23,11 +24,16 @@ interface LocalNetworkRequestInit extends RequestInit {
 })
 export class LocalNetworkAccessService {
   readonly state = signal<LocalNetworkAccessState>('idle');
-  readonly requiresAction = computed(() => [
-    'denied',
-    'insecure',
-    'unavailable',
-  ].includes(this.state()));
+  readonly requiresAction = computed(() => {
+    
+    return [
+      'denied',
+      'insecure',
+      'unavailable',
+    ].includes(this.state()) && environment.production
+  });
+
+
   readonly message = computed(() => {
     switch (this.state()) {
       case 'denied':
@@ -55,7 +61,7 @@ export class LocalNetworkAccessService {
   private async performRequest(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
 
-    if (!window.isSecureContext) {
+    if (!window.isSecureContext && !isDevMode()) {
       this.state.set('insecure');
       return false;
     }
@@ -74,7 +80,7 @@ export class LocalNetworkAccessService {
         method: 'GET',
         mode: 'cors',
         cache: 'no-store',
-        targetAddressSpace: addressSpace,
+        ...(window.isSecureContext ? { targetAddressSpace: addressSpace } : {}),
       };
       const separator = configs.healthUrl.includes('?') ? '&' : '?';
       const response = await fetch(

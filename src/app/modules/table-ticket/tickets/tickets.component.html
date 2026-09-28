@@ -24,21 +24,14 @@
     </div>
 
     <div class="flex-1 overflow-y-scroll">
-        <div av-grid [empty]="tickets().length === 0" [cols]="{
-            'xs': 1,
-            'sm': 3,
-            'md': 3,
-            'lg': 3,
-            'xl': 5,
-            '2xl': 6
-            }">
+        <div av-grid [empty]="tickets().length === 0" [cols]="{ 'xs': 3 }">
             @for (ticket of tickets(); track ticket.id) {
             <div [routerLink]="`/table-ticket-summary/${ticket.id}`" class="group relative min-w-0 h-[150px] bg-white rounded-xl border border-slate-200
-           p-2.5 flex flex-col shadow-xs hover:shadow-md transition-all
-           cursor-pointer overflow-hidden" [ngClass]="{
-        'hover:border-emerald-400': ticket.status === 'A',
-        'hover:border-red-400 bg-gradient-to-b from-red-50/20 to-transparent': ticket.status === 'O'
-    }">
+                p-2.5 flex flex-col shadow-xs hover:shadow-md transition-all
+                cursor-pointer overflow-hidden" [ngClass]="{
+                'hover:border-emerald-400': ticket.status === 'A',
+                'hover:border-red-400 bg-gradient-to-b from-red-50/20 to-transparent': ticket.status === 'O'
+            }">
 
                 <!-- Linha de status -->
                 <div class="absolute top-0 left-0 w-full h-1" [ngClass]="{

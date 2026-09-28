@@ -1,7 +1,7 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { AvIcon } from '../angular-visuals/components/icons';
+import { AvIcon } from 'angular-visuals';
 
 export interface ListItem {
   id: string;

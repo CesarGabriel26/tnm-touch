@@ -1,7 +1,7 @@
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { AvIcon } from '../../../../../components/angular-visuals/components/icons';
 import { TableTicket, TABLE_STATUS_LABEL, TICKET_STATUS_LABEL } from '../../../../../models/table-ticket';
+import { AvIcon } from 'angular-visuals';
 
 @Component({
   selector: 'app-order-ticket-header',

@@ -13,8 +13,7 @@
     <p class="mt-2 text-sm leading-6 text-slate-600">
       {{ localNetworkAccess.message() }}
     </p>
-    <button type="button"
-      class="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-orange-600 px-4 font-bold text-white transition-colors hover:bg-orange-700 disabled:opacity-60"
+    <button av-button
       [disabled]="localNetworkAccess.state() === 'checking'"
       (click)="localNetworkAccess.requestAccess()">
       <span class="material-symbols-outlined text-xl">refresh</span>

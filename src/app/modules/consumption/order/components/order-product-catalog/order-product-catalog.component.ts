@@ -1,19 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, signal } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { AvGridComponent } from '../../../../../components/angular-visuals/components/av-grid/grid.component';
-import { AvInput } from '../../../../../components/angular-visuals/components/forms';
-import { AvIcon } from '../../../../../components/angular-visuals/components/icons';
 import { Category } from '../../../../../models/category/category.model';
 import { IOrderItem } from '../../../../../models/order/orderItem';
 import { Product } from '../../../../../models/product/product.model';
 import { getPriceRange } from '../../../../../utils/product.utils';
 import { OrderItemBuilderService } from '../../../../../services/order/order-item-builder.service';
 import { OrderProductBuildComponent } from '../order-product-build/order-product-build.component';
+import { AvGrid, AvIcon, AvInput, AvButtonGroup, AvButtonGroupItem } from 'angular-visuals';
 
 @Component({
   selector: 'app-order-product-catalog',
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, AvGridComponent, AvIcon, AvInput, OrderProductBuildComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, AvGrid, AvIcon, AvInput, OrderProductBuildComponent, AvButtonGroup, AvButtonGroupItem],
   templateUrl: './order-product-catalog.component.html',
   styleUrl: './order-product-catalog.component.css',
 })
@@ -21,7 +19,7 @@ export class OrderProductCatalogComponent {
   @Input() products: Product[] = [];
   @Input() categories: Category[] = [];
   @Input() searchControl: FormControl<string | null> = new FormControl('');
-  @Input() categoryControl: FormControl<string | null> = new FormControl('');
+  @Input() categoryControl: FormControl<any | null> = new FormControl('');
   @Input() draftQuantities: Record<string, number> = {};
 
   @Output() itemAdd = new EventEmitter<IOrderItem>();

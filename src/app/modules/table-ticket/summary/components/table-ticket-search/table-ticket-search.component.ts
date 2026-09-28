@@ -1,16 +1,15 @@
-import { AvButton, AvToggleGroup } from '@/app/components/angular-visuals/components/buttons';
-import { AvSelect } from '@/app/components/angular-visuals/components/forms';
 import { TableTicket } from '@/app/models/table-ticket';
 import { DialogService } from '@/app/services/dialog.service';
 import { TableTicketService } from '@/app/services/tableticket.service';
 import { Component, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AvButton, AvButtonGroup, AvButtonGroupItem, AvIcon, AvSelect } from 'angular-visuals';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-table-ticket-search.component',
-  imports: [ReactiveFormsModule, AvSelect, AvToggleGroup, AvButton],
+  imports: [ReactiveFormsModule, AvSelect, AvButtonGroup, AvButton, AvButtonGroupItem, AvIcon],
   templateUrl: './table-ticket-search.component.html',
   styleUrl: './table-ticket-search.component.css',
 })
@@ -51,6 +50,10 @@ export class TableTicketSearchComponent {
   onSearch = (term: string) => {
     this.search.patchValue(term);
   };
+
+  onTypeChange(type: any) {
+    this.type.setValue(type as string)
+  }
 
   loadTablesTickets() {
     this.tableTicketService.list(1, 10, {

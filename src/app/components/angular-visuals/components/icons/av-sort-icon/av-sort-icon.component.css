@@ -1,9 +1,0 @@
-@reference "tailwindcss";
-
-.av-sort-icon {
-  @apply inline-block select-none transition-transform duration-200;
-}
-
-.av-sort-icon--inactive {
-  @apply opacity-20;
-}

@@ -48,9 +48,16 @@
         Tipo de destino
       </span>
 
-      <av-toggle-group [options]="typeOptions" [formControl]="type" variant="orange" inactiveVariant="orange-outlined"
-        rounded="full" ariaLabel="Tipo de destino">
-      </av-toggle-group>
+      <av-button-group [value]="type.value" (selectionChange)="onTypeChange($event)" variant="orange" ariaLabel="Tipo de destino">
+        <button av-button avButtonGroupItem="M">
+          <span av-icon name="table_restaurant" type="material" size="sm"></span>
+          Mesa
+        </button>
+        <button av-button avButtonGroupItem="C">
+          <span av-icon name="confirmation_number" type="material" size="sm"></span>
+          Comanda
+        </button>
+      </av-button-group>
 
     </div>
 

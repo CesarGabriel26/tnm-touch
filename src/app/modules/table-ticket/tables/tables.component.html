@@ -5,35 +5,28 @@
     </div>
 
     <div class="flex-1 overflow-y-scroll">
-        <div av-grid [gap]=".2" [empty]="tables().length === 0" [cols]="{
-            'xs': 1,
-            'sm': 2,
-            'md': 3,
-            'lg': 3,
-            'xl': 5,
-            '2xl': 6
-            }">
+        <div av-grid [empty]="tables().length === 0" [cols]="{ 'xs': 3 }">
             @for (table of tables(); track table.id) {
             <div [routerLink]="`/table-ticket-summary/${table.id}`" class="relative min-w-0 h-[86px] overflow-hidden
-           rounded-xl border border-slate-200
-           bg-white shadow-sm
-           transition-all cursor-pointer
-           hover:shadow-md hover:-translate-y-[1px]
-           flex flex-col justify-between
-           pl-3 pr-2.5 py-2" [ngClass]="{
-        'bg-emerald-50/70 border-emerald-100': table.status === 'A',
-        'bg-red-50/70 border-red-100': table.status === 'O',
-        'bg-indigo-50/70 border-indigo-100': table.status === 'B',
-        'bg-slate-50 border-slate-200': table.status === 'C'
-    }">
+                rounded-xl border border-slate-200
+                bg-white shadow-sm
+                transition-all cursor-pointer
+                hover:shadow-md hover:-translate-y-[1px]
+                flex flex-col justify-between
+                pl-3 pr-2.5 py-2" [ngClass]="{
+                'bg-emerald-50/70 border-emerald-100': table.status === 'A',
+                'bg-red-50/70 border-red-100': table.status === 'O',
+                'bg-indigo-50/70 border-indigo-100': table.status === 'B',
+                'bg-slate-50 border-slate-200': table.status === 'C'
+            }">
 
                 <!-- Indicador permanente de status -->
                 <div class="absolute left-0 top-0 bottom-0 w-1" [ngClass]="{
-            'bg-emerald-500': table.status === 'A',
-            'bg-red-500': table.status === 'O',
-            'bg-indigo-500': table.status === 'B',
-            'bg-slate-400': table.status === 'C'
-        }">
+                    'bg-emerald-500': table.status === 'A',
+                    'bg-red-500': table.status === 'O',
+                    'bg-indigo-500': table.status === 'B',
+                    'bg-slate-400': table.status === 'C'
+                }">
                 </div>
 
                 <!-- Badge -->

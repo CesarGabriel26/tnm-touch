@@ -8,21 +8,20 @@
     @for (category of categories; track category.id) {
     <button type="button" class="shrink-0 rounded-full border px-4 py-2 text-sm font-semibold transition" [ngClass]="categoryControl.value === category.id
         ? 'border-orange-500 bg-orange-500 text-white shadow-md'
-        : 'border-slate-200 bg-white text-slate-600'" (click)="selectCategory(category.id)">
+        : 'border-slate-200 bg-(--av-color-surface-muted)'" (click)="selectCategory(category.id)">
       {{ category.name }}
     </button>
     }
   </div>
 
   <div class="min-h-0 flex-1 overflow-y-auto px-3 pb-3">
-    <div av-grid [empty]="products.length === 0" [gap]="0.75"
-      [cols]="{ 'xs': 1, 'sm': 1, 'md': 3, 'lg': 3, 'xl': 3, '2xl': 4 }">
+    <div av-grid [empty]="products.length === 0" [gap]="0.75" [cols]="{ 'xs': 3 }">
       @for (product of products; track productKey(product)) {
       <button type="button"
-        class="relative flex flex-col  gap-3 rounded-xl border bg-white p-2 text-left shadow-sm transition active:scale-[0.99]"
+        class="relative flex flex-col gap-3 rounded-xl border bg-(--av-color-surface-muted)  p-2 text-left shadow-sm transition active:scale-[0.99]"
         [ngClass]="draftQuantities[productKey(product)]
-          ? 'border-orange-400 ring-2 ring-orange-100'
-          : 'border-slate-200'" (click)="openProduct(product)">
+          ? 'border-orange-500 ring-2 ring-orange-500'
+          : 'border-(--av-color-border)'" (click)="openProduct(product)">
         @if (draftQuantities[productKey(product)]) {
         <span
           class="absolute right-2 top-2 z-10 flex h-7 min-w-7 items-center justify-center rounded-full bg-orange-500 px-2 text-xs font-black text-white">
@@ -36,25 +35,15 @@
 
         <div class="flex min-w-0 flex-1 flex-col justify-between">
           <div class="min-w-0">
-            <h2 class="line-clamp-2 text-sm font-black leading-tight text-slate-900">{{ product.name }}</h2>
-            <p class="mt-1 line-clamp-2 text-xs text-slate-500">{{ product.description || 'Sem descrição' }}</p>
+            <h2 class="line-clamp-2 text-sm font-black leading-tight">{{ product.name }}</h2>
+            <p class="mt-1 line-clamp-2 text-xs">{{ product.description || 'Sem descrição' }}</p>
           </div>
-
-          <!-- <div class="flex items-center justify-between gap-2">
-            <span class="text-sm font-black text-slate-900">
-              {{ productPrice(product) | currency: 'BRL' }}
-            </span>
-            <span class="flex h-9 w-9 items-center justify-center rounded-full bg-orange-500 text-white">
-              <span av-icon name="add" type="material" size="md"></span>
-            </span>
-          </div> -->
         </div>
       </button>
       }
 
       @if (products.length === 0) {
-      <div
-        class="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 p-6 text-slate-500">
+      <div class="flex flex-col items-center gap-2 rounded-xl border-2 border-dashed border-slate-300 p-6">
         <span av-icon name="search_off" type="material" size="xl"></span>
         <span class="text-sm font-semibold">Nenhum produto encontrado</span>
       </div>
@@ -63,4 +52,5 @@
   </div>
 </div>
 
-  <app-order-product-build [visible]="selectedProduct() !== null" [product]="selectedProduct()" (close)="closeProduct()" (itemAdd)="onItemAdd($event)" />
+<app-order-product-build [visible]="selectedProduct() !== null" [product]="selectedProduct()" (close)="closeProduct()"
+  (itemAdd)="onItemAdd($event)" />

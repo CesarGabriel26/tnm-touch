@@ -1,7 +1,7 @@
 import { computed, Injectable, OnDestroy, signal } from '@angular/core';
 
 const STORAGE_KEY = '@lastSyncAt';
-const OFFLINE_LIMIT_MS = 30 * 60 * 1000; // 30 minutes
+const OFFLINE_LIMIT_MS = 3 * 60 * 1000; // 30 minutes
 const CHECK_INTERVAL_MS = 30 * 1000;     // check every 30 seconds
 
 @Injectable({

@@ -1,4 +1,6 @@
-<router-outlet />
+<div [class.offline-readonly]="offlineLimit.isBlocked()">
+  <router-outlet />
+</div>
 <loading-overlay />
 <app-dialog />
 
@@ -22,3 +24,26 @@
   </section>
 </div>
 }
+
+@if (offlineLimit.isBlocked()) {
+<div class="offline-limit-overlay"
+  role="alertdialog" aria-modal="true" aria-labelledby="offline-limit-title">
+  <div class="offline-limit-card">
+    <div class="offline-limit-icon-wrap">
+      <span class="material-symbols-outlined offline-limit-icon">cloud_off</span>
+    </div>
+    <h1 id="offline-limit-title" class="offline-limit-title">
+      Reconexão necessária
+    </h1>
+    <p class="offline-limit-desc">
+      O aplicativo está sem sincronização há
+      <strong>{{ offlineLimit.minutesSinceSync() }} min</strong>.
+      Reconecte-se a rede local para continuar usando o PDV.
+    </p>
+    <p class="offline-limit-sub">
+      Você ainda pode visualizar os dados em cache, mas não é possível registrar novos pedidos até restabelecer a conexão.
+    </p>
+  </div>
+</div>
+}
+

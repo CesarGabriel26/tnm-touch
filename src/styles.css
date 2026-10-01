@@ -14,3 +14,101 @@ html, body {
     height: 100dvh;
     width: 100dvw;
 }
+
+/* ── Offline read-only wrapper ───────────────────────────────────────── */
+.offline-readonly {
+    pointer-events: none;
+    user-select: none;
+    filter: grayscale(30%) brightness(0.92);
+    transition: filter 0.4s ease;
+}
+
+/* ── Offline-limit blocked overlay ──────────────────────────────────── */
+.offline-limit-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgba(2, 6, 23, 0.65);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    animation: offline-fade-in 0.35s ease both;
+}
+
+.offline-limit-card {
+    width: 100%;
+    max-width: 26rem;
+    border-radius: 1.25rem;
+    padding: 2.25rem 2rem 2rem;
+    text-align: center;
+    background: linear-gradient(160deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid rgba(255 255 255 / 0.08);
+    box-shadow: 0 32px 64px rgba(0,0,0,0.5), 0 0 0 1px rgba(251,113,133,0.15);
+    animation: offline-slide-up 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    pointer-events: all;
+}
+
+.offline-limit-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 50%;
+    background: rgba(239, 68, 68, 0.15);
+    border: 2px solid rgba(239, 68, 68, 0.35);
+    margin-bottom: 1.25rem;
+    animation: offline-pulse 2.5s ease-in-out infinite;
+}
+
+.offline-limit-icon {
+    font-size: 2.25rem !important;
+    color: #f87171;
+}
+
+.offline-limit-title {
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 0.75rem;
+    line-height: 1.3;
+}
+
+.offline-limit-desc {
+    font-size: 0.9375rem;
+    color: #94a3b8;
+    line-height: 1.65;
+    margin-bottom: 0.625rem;
+}
+
+.offline-limit-desc strong {
+    color: #fca5a5;
+    font-weight: 600;
+}
+
+.offline-limit-sub {
+    font-size: 0.8125rem;
+    color: #64748b;
+    line-height: 1.6;
+    margin-top: 0.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255 255 255 / 0.06);
+}
+
+@keyframes offline-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+@keyframes offline-slide-up {
+    from { opacity: 0; transform: translateY(24px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes offline-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.25); }
+    50%       { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+}

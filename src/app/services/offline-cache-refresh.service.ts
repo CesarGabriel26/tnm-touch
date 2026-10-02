@@ -4,7 +4,6 @@ import { ProductType } from '../models/order/catalogItem';
 import { CategoryService } from './category.service';
 import { ComplementsService } from './complements.service';
 import { ConsumptionsService } from './consumption.service';
-import { OfflineLimitService } from './offline-limit.service';
 import { ProductService } from './product.service';
 import { StorageService } from './storage.service';
 import { TableTicketService } from './tableticket.service';
@@ -26,7 +25,6 @@ export class OfflineCacheRefreshService {
     private readonly complementsService: ComplementsService,
     private readonly variationsService: VariationsService,
     private readonly consumptionsService: ConsumptionsService,
-    private readonly offlineLimitService: OfflineLimitService,
   ) { }
 
   start(intervalMs = this.storageService.cacheRefreshIntervalMs) {
@@ -51,7 +49,7 @@ export class OfflineCacheRefreshService {
     this.refreshing = true;
 
     try {
-      const results = await Promise.allSettled([
+      await Promise.allSettled([
         firstValueFrom(this.categoryService.getAll(undefined, { forceRefresh: true })),
         firstValueFrom(this.productService.getAll({
           isActive: true,
@@ -70,11 +68,6 @@ export class OfflineCacheRefreshService {
       ]);
 
       await this.refreshOpenConsumptions();
-
-      const anyFulfilled = results.some((r) => r.status === 'fulfilled');
-      if (anyFulfilled) {
-        this.offlineLimitService.recordSync();
-      }
     } finally {
       this.refreshing = false;
     }

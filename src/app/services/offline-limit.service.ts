@@ -1,44 +1,50 @@
 import { computed, Injectable, OnDestroy, signal } from '@angular/core';
+import { StorageService } from './storage.service';
 
-const STORAGE_KEY = '@lastSyncAt';
-const OFFLINE_LIMIT_MS = 3 * 60 * 1000; // 30 minutes
-const CHECK_INTERVAL_MS = 30 * 1000;     // check every 30 seconds
+/** Pedido pendente há mais que este tempo bloqueia o app. */
+const PENDING_LIMIT_MS = 3 * 60 * 1000; // 3 minutos
+
+/** Frequência da verificação da fila. */
+const CHECK_INTERVAL_MS = 15 * 1000; // a cada 15 segundos
 
 @Injectable({
   providedIn: 'root',
 })
 export class OfflineLimitService implements OnDestroy {
-  private readonly lastSyncAt = signal<number | null>(this.readStoredLastSync());
+  /**
+   * Timestamp (epoch ms) do pedido pendente mais antigo na fila.
+   * null = sem pedidos pendentes não-enviados.
+   */
+  private readonly oldestPendingAt = signal<number | null>(null);
 
+  /**
+   * true quando existe pedido pendente na fila há mais de PENDING_LIMIT_MS.
+   */
   readonly isBlocked = computed(() => {
-    const last = this.lastSyncAt();
-    if (last === null) return false;
-    return Date.now() - last > OFFLINE_LIMIT_MS;
+    const oldest = this.oldestPendingAt();
+    if (oldest === null) return false;
+    return Date.now() - oldest > PENDING_LIMIT_MS;
   });
 
+  /** Minutos desde que o pedido pendente mais antigo foi criado. */
   readonly minutesSinceSync = computed(() => {
-    const last = this.lastSyncAt();
-    if (last === null) return 0;
-    return Math.floor((Date.now() - last) / 60_000);
+    const oldest = this.oldestPendingAt();
+    if (oldest === null) return 0;
+    return Math.floor((Date.now() - oldest) / 60_000);
   });
 
   private intervalId: ReturnType<typeof setInterval> | null = null;
 
-  recordSync(): void {
-    const now = Date.now();
-    this.lastSyncAt.set(now);
-    try {
-      localStorage.setItem(STORAGE_KEY, String(now));
-    } catch { /* ignore  errors */ }
-  }
+  constructor(private readonly storageService: StorageService) {}
 
+  /** Inicia a verificação periódica da fila (idempotente). */
   start(): void {
     if (this.intervalId !== null) return;
 
-    this.intervalId = setInterval(() => {
-      const stored = this.readStoredLastSync();
-      this.lastSyncAt.set(stored);
-    }, CHECK_INTERVAL_MS);
+    // Verifica imediatamente ao iniciar
+    void this.checkQueue();
+
+    this.intervalId = setInterval(() => void this.checkQueue(), CHECK_INTERVAL_MS);
   }
 
   stop(): void {
@@ -51,11 +57,38 @@ export class OfflineLimitService implements OnDestroy {
     this.stop();
   }
 
-  private readStoredLastSync(): number | null {
-    if (typeof localStorage === 'undefined') return null;
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    const parsed = Number(raw);
-    return isNaN(parsed) ? null : parsed;
+  /**
+   * Consulta a fila e atualiza `oldestPendingAt` com o `createdAt`
+   * do pedido não-enviado mais antigo.
+   *
+   * Fluxo:
+   *  - Pedido criado → vai para a fila (status: pending)
+   *  - Sync tenta enviar mas não acha servidor → permanece pending/failed
+   *  - Após 3 min sem conseguir enviar → isBlocked = true
+   *  - Quando o servidor volta, sync envia e remove da fila → isBlocked = false
+   */
+  async checkQueue(): Promise<void> {
+    try {
+      const [pending, processing, failed] = await Promise.all([
+        this.storageService.getQueuedOrders('pending'),
+        this.storageService.getQueuedOrders('processing'),
+        this.storageService.getQueuedOrders('failed'),
+      ]);
+
+      const all = [...pending, ...processing, ...failed];
+
+      if (all.length === 0) {
+        this.oldestPendingAt.set(null);
+        return;
+      }
+
+      const oldestMs = Math.min(
+        ...all.map((o) => new Date(o.createdAt).getTime())
+      );
+
+      this.oldestPendingAt.set(oldestMs);
+    } catch {
+      // Não altera o estado em caso de erro de leitura do IndexedDB
+    }
   }
 }
